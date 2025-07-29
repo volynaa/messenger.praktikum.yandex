@@ -81,3 +81,4 @@ README — первое, что прочитает пользователь, к�
 - «[Вебпак](https://github.com/webpack/webpack)»,
 - «[ТДенгине](https://github.com/taosdata/TDengine)»,
 - «[Соул-хантинг](https://github.com/vladpereskokov/soul-hunting/)».
+ New Line
