@@ -1,0 +1,61 @@
+<div class="app">
+    <div class="chats-page">
+        <div class="chats-list">
+            <div class="button-profile">
+                <label>Профиль</label>
+                <img src="/arrow-right.svg" id="arrowIcon" alt="Стрелка вправо">
+            </div>
+            <input class="chat-search">
+            <div id="chat-container">
+                {{#if chats.length}}
+                    {{# each chats}}
+                        <div class="chat-item" id="{{id}}">
+
+                            {{#if avatar.length}}
+                                <img src="{{avatar}}">
+                            {{else}}
+                                <div class="chat-avatar"> </div>
+                            {{/if}}
+
+                            <div class="chat-info">
+                                <span class="chat-name">{{name}}</span>
+                                <span class="last-message">{{lastMessage}}</span>
+                            </div>
+                            <div class="chat-time">{{time}}</div>
+                            {{#if countNewMessage}}
+                                <div class="chat-countMessage">{{countNewMessage}}</div>
+                            {{/if}}
+                        </div>
+                    {{/each}}
+                {{/if}}
+            </div>
+        </div>
+        <div class="chat-message {{#if selected}}chat-message--selected{{/if}}">
+            {{#if selected}}
+                <div class="chat-message-header">
+                    {{#if avatar.length}}
+                        <img src="{{avatar}}">
+                    {{else}}
+                        <div class="chat-message-avatar"> </div>
+                    {{/if}}
+                    <span class="chat-name">{{selected.name}}</span>
+                    <img src="/burger-menu.svg">
+                </div>
+                <div class="chat-message-body">
+                    {{# each selected.message}}
+                        {{#if type}}
+                            <div class="chat-message-body-incoming">{{text}}
+                                <span>gf</span>
+                            </div>
+                        {{else}}
+                            <div class="chat-message-body-outgoing">{{text}}</div>
+                        {{/if}}
+                    {{/each}}
+                </div>
+            {{else}}
+                <label>Выберите чат чтобы отправить сообщение</label>
+            {{/if}}
+        </div>
+    </div>
+
+</div>
