@@ -39,16 +39,19 @@
                         <div class="chat-message-avatar"> </div>
                     {{/if}}
                     <span class="chat-name">{{selected.name}}</span>
-                    <img src="/burger-menu.svg">
+                    <img class="burger-menu" src="/burger-menu.svg">
                 </div>
                 <div class="chat-message-body">
                     {{# each selected.message}}
                         {{#if type}}
                             <div class="chat-message-body-incoming">{{text}}
-                                <span>gf</span>
+                                <img src="/sent.svg">
+                                <span class="chat-message-body-time">{{time}}</span>
                             </div>
                         {{else}}
-                            <div class="chat-message-body-outgoing">{{text}}</div>
+                            <div class="chat-message-body-outgoing">{{text}}
+                                <span class="chat-message-body-time">{{time}}</span>
+                            </div>
                         {{/if}}
                     {{/each}}
                 </div>

@@ -194,15 +194,30 @@ body {
         color: #1E1E1E;
         max-width: 380px;
         width: fit-content;
+        position: relative;
+        .chat-message-body-time{
+            font-size: 9px;
+            line-height: 9px;
+            color: #999999;
+        }
         .chat-message-body-outgoing{
             background-color: #F8F8F8;
             padding: 11px;
             margin-left: 20px;
 
+            .chat-message-body-time{
+                color: #999999;
+            }
         }
-        .chat-message-body-incoming{
-           background-color: #E4EDFD;
+        .chat-message-body-incoming {
+            background-color: #E4EDFD;
             padding: 11px;
+            img{
+                margin-left: 15px;
+            }
+            .chat-message-body-time {
+                color: #3369F3;
+            }
         }
     }
     .chat-message-avatar{
@@ -213,11 +228,7 @@ body {
         border-radius: 24px;
         margin-right: 10px;
     }
-    img{
-        margin-left: auto;
-        margin-right: 11px;
-        cursor: pointer;
-    }
+
 }
 
 .chat-name{
@@ -225,4 +236,9 @@ body {
     font-size: 13px;
     line-height: 13px;
     color: #1E1E1E;
+}
+.burger-menu{
+    margin-left: auto;
+    margin-right: 11px;
+    cursor: pointer;
 }
