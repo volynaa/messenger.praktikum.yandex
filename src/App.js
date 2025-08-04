@@ -24,6 +24,7 @@ export default class App{
         this.appElement = document.getElementById('app');
     }
 
+
     render(){
         let template;
         console.log(this.state.currentPage)
