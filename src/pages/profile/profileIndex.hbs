@@ -1,0 +1,48 @@
+<div class="app">
+    <img id="back-profile" src="/arrow-right-blue.svg" class="button-back">
+    <div class="profile-container">
+        <div class="profile-photo">
+            <img src="/photo.svg">
+        </div>
+        <div class="title">{{profile.first_name}}</div>
+        <div class="form-group">
+            <span class="left-element">Почта</span>
+            <span class="right-element">{{profile.mail}}</span>
+        </div>
+
+        <div class="form-group">
+            <span class="left-element">Логин</span>
+            <span class="right-element">{{profile.login}}</span>
+        </div>
+
+        <div class="form-group">
+            <span class="left-element">Имя</span>
+            <span class="right-element">{{profile.first_name}}</span>
+        </div>
+
+        <div class="form-group">
+            <span class="left-element">Фамилия</span>
+            <span class="right-element">{{profile.second_name}}</span>
+        </div>
+
+        <div class="form-group">
+            <span class="left-element">Имя в чате</span>
+            <span class="right-element">{{profile.display_name}}</span>
+        </div>
+
+        <div class="form-group">
+            <span class="left-element">Телефон</span>
+            <span class="right-element">{{profile.phone}}</span>
+        </div>
+
+        <div class="form-group mt-50 color-blue" id="editData">
+            <span class="left-element">Изменить данные</span>
+        </div>
+        <div class="form-group color-blue" id="editPassword">
+            <span class="left-element">Изменить пароль</span>
+        </div>
+        <div class="form-group color-red">
+            <span class="left-element">Выйти</span>
+        </div>
+    </div>
+</div>

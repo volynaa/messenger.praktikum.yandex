@@ -1,11 +1,11 @@
 <div class="app">
     <div class="chats-page">
         <div class="chats-list">
-            <div class="button-profile">
+            <div class="button-profile" id="profile">
                 <label>Профиль</label>
                 <img src="/arrow-right.svg" id="arrowIcon" alt="Стрелка вправо">
             </div>
-            <input class="chat-search">
+            <input class="chat-search" placeholder="Поиск">
             <div id="chat-container">
                 {{#if chats.length}}
                     {{# each chats}}
@@ -54,6 +54,11 @@
                             </div>
                         {{/if}}
                     {{/each}}
+                </div>
+                <div class="chat-message-footer">
+                    <img src="/clip.svg">
+                    <input id="message" class="chat-message-footer--input" placeholder="Сообщение">
+                    <img src="/arrow-right-blue.svg">
                 </div>
             {{else}}
                 <label>Выберите чат чтобы отправить сообщение</label>

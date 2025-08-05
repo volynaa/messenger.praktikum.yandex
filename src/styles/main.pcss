@@ -1,8 +1,5 @@
 body {
     font-family: Arial, sans-serif;
-    line-height: 1.6;
-    color: var(--text-color);
-    max-width: 800px;
 }
 .login-page {
     display: flex;
@@ -10,6 +7,9 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
+}
+.register-container{
+    height: 615px !important;
 }
 .login-container{
     box-shadow: 0 0 6px 0 #00000024;
@@ -20,20 +20,7 @@ body {
     align-items: center;
     flex-direction: column;
     position: relative;
-    .input-container{
-        margin: 0 30px;
 
-        Input{
-            height: 27px;
-            border-color: #3369F3;
-            width: 280px;
-            border-left: none;
-            border-right: none;
-            border-top: none;
-
-
-        }
-    }
     .button-container{
         display: flex;
         flex-direction: column;
@@ -41,25 +28,12 @@ body {
         gap: 14px;
         position: absolute;
         bottom: 20px;
-        .button{
-            width: 280px;
-            height: 37px;
-            border-radius: 8px;
-            opacity: 1;
-            background-color: #3369F3;
-            border: none;
-            font-weight: 500;
-            font-size: 13px;
-            line-height: 13px;
-            color: #FFFFFF;
-            cursor: pointer;
-        }
-
     }
 
 }
 .mt-30{margin-top: 30px;}
 .mb-40{margin-bottom: 40px;}
+.mt-50{margin-top: 50px;}
 .title{
     font-weight: 500;
     font-size: 20px;
@@ -171,13 +145,14 @@ body {
     display: flex;
 }
 .chat-message{
-    min-width: calc(100vw - 310px);
     font-weight: 500;
     font-size: 12px;
     line-height: 12px;
     color: #999999;
     flex: 1;
-
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     .chat-message-header{
         height: 54px;
@@ -192,9 +167,11 @@ body {
         font-size: 12px;
         line-height: 15px;
         color: #1E1E1E;
-        max-width: 380px;
-        width: fit-content;
         position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        margin-top: 48px;
         .chat-message-body-time{
             font-size: 9px;
             line-height: 9px;
@@ -204,6 +181,7 @@ body {
             background-color: #F8F8F8;
             padding: 11px;
             margin-left: 20px;
+            width: fit-content;
 
             .chat-message-body-time{
                 color: #999999;
@@ -212,12 +190,35 @@ body {
         .chat-message-body-incoming {
             background-color: #E4EDFD;
             padding: 11px;
+            margin-left: auto;
+            width: fit-content;
             img{
                 margin-left: 15px;
             }
             .chat-message-body-time {
                 color: #3369F3;
             }
+        }
+    }
+    .chat-message-footer{
+        height: 54px;
+        border-top: 1px solid #EAEAEA;
+        position: absolute;
+        bottom: 0;
+        width: calc(100vw - 350px);
+        margin: 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        img{
+            cursor: pointer;
+        }
+        .chat-message-footer--input{
+            width: 100%;
+            height: 32px;
+            border-radius: 30px;
+            background: #EFEFEF;
+            border: none;
         }
     }
     .chat-message-avatar{
@@ -230,7 +231,9 @@ body {
     }
 
 }
-
+.chat-message--selected{
+    display: block;
+}
 .chat-name{
     font-weight: 600;
     font-size: 13px;
@@ -241,4 +244,133 @@ body {
     margin-left: auto;
     margin-right: 11px;
     cursor: pointer;
+}
+.pageError {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+
+    .title{
+        font-size: 40px;
+        line-height: 40px;
+        margin-bottom: 20px;
+    }
+    .text{
+        font-size: 20px;
+        line-height: 20px;
+        margin-bottom: 70px;
+    }
+    Button{
+        background: none;
+        border: none;
+        font-size: 11px;
+        line-height: 11px;
+        color: #3369F3;
+        cursor: pointer;
+    }
+
+}
+.profile-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 90vh;
+    .profile-photo{
+        width: 130px;
+        height: 130px;
+        border-radius: 100px;
+        background-color: #EFEFEF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .title{
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 16px;
+        margin-bottom: 50px;
+        margin-top: 20px;
+    }
+}
+.form-group{
+    max-width: 510px;
+    width: 100%;
+    border-bottom: 1px solid #EAEAEA;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    .left-element{
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 13px;
+    }
+    .right-element{
+        font-weight: 500;
+        font-size: 13px;
+        line-height: 13px;
+        color: #999999;
+    }
+}
+.color-blue{
+    color: #3369F3;
+    cursor: pointer;
+}
+.color-red{
+    color: #FF0000;
+    cursor: pointer;
+}
+.input-container{
+    margin: 0 30px;
+    Input{
+        height: 27px;
+        border-color: #3369F3;
+        width: 280px;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        &:focus{outline: none;}
+    }
+}
+.profile-edit{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+.flex-column{
+    display: flex;
+    flex-direction: column;
+}
+.button{
+    width: 280px;
+    height: 37px;
+    border-radius: 8px;
+    opacity: 1;
+    background-color: #3369F3;
+    border: none;
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 13px;
+    color: #FFFFFF;
+    cursor: pointer;
+}
+.button-back{
+    cursor: pointer;
+    transform: rotate(180deg);
+}
+input{
+    &::placeholder {
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 12px;
+        color: #999999;
+    }
+    &:focus{
+        outline: none;
+    }
 }
