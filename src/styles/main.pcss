@@ -1,11 +1,12 @@
 body {
     font-family: Arial, sans-serif;
+    font-weight: 500;
 }
 .login-page {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 95vh;
     margin: 0;
 }
 .register-container{
@@ -34,19 +35,12 @@ body {
 .mt-30{margin-top: 30px;}
 .mb-40{margin-bottom: 40px;}
 .mt-50{margin-top: 50px;}
-.title{
-    font-weight: 500;
-    font-size: 20px;
-    line-height: 20px;
-}
 .grey-text{
-    font-weight: 500;
     font-size: 9px;
     line-height: 9px;
     color: #999999;
 }
 .blue-text{
-    font-weight: 500;
     font-size: 11px;
     line-height: 11px;
     color: #3369F3;
@@ -55,7 +49,7 @@ body {
 .chats-list{
     border-right: 1px solid #EAEAEA;
     width: 310px;
-    height: 100vh;
+    height: 95vh;
     .button-profile{
         display: flex;
         gap: 8px;
@@ -63,7 +57,6 @@ body {
         margin-right: 10px;
         cursor: pointer;
         label{
-            font-weight: 500;
             font-size: 12px;
             line-height: 12px;
             color: #999999;
@@ -100,7 +93,6 @@ body {
             width: 310px;
 
             .last-message{
-                font-weight: 500;
                 font-size: 12px;
                 line-height: 15px;
                 color: #999999;
@@ -114,7 +106,6 @@ body {
             border-radius: 24px;
         }
         .chat-time{
-            font-weight: 500;
             font-size: 9px;
             line-height: 13px;
             color: #999999;
@@ -123,7 +114,6 @@ body {
             right: 10px;
         }
         .chat-countMessage{
-            font-weight: 500;
             font-size: 11px;
             line-height: 12px;
             color: #FFFFFF;
@@ -145,7 +135,6 @@ body {
     display: flex;
 }
 .chat-message{
-    font-weight: 500;
     font-size: 12px;
     line-height: 12px;
     color: #999999;
@@ -163,7 +152,6 @@ body {
         align-items: center;
     }
     .chat-message-body{
-        font-weight: 500;
         font-size: 12px;
         line-height: 15px;
         color: #1E1E1E;
@@ -246,7 +234,6 @@ body {
     cursor: pointer;
 }
 .pageError {
-    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -305,12 +292,10 @@ body {
     align-items: center;
     padding: 10px 0;
     .left-element{
-        font-weight: 500;
         font-size: 13px;
         line-height: 13px;
     }
     .right-element{
-        font-weight: 500;
         font-size: 13px;
         line-height: 13px;
         color: #999999;
@@ -353,7 +338,6 @@ body {
     opacity: 1;
     background-color: #3369F3;
     border: none;
-    font-weight: 500;
     font-size: 13px;
     line-height: 13px;
     color: #FFFFFF;
@@ -364,8 +348,8 @@ body {
     transform: rotate(180deg);
 }
 input{
+    padding-left: 10px;
     &::placeholder {
-        font-weight: 500;
         font-size: 12px;
         line-height: 12px;
         color: #999999;
@@ -374,3 +358,7 @@ input{
         outline: none;
     }
 }
+h1, h2{
+    font-weight: 500;
+}
+

@@ -10,7 +10,7 @@ Handlebars.registerPartial('Button', Button)
 export default class App{
     constructor() {
         this.state = {
-            currentPage: 'profileIndex',
+            currentPage: 'login',
             chats: [
                 { id: "1", name: "Андрей", avatar: "", lastMessage:'Привет!',time:'10:49', countNewMessage: 2, message:[{text:'Привет!',type:0,time:'11:56'},{text:'Здравствуй!',type: 1,time:'11:58'}]  },
                 { id: "2", name: "Никита", avatar: "", lastMessage:'',time:'11:24', countNewMessage: 0,message:[] }
@@ -31,13 +31,12 @@ export default class App{
 
     render(){
         let template;
-        console.log(this.state.currentPage)
-        if (this.state.currentPage === 'loginPage'){
-            template = Handlebars.compile(Pages.loginPage)
+        if (this.state.currentPage === 'login'){
+            template = Handlebars.compile(Pages.login)
             this.appElement.innerHTML = template()
         }
-        else if (this.state.currentPage === 'chatsPage'){
-            template = Handlebars.compile(Pages.chatsPage)
+        else if (this.state.currentPage === 'chats'){
+            template = Handlebars.compile(Pages.chats)
             this.appElement.innerHTML = template({chats: this.state.chats, selected: this.state.selectedChat})
         }
         else if (this.state.currentPage === 'register'){
@@ -85,7 +84,7 @@ export default class App{
         const backButton = document.getElementById('back-profile');
         if (backButton) {
             backButton.addEventListener('click', (e) => {
-                this.changePage('chatsPage');
+                this.changePage('chats');
             });
         }
         const backEditButton = document.getElementById('back-edit');
