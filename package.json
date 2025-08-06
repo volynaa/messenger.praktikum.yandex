@@ -4,15 +4,20 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite",
+    "dev": "vite",
+    "start": "vite build && node server.cjs",
     "build": "vite build",
     "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "devDependencies": {
     "vite": "^7.0.4",
     "vite-plugin-handlebars": "^2.0.0"
   },
   "dependencies": {
+    "express": "^5.1.0",
     "handlebars": "^4.7.8"
   }
 }
