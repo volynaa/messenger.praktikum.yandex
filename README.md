@@ -15,5 +15,5 @@
  ## Ссылки:
 
  ## На веб-приложение:
- 
- Netlify: http://volyna.com/
+
+Netlify: https://sdfgshd.netlify.app/
