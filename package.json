@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite",
+    "dev": "vite",
+    "start": "vite && node server.js",
     "build": "vite build",
     "preview": "vite preview"
   },
@@ -16,6 +17,7 @@
     "vite-plugin-handlebars": "^2.0.0"
   },
   "dependencies": {
+    "express": "^5.1.0",
     "handlebars": "^4.7.8"
   }
 }
