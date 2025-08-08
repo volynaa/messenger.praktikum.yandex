@@ -1,41 +1,41 @@
 <div class="app">
-    <div class="login-page">
+    <main class="login-page">
         <div class="login-container register-container">
             <h2 class="mt-30 mb-40">Регистрация</h2>
-            <div class="input-container">
-                <label class="grey-text">Почта</label>
+            <form class="input-container">
+                <label for="email" class="grey-text">Почта</label>
                 {{> Input id="email" type="text" placeholder="Почта"}}
-            </div>
+            </form>
 
-            <div class="input-container">
-                <label class="grey-text">Логин</label>
+            <form class="input-container">
+                <label for="login" class="grey-text">Логин</label>
                 {{> Input id="login" type="text" placeholder="Логин"}}
-            </div>
+            </form>
 
-            <div class="input-container">
-                <label class="grey-text">Имя</label>
+            <form class="input-container">
+                <label for="first_name" class="grey-text">Имя</label>
                 {{> Input id="first_name" type="text" placeholder="Имя"}}
-            </div>
+            </form>
 
-            <div class="input-container">
-                <label class="grey-text">Фамилия</label>
+            <form class="input-container">
+                <label for="second_name" class="grey-text">Фамилия</label>
                 {{> Input id="second_name" type="text" placeholder="Фамилия"}}
-            </div>
+            </form>
 
-            <div class="input-container">
-                <label class="grey-text">Телефон</label>
+            <form class="input-container">
+                <label for="phone" class="grey-text">Телефон</label>
                 {{> Input id="phone" type="text" placeholder="Телефон"}}
-            </div>
+            </form>
 
-            <div class="input-container">
-                <label class="grey-text">Пароль</label>
+            <form class="input-container">
+                <label for="password" class="grey-text">Пароль</label>
                 {{> Input id="password" type="text" placeholder="Пароль"}}
-            </div>
+            </form>
 
-            <div class="input-container">
-                <label class="grey-text">Пароль (еще раз)</label>
+            <form class="input-container">
+                <label for="doublePassword" class="grey-text">Пароль (еще раз)</label>
                 {{> Input id="doublePassword" type="text" placeholder="Пароль (еще раз)"}}
-            </div>
+            </form>
 
             <div class="button-container">
                 <div>{{> Button id="register" text="Зарегистрироваться" dataPage="login"}}</div>
@@ -44,5 +44,5 @@
 
 
         </div>
-    </div>
+    </main>
 </div>
