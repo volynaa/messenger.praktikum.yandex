@@ -1,10 +1,12 @@
 <div class="app">
-    <img id="back-profile" src="/arrow-right-blue.svg" class="button-back">
-    <div class="profile-container">
-        <div class="profile-photo">
-            <img src="/photo.svg">
-        </div>
-        <div class="title">{{profile.first_name}}</div>
+    <button id="back-profile" class="button-back" aria-label="Вернуться назад">
+        <img src="/arrow-right-blue.svg" alt="">
+    </button>
+    <main class="profile-container">
+        <figure class="profile-photo">
+            <img src="/photo.svg" alt="Аватар пользователя">
+        </figure>
+        <h2 class="title">{{profile.first_name}}</h2>
         <div class="form-group">
             <span class="left-element">Почта</span>
             <span class="right-element">{{profile.mail}}</span>
@@ -44,5 +46,5 @@
         <div class="form-group color-red">
             <span class="left-element">Выйти</span>
         </div>
-    </div>
+    </main>
 </div>
