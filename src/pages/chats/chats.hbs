@@ -60,12 +60,12 @@
                     <button type="button" aria-label="Прикрепить файл">
                         <img src="/clip.svg" alt="">
                     </button>
-                    <form>
+                    <form class="flex">
                         <input id="message" class="chat-message-footer--input" placeholder="Сообщение" aria-label="Текст сообщения">
+                        <button type="submit" aria-label="Отправить сообщение">
+                            <img src="/arrow-right-blue.svg" alt="">
+                        </button>
                     </form>
-                    <button type="submit" aria-label="Отправить сообщение">
-                        <img src="/arrow-right-blue.svg" alt="">
-                    </button>
                 </footer>
             {{else}}
                 <label>Выберите чат чтобы отправить сообщение</label>
