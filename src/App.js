@@ -10,7 +10,7 @@ Handlebars.registerPartial('Button', Button)
 export default class App{
     constructor() {
         this.state = {
-            currentPage: 'login',
+            currentPage: 'chats',
             chats: [
                 { id: "1", name: "Андрей", avatar: "", lastMessage:'Привет!',time:'10:49', countNewMessage: 2, message:[{text:'Привет!',type:0,time:'11:56'},{text:'Здравствуй!',type: 1,time:'11:58'}]  },
                 { id: "2", name: "Никита", avatar: "", lastMessage:'',time:'11:24', countNewMessage: 0,message:[] }
