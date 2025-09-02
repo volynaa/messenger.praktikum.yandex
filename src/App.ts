@@ -1,8 +1,8 @@
 import Handlebars from 'handlebars';
 import * as Pages from './pages';
 
-import Input from "./components/Input.js";
-import Button from "./components/Button.js";
+import Input from "./components/Input";
+import Button from "./components/Button";
 
 Handlebars.registerPartial('Input', Input)
 Handlebars.registerPartial('Button', Button)
