@@ -1,0 +1,75 @@
+<div class="app">
+    <main class="chats-page">
+        <aside class="chats-list">
+            <button class="button-profile" id="profile" aria-label="Профиль">
+                <span>Профиль</span>
+                <img src="/arrow-right.svg" id="arrowIcon" alt="">
+            </button>
+            <form role="search">
+                <input class="chat-search" placeholder="Поиск" aria-label="Поиск чатов">
+            </form>
+            <section id="chat-container" aria-label="Список чатов">
+                {{#if chats.length}}
+                    {{# each chats}}
+                        <div class="chat-item" id="{{id}}">
+                            {{#if avatar.length}}
+                                <img src="{{avatar}}" alt="Аватар пользователя">
+                            {{else}}
+                                <div class="chat-avatar"> </div>
+                            {{/if}}
+
+                            <div class="chat-info">
+                                <h2 class="chat-name">{{name}}</h2>
+                                <span class="last-message">{{lastMessage}}</span>
+                            </div>
+                            <div class="chat-time">{{time}}</div>
+                            {{#if countNewMessage}}
+                                <div class="chat-countMessage">{{countNewMessage}}</div>
+                            {{/if}}
+                        </div>
+                    {{/each}}
+                {{/if}}
+            </section>
+        </aside>
+        <section class="chat-message {{#if selected}}chat-message--selected{{/if}}">
+            {{#if selected}}
+                <header class="chat-message-header">
+                    {{#if avatar.length}}
+                        <img src="{{avatar}}" alt="Аватар пользователя">
+                    {{else}}
+                        <div class="chat-message-avatar"> </div>
+                    {{/if}}
+                    <h2 class="chat-name">{{selected.name}}</h2>
+                    <img class="burger-menu" src="/burger-menu.svg" alt="Меню">
+                </header>
+                <section class="chat-message-body">
+                    {{# each selected.message}}
+                        {{#if type}}
+                            <div class="chat-message-body-incoming">{{text}}
+                                <img src="/sent.svg" alt="Доставлено">
+                                <span class="chat-message-body-time">{{time}}</span>
+                            </div>
+                        {{else}}
+                            <div class="chat-message-body-outgoing">{{text}}
+                                <span class="chat-message-body-time">{{time}}</span>
+                            </div>
+                        {{/if}}
+                    {{/each}}
+                </section>
+                <footer class="chat-message-footer">
+                    <button type="button" aria-label="Прикрепить файл">
+                        <img src="/clip.svg" alt="">
+                    </button>
+                    <form class="flex">
+                        <input id="message" class="chat-message-footer--input" placeholder="Сообщение" aria-label="Текст сообщения">
+                        <button type="submit" aria-label="Отправить сообщение">
+                            <img src="/arrow-right-blue.svg" alt="">
+                        </button>
+                    </form>
+                </footer>
+            {{else}}
+                <label>Выберите чат чтобы отправить сообщение</label>
+            {{/if}}
+        </section>
+    </main>
+</div>

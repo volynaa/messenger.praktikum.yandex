@@ -1,0 +1,43 @@
+<div class="app">
+    <img id="back-edit" src="/arrow-right-blue.svg" class="button-back" alt="Вернуться назад">
+    <main class="profile-container">
+        <figure class="profile-photo">
+            <img src="/photo.svg" alt="Аватар пользователя">
+        </figure>
+        <div class="profile-edit">
+            <form class="input-container flex-column">
+                <div class="flex-column">
+                    <label class="grey-text">Почта</label>
+                    {{> Input id="email" type="text" value=profile.mail placeholder="Почта"}}
+                </div>
+
+                <div class="flex-column">
+                    <label class="grey-text">Логин</label>
+                    {{> Input id="login" type="text" value=profile.login placeholder="Логин"}}
+                </div>
+
+                <div class="flex-column">
+                    <label class="grey-text">Имя</label>
+                    {{> Input id="fisrt_name" type="text" value=profile.first_name placeholder="Имя"}}
+                </div>
+
+                <div class="flex-column">
+                    <label class="grey-text">Фамилия</label>
+                    {{> Input id="second_name" type="text" value=profile.second_name placeholder="Фамилия"}}
+                </div>
+
+                <div class="flex-column">
+                    <label class="grey-text">Имя в чате</label>
+                    {{> Input id="display_name" type="text" value=profile.display_name placeholder="Имя в чате"}}
+                </div>
+
+                <div class="flex-column">
+                    <label class="grey-text">Телефон</label>
+                    {{> Input id="phone" type="text" value=profile.phone placeholder="Почта"}}
+                </div>
+
+                <div class="mt-50">{{> Button id="save-edit" text="Сохранить" dataPage="profile"}}</div>
+            </form>
+        </div>
+    </main>
+</div>

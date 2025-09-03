@@ -1,0 +1,48 @@
+<div class="app">
+    <main class="login-page">
+        <div class="login-container register-container">
+            <h2 class="mt-30 mb-40">Регистрация</h2>
+            <form class="input-container flex-column">
+                <div class="flex-column">
+                    <label for="email" class="grey-text">Почта</label>
+                    {{> Input id="email" type="text" placeholder="Почта"}}
+                </div>
+
+                <div class="flex-column">
+                    <label for="login" class="grey-text">Логин</label>
+                    {{> Input id="login" type="text" placeholder="Логин"}}
+                </div>
+
+                <div class="flex-column">
+                    <label for="first_name" class="grey-text">Имя</label>
+                    {{> Input id="first_name" type="text" placeholder="Имя"}}
+                </div>
+
+                <div class="flex-column">
+                    <label for="second_name" class="grey-text">Фамилия</label>
+                    {{> Input id="second_name" type="text" placeholder="Фамилия"}}
+                </div>
+
+                <div class="flex-column">
+                    <label for="phone" class="grey-text">Телефон</label>
+                    {{> Input id="phone" type="text" placeholder="Телефон"}}
+                </div>
+
+                <div class="flex-column">
+                    <label for="password" class="grey-text">Пароль</label>
+                    {{> Input id="password" type="text" placeholder="Пароль"}}
+                </div>
+
+                <div class="flex-column">
+                    <label for="doublePassword" class="grey-text">Пароль (еще раз)</label>
+                    {{> Input id="doublePassword" type="text" placeholder="Пароль (еще раз)"}}
+                </div>
+
+                <div class="button-container">
+                    <div>{{> Button id="register" text="Зарегистрироваться" dataPage="login"}}</div>
+                    <div>{{> Button id="log-in" text="Авторизация" dataPage="login"}}</div>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
