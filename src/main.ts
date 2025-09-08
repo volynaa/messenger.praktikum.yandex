@@ -3,7 +3,6 @@ import './styles/variable.pcss'
 import App from './App'
 
 document.addEventListener('DOMContentLoaded', () => {
-    const app = new App();
+    const app = App.getInstance();
     app.render();
-
 })

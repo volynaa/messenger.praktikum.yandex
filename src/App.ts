@@ -7,10 +7,44 @@ import Button from "./components/Button";
 Handlebars.registerPartial('Input', Input)
 Handlebars.registerPartial('Button', Button)
 
+export interface Message {
+    text: string;
+    type: number;
+    time: string;
+}
+
+export interface Chat {
+    id: string;
+    name: string;
+    avatar: string;
+    lastMessage: string;
+    time: string;
+    countNewMessage: number;
+    message: Message[];
+}
+
+export interface Profile {
+    mail: string;
+    login: string;
+    first_name: string;
+    second_name: string;
+    display_name: string;
+    phone: string;
+}
+
+export interface AppState {
+    currentPage: string;
+    chats: Chat[];
+    profile: Profile;
+    selectedChat?: string;
+}
 export default class App{
+    private static instance: App;
+    private state: AppState;
+    private appElement: HTMLElement | null;
     constructor() {
         this.state = {
-            currentPage: 'chats',
+            currentPage: 'login',
             chats: [
                 { id: "1", name: "Андрей", avatar: "", lastMessage:'Привет!',time:'10:49', countNewMessage: 2, message:[{text:'Привет!',type:0,time:'11:56'},{text:'Здравствуй!',type: 1,time:'11:58'}]  },
                 { id: "2", name: "Никита", avatar: "", lastMessage:'',time:'11:24', countNewMessage: 0,message:[] }
@@ -27,8 +61,6 @@ export default class App{
         };
         this.appElement = document.getElementById('app');
     }
-
-
     render(){
         let template;
         if (this.state.currentPage === 'login'){
@@ -63,15 +95,6 @@ export default class App{
         this.attachEventListeners()
     }
     attachEventListeners() {
-        const loginButton = document.getElementById('log-in');
-        if (loginButton) {
-            loginButton.addEventListener('click', (e) => {
-                const targetPage = e.currentTarget.dataset.page;
-                if (targetPage) {
-                    this.changePage(targetPage);
-                }
-            });
-        }
         const registerButton = document.getElementById('register');
         if (registerButton) {
             registerButton.addEventListener('click', (e) => {
@@ -136,5 +159,16 @@ export default class App{
     changePage(page){
         this.state.currentPage = page;
         this.render()
+    }
+
+    public getState(): AppState {
+        return this.state;
+    }
+
+    public static getInstance(): App {
+        if (!App.instance) {
+            App.instance = new App();
+        }
+        return App.instance;
     }
 }
