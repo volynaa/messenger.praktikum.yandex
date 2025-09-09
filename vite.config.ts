@@ -1,15 +1,18 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import type { UserConfig } from 'vite';
 
-export default defineConfig({
-    build: {
-        rollupOptions: {
-            input: {
-                main: resolve(__dirname,'index.html')
-            }
-        }
+const config: UserConfig = {
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
     },
-    css: {
-        postcss: './postcss.config.js'
-    }
-})
+  },
+  css: {
+    postcss: './postcss.config.js',
+  },
+};
+
+export default defineConfig(config);

@@ -6,110 +6,112 @@ export interface ModalOptions {
 }
 
 export class ModalComponent {
-    private modalElement: HTMLElement | null = null;
-    private messageElement: HTMLElement | null = null;
-    private options: ModalOptions;
+  private modalElement: HTMLElement | null = null;
 
-    constructor(options: ModalOptions) {
-        this.options = options;
-        this.initialize();
+  private messageElement: HTMLElement | null = null;
+
+  private options: ModalOptions;
+
+  constructor(options: ModalOptions) {
+    this.options = options;
+    this.initialize();
+  }
+
+  private initialize(): void {
+    this.modalElement = document.getElementById(this.options.id);
+    this.messageElement = document.getElementById(`${this.options.id}-message`);
+    console.log(this.modalElement);
+    console.log(this.messageElement);
+    if (!this.modalElement || !this.messageElement) {
+      console.error('Modal elements not found');
+      return;
     }
 
-    private initialize(): void {
-        this.modalElement = document.getElementById(this.options.id);
-        this.messageElement = document.getElementById(`${this.options.id}-message`);
-        console.log(this.modalElement)
-        console.log(this.messageElement)
-        if (!this.modalElement || !this.messageElement) {
-            console.error('Modal elements not found');
-            return;
-        }
+    this.setupEventListeners();
+  }
 
-        this.setupEventListeners();
+  private setupEventListeners(): void {
+    const closeBtn = this.modalElement!.querySelector('.modal-close');
+    const okBtn = this.modalElement!.querySelector('.modal-button');
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.hide());
     }
 
-    private setupEventListeners(): void {
-        const closeBtn = this.modalElement!.querySelector('.modal-close');
-        const okBtn = this.modalElement!.querySelector('.modal-button');
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.hide());
+    if (okBtn) {
+      okBtn.addEventListener('click', () => {
+        if (this.options.onConfirm) {
+          this.options.onConfirm();
         }
-
-        if (okBtn) {
-            okBtn.addEventListener('click', () => {
-                if (this.options.onConfirm) {
-                    this.options.onConfirm();
-                }
-                this.hide();
-            });
-        }
+        this.hide();
+      });
+    }
 
         // Закрытие по клику вне модального окна
         this.modalElement!.addEventListener('click', (e) => {
-            if (e.target === this.modalElement) {
-                this.hide();
-            }
+          if (e.target === this.modalElement) {
+            this.hide();
+          }
         });
 
         // Закрытие по ESC
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isVisible()) {
-                this.hide();
-            }
+          if (e.key === 'Escape' && this.isVisible()) {
+            this.hide();
+          }
         });
+  }
+
+  show(message: string): void {
+    if (!this.messageElement || !this.modalElement) return;
+
+    this.messageElement.textContent = message;
+    this.modalElement.classList.add('show');
+
+    // Блокируем скролл body
+    document.body.style.overflow = 'hidden';
+
+    // Фокус на кнопку OK для accessibility
+    const okButton = this.modalElement.querySelector('.modal-button') as HTMLButtonElement;
+    if (okButton) {
+      setTimeout(() => okButton.focus(), 100);
     }
+  }
 
-    show(message: string): void {
-        if (!this.messageElement || !this.modalElement) return;
+  hide(): void {
+    if (!this.modalElement) return;
 
-        this.messageElement.textContent = message;
-        this.modalElement.classList.add('show');
+    this.modalElement.classList.remove('show');
+    document.body.style.overflow = '';
 
-        // Блокируем скролл body
-        document.body.style.overflow = 'hidden';
-
-        // Фокус на кнопку OK для accessibility
-        const okButton = this.modalElement.querySelector('.modal-button') as HTMLButtonElement;
-        if (okButton) {
-            setTimeout(() => okButton.focus(), 100);
-        }
+    if (this.options.onClose) {
+      this.options.onClose();
     }
+  }
 
-    hide(): void {
-        if (!this.modalElement) return;
+  isVisible(): boolean {
+    return this.modalElement?.classList.contains('show') || false;
+  }
 
-        this.modalElement.classList.remove('show');
-        document.body.style.overflow = '';
-
-        if (this.options.onClose) {
-            this.options.onClose();
-        }
+  updateMessage(message: string): void {
+    if (this.messageElement) {
+      this.messageElement.textContent = message;
     }
+  }
 
-    isVisible(): boolean {
-        return this.modalElement?.classList.contains('show') || false;
+  updateTitle(title: string): void {
+    const titleElement = this.modalElement?.querySelector('.modal-title');
+    if (titleElement) {
+      titleElement.textContent = title;
     }
+  }
 
-    updateMessage(message: string): void {
-        if (this.messageElement) {
-            this.messageElement.textContent = message;
-        }
-    }
+  // Статический метод для быстрого создания модального окна
+  static createQuickModal(message: string, title: string = 'Ошибка'): ModalComponent {
+    const modalId = `quick-modal-${Date.now()}`;
 
-    updateTitle(title: string): void {
-        const titleElement = this.modalElement?.querySelector('.modal-title');
-        if (titleElement) {
-            titleElement.textContent = title;
-        }
-    }
-
-    // Статический метод для быстрого создания модального окна
-    static createQuickModal(message: string, title: string = 'Ошибка'): ModalComponent {
-        const modalId = `quick-modal-${Date.now()}`;
-
-        // Создаем элемент модального окна
-        const modalHtml = `
+    // Создаем элемент модального окна
+    const modalHtml = `
             <div id="${modalId}" class="modal">
                 <div class="modal-content">
                     <span class="modal-close">&times;</span>
@@ -120,18 +122,18 @@ export class ModalComponent {
             </div>
         `;
 
-        // Добавляем в DOM
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    // Добавляем в DOM
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
 
-        // Создаем и возвращаем экземпляр компонента
-        const modal = new ModalComponent({
-            id: modalId,
-            title: title
-        });
+    // Создаем и возвращаем экземпляр компонента
+    const modal = new ModalComponent({
+      id: modalId,
+      title,
+    });
 
-        // Автоматически показываем
-        modal.show(message);
+    // Автоматически показываем
+    modal.show(message);
 
-        return modal;
-    }
+    return modal;
+  }
 }

@@ -1,5 +1,5 @@
 export default function Button(props) {
-    return `
+  return `
     <button 
       id="${props.id}" 
       class="button"

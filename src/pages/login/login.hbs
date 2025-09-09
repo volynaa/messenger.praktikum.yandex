@@ -8,9 +8,9 @@
                         id="login"
                         type="text"
                         placeholder="Логин"
-                        required=true
                         minLen="3"
                         maxLen="20"
+                        pat="^[a-zA-Zа-яА-Я0-9_-]+$"
                 }}
 
                 <label for="password" class="grey-text">Пароль</label>
@@ -18,13 +18,14 @@
                         id="password"
                         type="text"
                         placeholder="Пароль"
-                        minLen="3"
-                        maxLen="20"
+                        minLen="8"
+                        maxLen="40"
+                        pat="^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$"
                 }}
 
                 <div class="button-container">
                     <div>{{> Button id="log-in" text="Авторизоваться" dataPage="chats" type="submit"}}</div>
-                    <div>{{> Button id="register" text="Регистрация" dataPage="register"}}</div>
+                    <div>{{> Button id="register" text="Регистрация" dataPage="register" type="submit"}}</div>
                 </div>
             </form>
         </div>

@@ -7,5 +7,5 @@ export default `<input
     name="{{id}}"
     minLen="{{minLen}}"
     maxLen="{{maxLen}}"
-    {{#if pattern}}pattern="{{pattern}}"{{/if}}
->`
+    pat="{{pat}}"
+>`;
