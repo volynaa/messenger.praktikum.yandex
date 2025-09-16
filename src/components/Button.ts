@@ -22,17 +22,24 @@ class Button extends Block<ButtonProps> {
         const container = document.createElement('div');
 
         container.innerHTML = `
-      <button 
-        id="${this.props.id || ''}" 
-        class="${this.props.className || 'button'}"
-        ${this.props.dataPage ? `data-page="${this.props.dataPage}"` : ''}
-        ${this.props.type ? `type="${this.props.type}"` : 'type="button"'}
-      >
-        ${this.props.text || ''}
-      </button>
+        <button 
+            id="${this.props.id || ''}" 
+            class="${this.props.className || 'button'}"
+            ${this.props.dataPage ? `data-page="${this.props.dataPage}"` : ''}
+            type="${this.props.type || 'button'}"
+        >
+            ${this.props.text || ''}
+        </button>
     `;
 
-        fragment.appendChild(container.firstElementChild!);
+        const button = container.firstElementChild as HTMLButtonElement;
+        if (this.props.events) {
+            Object.entries(this.props.events).forEach(([event, handler]) => {
+                button.addEventListener(event, handler!);
+            });
+        }
+
+        fragment.appendChild(button);
         return fragment;
     }
 }
