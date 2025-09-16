@@ -97,7 +97,7 @@ export default abstract class Block<P extends Props = Props> {
     this._render();
   }
 
-  protected componentDidUpdate(oldProps?: P, newProps?: P): boolean {
+  protected componentDidUpdate(): boolean {
     return true;
   }
 
@@ -153,8 +153,6 @@ export default abstract class Block<P extends Props = Props> {
   }
 
   private _makePropsProxy(props: P): P {
-    const self = this;
-
     return new Proxy(props, {
       get: (target: P, prop: string): unknown => {
         const value = target[prop];
@@ -163,7 +161,7 @@ export default abstract class Block<P extends Props = Props> {
       set: (target: P, prop: string, value: unknown): boolean => {
         const oldProps = { ...target };
         target[prop as keyof P] = value as P[keyof P];
-        self.eventBus.emit(Block.EVENTS.FLOW_CDU, oldProps, target);
+        this.eventBus.emit(Block.EVENTS.FLOW_CDU, oldProps, target);
         return true;
       },
       deleteProperty: (): never => {
