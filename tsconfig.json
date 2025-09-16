@@ -8,6 +8,7 @@
     "strict": true,
     "noImplicitAny": true,
     "sourceMap": true,
+    "strictNullChecks": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
