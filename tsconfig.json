@@ -18,5 +18,8 @@
     "noImplicitReturns": true,
     "skipLibCheck": true
   },
-  "include": ["src", "vite.config.ts"]
+  "include": [
+    "src/**/*",
+    "src/types/**/*.d.ts",
+    "vite.config.ts"]
 }

@@ -87,8 +87,8 @@ export default abstract class Block<P extends Props = Props> {
     this.eventBus.emit(Block.EVENTS.FLOW_CDM);
   }
 
-  private _componentDidUpdate(oldProps?: P, newProps?: P): void {
-    const response = this.componentDidUpdate(oldProps, newProps);
+  private _componentDidUpdate(): void {
+    const response = this.componentDidUpdate();
     if (!response) {
       return;
     }
