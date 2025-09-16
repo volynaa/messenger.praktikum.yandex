@@ -8,36 +8,37 @@ Handlebars.registerPartial('Input', Input);
 Handlebars.registerHelper('Button', buttonHelper);
 
 export interface Message {
-    text: string;
-    type: number;
-    time: string;
+  text: string;
+  type: number;
+  time: string;
 }
 
 export interface Chat {
-    id: string;
-    name: string;
-    avatar: string;
-    lastMessage: string;
-    time: string;
-    countNewMessage: number;
-    message: Message[];
+  id: string;
+  name: string;
+  avatar: string;
+  lastMessage: string;
+  time: string;
+  countNewMessage: number;
+  message: Message[];
 }
 
 export interface Profile {
-    mail: string;
-    login: string;
-    first_name: string;
-    second_name: string;
-    display_name: string;
-    phone: string;
+  mail: string;
+  login: string;
+  first_name: string;
+  second_name: string;
+  display_name: string;
+  phone: string;
 }
 
 export interface AppState {
-    currentPage: string;
-    chats: Chat[];
-    profile: Profile;
-    selectedChat?: string;
+  currentPage: string;
+  chats: Chat[];
+  profile: Profile;
+  selectedChat?: Chat;
 }
+
 export default class App {
   private static instance: App;
 
@@ -70,17 +71,22 @@ export default class App {
     this.appElement = document.getElementById('app');
   }
 
-  render() {
-    let template;
+  render(): void {
+    if (!this.appElement) return;
+
+    let template: Handlebars.TemplateDelegate<unknown>;
     if (this.state.currentPage === 'login') {
       template = Handlebars.compile(Pages.login);
-      this.appElement.innerHTML = template();
+      this.appElement.innerHTML = template({});
     } else if (this.state.currentPage === 'chats') {
       template = Handlebars.compile(Pages.chats);
-      this.appElement.innerHTML = template({ chats: this.state.chats, selected: this.state.selectedChat });
+      this.appElement.innerHTML = template({
+        chats: this.state.chats,
+        selected: this.state.selectedChat
+      });
     } else if (this.state.currentPage === 'register') {
       template = Handlebars.compile(Pages.register);
-      this.appElement.innerHTML = template();
+      this.appElement.innerHTML = template({});
     } else if (this.state.currentPage === 'profileIndex') {
       template = Handlebars.compile(Pages.profileIndex);
       this.appElement.innerHTML = template({ profile: this.state.profile });
@@ -92,12 +98,12 @@ export default class App {
       this.appElement.innerHTML = template({ profile: this.state.profile });
     } else {
       template = Handlebars.compile(Pages.error404);
-      this.appElement.innerHTML = template();
+      this.appElement.innerHTML = template({});
     }
     this.attachEventListeners();
   }
 
-  attachEventListeners() {
+  private attachEventListeners(): void {
     const backButton = document.getElementById('back-profile');
     if (backButton) {
       backButton.addEventListener('click', () => {
@@ -131,7 +137,8 @@ export default class App {
     const comebackButton = document.getElementById('comeback');
     if (comebackButton) {
       comebackButton.addEventListener('click', (e) => {
-        const targetPage = e.currentTarget.dataset.page;
+        const target = e.currentTarget as HTMLElement;
+        const targetPage = target.dataset.page;
         if (targetPage) {
           this.changePage(targetPage);
         }
@@ -144,13 +151,12 @@ export default class App {
         const selectedChat = this.state.chats.find((chat) => chat.id === chatId);
 
         this.state.selectedChat = selectedChat;
-
         this.render();
       });
     });
   }
 
-  changePage(page) {
+  changePage(page: string): void {
     this.state.currentPage = page;
     this.render();
   }
