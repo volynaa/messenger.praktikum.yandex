@@ -37,7 +37,6 @@ function queryStringify(data: Record<string, unknown>): string {
   }, '?');
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
 class HTTPTransport {
   get = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
       this.request(url, { ...options, method: METHODS.GET }, options.timeout);
@@ -98,7 +97,6 @@ class HTTPTransport {
   };
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
 async function fetchWithRetry(url: string, options: RequestOptions & { tries?: number } = {}): Promise<Response> {
   const { tries = 1, ...fetchOptions } = options;
 
