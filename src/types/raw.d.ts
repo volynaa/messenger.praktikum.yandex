@@ -1,0 +1,14 @@
+declare module '*.hbs?raw' {
+    const content: string;
+    export default content;
+}
+
+declare module '*.html?raw' {
+    const content: string;
+    export default content;
+}
+
+declare module '*.txt?raw' {
+    const content: string;
+    export default content;
+}
