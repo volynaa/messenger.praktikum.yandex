@@ -12,7 +12,7 @@ function queryStringify(data) {
   const keys = Object.keys(data);
   return keys.reduce((result, key, index) => `${result}${key}=${data[key]}${index < keys.length - 1 ? '&' : ''}`, '?');
 }
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 class HTTPTransport {
   get = (url, options = {}) => this.request(url, { ...options, method: METHODS.GET }, options.timeout);
 
@@ -63,6 +63,7 @@ class HTTPTransport {
     });
   };
 }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function fetchWithRetry(url, options = {}) {
   const { tries = 1 } = options;
 

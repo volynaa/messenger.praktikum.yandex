@@ -24,14 +24,14 @@
                             </div>
                             <div class="chat-time">{{time}}</div>
                             {{#if countNewMessage}}
-                                <div class="chat-countMessage">{{countNewMessage}}</div>
+                                <div class="chat-count-message">{{countNewMessage}}</div>
                             {{/if}}
                         </div>
                     {{/each}}
                 {{/if}}
             </section>
         </aside>
-        <section class="chat-message {{#if selected}}chat-message--selected{{/if}}">
+        <section class="chat-message {{#if selected}}chat-message-selected{{/if}}">
             {{#if selected}}
                 <header class="chat-message-header">
                     {{#if avatar.length}}
@@ -61,7 +61,7 @@
                         <img src="/clip.svg" alt="">
                     </button>
                     <form class="flex">
-                        <input id="message" class="chat-message-footer--input" placeholder="Сообщение" aria-label="Текст сообщения">
+                        <input id="message" class="chat-message-footer-input" placeholder="Сообщение" aria-label="Текст сообщения">
                         <button type="submit" aria-label="Отправить сообщение">
                             <img src="/arrow-right-blue.svg" alt="">
                         </button>

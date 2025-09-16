@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
         valid = new FormValidator('login-form');
         loginForm.addEventListener('submit', (e) => {
           e.preventDefault();
-          console.log(e.submitter.id)
 
           if (e.submitter.id === 'register') {
             const targetPage = e.submitter.dataset.page;
@@ -19,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const app = App.getInstance();
               app.changePage(targetPage);
             }
+            return
           }
           if (valid.isValid()) {
             const formData = new FormData(loginForm);
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetPage) {
               const app = App.getInstance();
               app.changePage(targetPage);
+              return
             }
           }
         });

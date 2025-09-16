@@ -2,10 +2,10 @@ import Handlebars from 'handlebars';
 import * as Pages from './pages';
 
 import Input from './components/Input';
-import Button from './components/Button';
+import { buttonHelper } from './components/Button';
 
 Handlebars.registerPartial('Input', Input);
-Handlebars.registerPartial('Button', Button);
+Handlebars.registerHelper('Button', buttonHelper);
 
 export interface Message {
     text: string;

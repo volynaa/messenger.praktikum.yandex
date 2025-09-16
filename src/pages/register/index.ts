@@ -11,7 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
         valid = new FormValidator('register-form');
         registerForm.addEventListener('submit', (e) => {
           e.preventDefault();
+          if (e.submitter.id === 'log-in') {
+            const targetPage = e.submitter.dataset.page;
+            if (targetPage) {
+              const app = App.getInstance();
+              app.changePage(targetPage);
+            }
+            return
+          }
           if (valid.isValid()) {
+
             const formData = new FormData(registerForm);
 
             console.log('Почта:', formData.get('email'));
