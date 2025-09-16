@@ -85,7 +85,7 @@ export default abstract class Block {
 
   protected componentDidMount(): void {}
 
-  dispatchComponentDidMount(): void {
+  public dispatchComponentDidMount(): void {
     this.eventBus.emit(Block.EVENTS.FLOW_CDM);
   }
 
@@ -97,17 +97,17 @@ export default abstract class Block {
     this._render();
   }
 
-  protected componentDidUpdate(): boolean {
+  protected componentDidUpdate(_oldProps: Props, _newProps: Props): boolean {
     return true;
   }
 
-  setProps = (nextProps: Partial<Props>): void => {
+  public setProps(nextProps: Partial<Props>): void {
     if (!nextProps) {
       return;
     }
 
     Object.assign(this.props, nextProps);
-  };
+  }
 
   get element(): HTMLElement | null {
     return this._element;
@@ -130,7 +130,7 @@ export default abstract class Block {
     const { events = {} } = this.props;
 
     Object.keys(events).forEach(eventName => {
-      if (this._element) {
+      if (this._element && events[eventName]) {
         this._element.addEventListener(eventName, events[eventName]);
       }
     });
@@ -140,7 +140,7 @@ export default abstract class Block {
     const { events = {} } = this.props;
 
     Object.keys(events).forEach(eventName => {
-      if (this._element) {
+      if (this._element && events[eventName]) {
         this._element.removeEventListener(eventName, events[eventName]);
       }
     });
@@ -148,22 +148,25 @@ export default abstract class Block {
 
   protected abstract render(): DocumentFragment;
 
-  getContent(): HTMLElement | null {
+  public getContent(): HTMLElement | null {
     return this.element;
   }
 
   private _makePropsProxy(props: Props): Props {
+    const self = this;
+
     return new Proxy(props, {
-      get: (target: Props, prop: string): unknown => {
+      get(target: Props, prop: string): unknown {
         const value = target[prop];
         return typeof value === 'function' ? value.bind(target) : value;
       },
-      set: (target: Props, prop: string, value: unknown): boolean => {
+      set(target: Props, prop: string, value: unknown): boolean {
+        const oldProps = { ...target };
         target[prop] = value;
-        this.eventBus.emit(Block.EVENTS.FLOW_CDU, { ...target }, target);
+        self.eventBus.emit(Block.EVENTS.FLOW_CDU, oldProps, target);
         return true;
       },
-      deleteProperty: (): never => {
+      deleteProperty(): never {
         throw new Error('Нет доступа');
       },
     });
@@ -173,15 +176,17 @@ export default abstract class Block {
     return document.createElement(tagName);
   }
 
-  show(): void {
-    if (this.getContent()) {
-      this.getContent()!.style.display = 'block';
+  public show(): void {
+    const content = this.getContent();
+    if (content) {
+      content.style.display = 'block';
     }
   }
 
-  hide(): void {
-    if (this.getContent()) {
-      this.getContent()!.style.display = 'none';
+  public hide(): void {
+    const content = this.getContent();
+    if (content) {
+      content.style.display = 'none';
     }
   }
 }
