@@ -3,31 +3,60 @@ const METHODS = {
   POST: 'POST',
   PUT: 'PUT',
   DELETE: 'DELETE',
-};
-function queryStringify(data) {
-  if (typeof data !== 'object') {
+} as const;
+
+type Method = keyof typeof METHODS;
+type HTTPMethod = (typeof METHODS)[Method];
+
+interface RequestOptions {
+  method?: HTTPMethod;
+  headers?: Record<string, string>;
+  data?: Record<string, unknown> | FormData | XMLHttpRequestBodyInit;
+  timeout?: number;
+  tries?: number;
+}
+
+interface HTTPTransportOptions extends RequestOptions {
+  method: HTTPMethod;
+}
+
+function queryStringify(data: Record<string, unknown>): string {
+  if (typeof data !== 'object' || data === null) {
     throw new Error('Data must be object');
   }
 
   const keys = Object.keys(data);
-  return keys.reduce((result, key, index) => `${result}${key}=${data[key]}${index < keys.length - 1 ? '&' : ''}`, '?');
+  if (keys.length === 0) {
+    return '';
+  }
+
+  return keys.reduce((result, key, index) => {
+    const value = data[key];
+    const encodedValue = encodeURIComponent(String(value));
+    return `${result}${key}=${encodedValue}${index < keys.length - 1 ? '&' : ''}`;
+  }, '?');
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 class HTTPTransport {
-  get = (url, options = {}) => this.request(url, { ...options, method: METHODS.GET }, options.timeout);
+  get = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
+      this.request(url, { ...options, method: METHODS.GET }, options.timeout);
 
-  post = (url, options = {}) => this.request(url, { ...options, method: METHODS.POST }, options.timeout);
+  post = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
+      this.request(url, { ...options, method: METHODS.POST }, options.timeout);
 
-  put = (url, options = {}) => this.request(url, { ...options, method: METHODS.PUT }, options.timeout);
+  put = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
+      this.request(url, { ...options, method: METHODS.PUT }, options.timeout);
 
-  delete = (url, options = {}) => this.request(url, { ...options, method: METHODS.DELETE }, options.timeout);
+  delete = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
+      this.request(url, { ...options, method: METHODS.DELETE }, options.timeout);
 
-  request = (url, options = {}, timeout = 5000) => {
+  request = (url: string, options: HTTPTransportOptions, timeout: number = 5000): Promise<XMLHttpRequest> => {
     const { headers = {}, method, data } = options;
 
     return new Promise((resolve, reject) => {
       if (!method) {
-        reject('No method');
+        reject(new Error('No method'));
         return;
       }
 
@@ -35,10 +64,10 @@ class HTTPTransport {
       const isGet = method === METHODS.GET;
 
       xhr.open(
-        method,
-        isGet && !!data
-          ? `${url}${queryStringify(data)}`
-          : url,
+          method,
+          isGet && data && typeof data === 'object' && !(data instanceof FormData)
+              ? `${url}${queryStringify(data as Record<string, unknown>)}`
+              : url,
       );
 
       Object.keys(headers).forEach((key) => {
@@ -49,14 +78,19 @@ class HTTPTransport {
         resolve(xhr);
       };
 
-      xhr.onabort = reject;
-      xhr.onerror = reject;
+      xhr.onabort = () => reject(new Error('Request aborted'));
+      xhr.onerror = () => reject(new Error('Request failed'));
+      xhr.ontimeout = () => reject(new Error('Request timeout'));
 
       xhr.timeout = timeout;
-      xhr.ontimeout = reject;
 
       if (isGet || !data) {
         xhr.send();
+      } else if (data instanceof FormData) {
+        xhr.send(data);
+      } else if (typeof data === 'object') {
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(data));
       } else {
         xhr.send(data);
       }
@@ -64,17 +98,22 @@ class HTTPTransport {
   };
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function fetchWithRetry(url, options = {}) {
-  const { tries = 1 } = options;
 
-  function onError(err) {
+async function fetchWithRetry(url: string, options: RequestOptions & { tries?: number } = {}): Promise<Response> {
+  const { tries = 1, ...fetchOptions } = options;
+
+  const onError = (err: Error): Promise<Response> => {
     const triesLeft = tries - 1;
-    if (!triesLeft) {
+    if (triesLeft <= 0) {
       throw err;
     }
 
-    return fetchWithRetry(url, { ...options, tries: triesLeft });
-  }
+    return fetchWithRetry(url, { ...fetchOptions, tries: triesLeft });
+  };
 
-  return fetch(url, options).catch(onError);
+  try {
+    return await fetch(url, fetchOptions as RequestInit);
+  } catch (err) {
+    return onError(err as Error);
+  }
 }

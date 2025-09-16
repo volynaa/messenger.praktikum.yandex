@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
         loginForm.addEventListener('submit', (e) => {
           e.preventDefault();
 
+          if (!e.submitter) {
+            return;
+          }
+
           if (e.submitter.id === 'register') {
             const targetPage = e.submitter.dataset.page;
             if (targetPage) {

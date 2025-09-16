@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
         valid = new FormValidator('register-form');
         registerForm.addEventListener('submit', (e) => {
           e.preventDefault();
+
+          if (!e.submitter) {
+            return;
+          }
+
           if (e.submitter.id === 'log-in') {
             const targetPage = e.submitter.dataset.page;
             if (targetPage) {
