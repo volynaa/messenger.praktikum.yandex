@@ -89,15 +89,15 @@ export default abstract class Block {
     this.eventBus.emit(Block.EVENTS.FLOW_CDM);
   }
 
-  private _componentDidUpdate(oldProps: Props, newProps: Props): void {
-    const response = this.componentDidUpdate(oldProps, newProps);
+  private _componentDidUpdate(): void {
+    const response = this.componentDidUpdate();
     if (!response) {
       return;
     }
     this._render();
   }
 
-  protected componentDidUpdate(_oldProps: Props, _newProps: Props): boolean {
+  protected componentDidUpdate(): boolean {
     return true;
   }
 
@@ -153,20 +153,18 @@ export default abstract class Block {
   }
 
   private _makePropsProxy(props: Props): Props {
-    const self = this;
-
     return new Proxy(props, {
-      get(target: Props, prop: string): unknown {
+      get: (target: Props, prop: string): unknown => {
         const value = target[prop];
         return typeof value === 'function' ? value.bind(target) : value;
       },
-      set(target: Props, prop: string, value: unknown): boolean {
+      set: (target: Props, prop: string, value: unknown): boolean => {
         const oldProps = { ...target };
         target[prop] = value;
-        self.eventBus.emit(Block.EVENTS.FLOW_CDU, oldProps, target);
+        this.eventBus.emit(Block.EVENTS.FLOW_CDU, oldProps, target);
         return true;
       },
-      deleteProperty(): never {
+      deleteProperty: (): never => {
         throw new Error('Нет доступа');
       },
     });
