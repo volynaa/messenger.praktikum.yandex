@@ -1,18 +1,17 @@
 export interface ValidationRules {
-    required?: boolean;
-    minLen?: number;
-    maxLen?: number;
-    pattern?: string;
-    customValidator?: (value: string) => string | null;
+  required?: boolean;
+  minLen?: number;
+  maxLen?: number;
+  pattern?: string;
+  customValidator?: (value: string) => string | null;
 }
 
 export interface FormField extends HTMLInputElement {
-    validationRules?: ValidationRules;
+  validationRules?: ValidationRules;
 }
 
 class FormValidator {
   private form: HTMLFormElement;
-
   private inputs: NodeListOf<FormField>;
 
   constructor(formId: string) {
@@ -44,16 +43,19 @@ class FormValidator {
       rules.required = true;
     }
 
-    if (input.hasAttribute('minLen')) {
-      rules.minLen = parseInt(input.getAttribute('minLen') || '0');
+    const minLenAttr = input.getAttribute('minLen');
+    if (minLenAttr) {
+      rules.minLen = parseInt(minLenAttr, 10);
     }
 
-    if (input.hasAttribute('maxLen')) {
-      rules.maxLen = parseInt(input.getAttribute('maxLen') || '0');
+    const maxLenAttr = input.getAttribute('maxLen');
+    if (maxLenAttr) {
+      rules.maxLen = parseInt(maxLenAttr, 10);
     }
 
-    if (input.hasAttribute('pattern')) {
-      rules.pattern = input.getAttribute('pattern') || '';
+    const patternAttr = input.getAttribute('pattern');
+    if (patternAttr) {
+      rules.pattern = patternAttr;
     }
 
     input.validationRules = rules;
@@ -77,7 +79,7 @@ class FormValidator {
     return isValid;
   }
 
-  private validateField(input: HTMLInputElement): boolean {
+  private validateField(input: FormField): boolean {
     const value = input.value.trim();
     let isValid = true;
     let errorMessage = '';
@@ -86,63 +88,80 @@ class FormValidator {
       errorMessage = 'Это поле обязательно для заполнения';
       isValid = false;
     }
-    const minLen = input.getAttribute('minLen');
-    if (isValid && (value.length < minLen || value.length === 0)) {
-      if (value.length === 0) {
-        errorMessage = 'Обязательное поле';
-      } else {
-        errorMessage = `Минимальная длина: ${minLen} символа`;
+
+    if (isValid && input.validationRules?.minLen !== undefined) {
+      if (value.length < input.validationRules.minLen) {
+        errorMessage = `Минимальная длина: ${input.validationRules.minLen} символов`;
+        isValid = false;
       }
-      isValid = false;
     }
-    const maxLen = input.getAttribute('maxLen');
-    if (isValid && maxLen && value.length > maxLen) {
-      errorMessage = `Максимальная длина: ${maxLen} символов`;
-      isValid = false;
+
+    if (isValid && input.validationRules?.maxLen !== undefined) {
+      if (value.length > input.validationRules.maxLen) {
+        errorMessage = `Максимальная длина: ${input.validationRules.maxLen} символов`;
+        isValid = false;
+      }
     }
+
     if (isValid && input.id === 'login' && /^\d+$/.test(value)) {
       errorMessage = 'Логин не может состоять только из цифр';
       isValid = false;
     }
-    const pattern = input.getAttribute('pat');
-    if (isValid && pattern && !new RegExp(pattern).test(value)) {
-      errorMessage = 'Неверный формат';
-      isValid = false;
+
+    if (isValid && input.validationRules?.pattern) {
+      if (!new RegExp(input.validationRules.pattern).test(value)) {
+        errorMessage = 'Неверный формат';
+        isValid = false;
+      }
     }
-    if (isValid && input.id === 'doublePassword' && this.inputs[5].value !== value) {
-      errorMessage = 'Пароли должны совпадать';
-      isValid = false;
+
+    if (isValid && input.id === 'doublePassword') {
+      const passwordInput = Array.from(this.inputs).find(
+          (inp) => inp.type === 'password' && inp.id !== 'doublePassword'
+      );
+      if (passwordInput && passwordInput.value !== value) {
+        errorMessage = 'Пароли должны совпадать';
+        isValid = false;
+      }
     }
+
     if (!isValid) {
       this.showError(input, errorMessage);
     }
+
     return isValid;
   }
 
   private showError(input: FormField, message: string): void {
-    const labelError = input.parentNode?.querySelector('.error-message');
-    if (!labelError) {
-      const errorElement = document.createElement('span');
-      errorElement.className = 'error-message';
-      errorElement.textContent = message;
+    this.clearError(input); // Сначала очищаем предыдущую ошибку
 
-      Object.assign(errorElement.style, {
-        color: 'red',
-        fontSize: '12px',
-        marginTop: '5px',
-        display: 'block',
-      });
-      input.classList.add('input-error');
-      input.insertAdjacentElement('afterend', errorElement);
-    }
+    const errorElement = document.createElement('span');
+    errorElement.className = 'error-message';
+    errorElement.textContent = message;
+
+    Object.assign(errorElement.style, {
+      color: 'red',
+      fontSize: '12px',
+      marginTop: '5px',
+      display: 'block',
+    });
+
+    input.classList.add('input-error');
+    input.insertAdjacentElement('afterend', errorElement);
   }
 
   private clearError(input: FormField): void {
-    const errorElement = input.parentNode?.querySelector('.error-message');
-    if (errorElement) {
+    const errorElement = input.nextElementSibling as HTMLElement;
+    if (errorElement && errorElement.classList.contains('error-message')) {
       errorElement.remove();
     }
     input.classList.remove('input-error');
+  }
+
+  private clearAllErrors(): void {
+    this.inputs.forEach((input) => {
+      this.clearError(input);
+    });
   }
 
   public validateAll(): boolean {
@@ -158,14 +177,9 @@ class FormValidator {
     return isValid;
   }
 
-  public clearAllErrors(): void {
-    this.inputs.forEach((input) => {
-      this.clearError(input);
-    });
-  }
-
   public isValid(): boolean {
     return this.validateAll();
   }
 }
+
 export default FormValidator;
