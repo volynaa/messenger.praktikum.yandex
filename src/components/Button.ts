@@ -1,6 +1,7 @@
 import Block from "../ui/block";
 
 interface ButtonProps {
+    [key: string]: any;
     id?: string;
     text?: string;
     dataPage?: string;
@@ -22,28 +23,35 @@ class Button extends Block<ButtonProps> {
         const container = document.createElement('div');
 
         container.innerHTML = `
-        <button 
-            id="${this.props.id || ''}" 
-            class="${this.props.className || 'button'}"
-            ${this.props.dataPage ? `data-page="${this.props.dataPage}"` : ''}
-            type="${this.props.type || 'button'}"
-        >
-            ${this.props.text || ''}
-        </button>
+      <button 
+        id="${this.props.id || ''}" 
+        class="${this.props.className || 'button'}"
+        ${this.props.dataPage ? `data-page="${this.props.dataPage}"` : ''}
+        ${this.props.type ? `type="${this.props.type}"` : 'type="button"'}
+      >
+        ${this.props.text || ''}
+      </button>
     `;
 
-        const button = container.firstElementChild as HTMLButtonElement;
-        if (this.props.events) {
-            Object.entries(this.props.events).forEach(([event, handler]) => {
-                button.addEventListener(event, handler!);
-            });
+        if (container.firstElementChild) {
+            fragment.appendChild(container.firstElementChild);
         }
 
-        fragment.appendChild(button);
         return fragment;
     }
 }
-export function buttonHelper(props: unknown): string {
+
+interface ButtonHelperProps {
+    hash: {
+        id?: string;
+        text?: string;
+        dataPage?: string;
+        type?: string;
+        className?: string;
+    };
+}
+
+export function buttonHelper(props: ButtonHelperProps): string {
     const button = new Button({
         id: props.hash.id,
         text: props.hash.text,
@@ -52,5 +60,6 @@ export function buttonHelper(props: unknown): string {
         className: props.hash.className
     });
 
-    return button.getContent().outerHTML;
+    const content = button.getContent();
+    return content ? content.outerHTML : '';
 }

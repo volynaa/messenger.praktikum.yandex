@@ -1,10 +1,8 @@
-type Props = {
-  [key: string]: unknown;
+export type Props = Record<string, unknown> & {
   events?: {
-    [eventName: string]: EventListener;
+    [eventName: string]: EventListener | ((...args: unknown[]) => void);
   };
 };
-
 interface BlockMeta<P = Props> {
   tagName: string;
   props: P;
