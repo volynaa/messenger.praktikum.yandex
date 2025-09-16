@@ -2,45 +2,88 @@
     <main class="login-page">
         <div class="login-container register-container">
             <h2 class="mt-30 mb-40">Регистрация</h2>
-            <form class="input-container flex-column">
+            <form class="input-container flex-column" id="register-form">
                 <div class="flex-column">
                     <label for="email" class="grey-text">Почта</label>
-                    {{> Input id="email" type="text" placeholder="Почта"}}
+                    {{> Input
+                            id="email"
+                            type="text"
+                            placeholder="Почта"
+                            pat="^[a-z0-9_-]+@[a-z]+\.[a-z]+$"
+                    }}
                 </div>
 
                 <div class="flex-column">
                     <label for="login" class="grey-text">Логин</label>
-                    {{> Input id="login" type="text" placeholder="Логин"}}
+                    {{> Input
+                            id="login"
+                            type="text"
+                            placeholder="Логин"
+                            minLen="3"
+                            maxLen="20"
+                            pat="^[a-zA-Zа-яА-Я0-9_-]+$"
+                    }}
                 </div>
 
                 <div class="flex-column">
                     <label for="first_name" class="grey-text">Имя</label>
-                    {{> Input id="first_name" type="text" placeholder="Имя"}}
+                    {{> Input
+                            id="first_name"
+                            type="text"
+                            placeholder="Имя"
+                            pat="^[A-ZА-Я][a-zа-я-]*[a-zа-я]+$"
+                    }}
                 </div>
 
                 <div class="flex-column">
                     <label for="second_name" class="grey-text">Фамилия</label>
-                    {{> Input id="second_name" type="text" placeholder="Фамилия"}}
+                    {{> Input
+                            id="second_name"
+                            type="text"
+                            placeholder="Фамилия"
+                            pat="^[A-ZА-Я][a-zа-я-]*[a-zа-я]+$"
+                    }}
                 </div>
 
                 <div class="flex-column">
                     <label for="phone" class="grey-text">Телефон</label>
-                    {{> Input id="phone" type="text" placeholder="Телефон"}}
+                    {{> Input
+                            id="phone"
+                            type="text"
+                            placeholder="Телефон"
+                            minLen="10"
+                            maxLen="15"
+                            pat="^(\+\d+|\d+)$"
+                    }}
                 </div>
 
                 <div class="flex-column">
                     <label for="password" class="grey-text">Пароль</label>
-                    {{> Input id="password" type="text" placeholder="Пароль"}}
+                    {{> Input
+                            id="password"
+                            type="text"
+                            placeholder="Пароль"
+                            minLen="8"
+                            maxLen="40"
+                            pat="^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$"
+                    }}
                 </div>
 
                 <div class="flex-column">
                     <label for="doublePassword" class="grey-text">Пароль (еще раз)</label>
-                    {{> Input id="doublePassword" type="text" placeholder="Пароль (еще раз)"}}
+                    {{> Input
+                            id="doublePassword"
+                            type="text"
+                            placeholder="Пароль (еще раз)"
+                            minLen="8"
+                            maxLen="40"
+                            pat="^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$"
+                    }}
                 </div>
 
                 <div class="button-container">
-                    <div>{{> Button id="register" text="Зарегистрироваться" dataPage="login"}}</div>
-                    <div>{{> Button id="log-in" text="Авторизация" dataPage="login"}}</div>
+                    <div>{{{ Button id="register" text="Зарегистрироваться" dataPage="login" type="submit"}}}</div>
+                    <div>{{{ Button id="log-in" text="Авторизация" dataPage="login" type="submit"}}}</div>
                 </div>
             </form>
         </div>

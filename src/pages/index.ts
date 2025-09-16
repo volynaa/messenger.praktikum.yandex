@@ -1,0 +1,8 @@
+export { login } from './login';
+export { chats } from './chats';
+export { error404 } from './404';
+export { error500 } from './500';
+export { register } from './register';
+export { profileIndex } from './profile';
+export { profileEditData } from './profile';
+export { profileEditPassword } from './profile';
