@@ -1,0 +1,39 @@
+.button-back{
+    cursor: pointer;
+    transform: rotate(180deg);
+    background: none;
+    border: none;
+}
+
+.profile-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 90vh;
+
+    .profile-photo{
+        width: 130px;
+        height: 130px;
+        border-radius: 100px;
+        background-color: var(--bg-grey);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .title{
+        font-weight: 600;
+        font-size: 16px;
+        line-height: 16px;
+        margin-bottom: 50px;
+        margin-top: 20px;
+    }
+}
+
+.profile-edit{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}

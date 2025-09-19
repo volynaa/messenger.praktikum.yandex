@@ -1,12 +1,4 @@
-import Handlebars from 'handlebars';
 import * as Pages from './pages';
-
-import Input from './components/Input';
-import { buttonHelper } from './components/Button';
-
-Handlebars.registerPartial('Input', Input);
-Handlebars.registerHelper('Button', buttonHelper);
-
 export interface Message {
   text: string;
   type: number;
@@ -74,33 +66,32 @@ export default class App {
   render(): void {
     if (!this.appElement) return;
 
-    let template: Handlebars.TemplateDelegate<unknown>;
+    this.appElement.innerHTML = '';
+
+    let pageComponent: unknown;
+
     if (this.state.currentPage === 'login') {
-      template = Handlebars.compile(Pages.login);
-      this.appElement.innerHTML = template({});
+      pageComponent = new Pages.Login();
     } else if (this.state.currentPage === 'chats') {
-      template = Handlebars.compile(Pages.chats);
-      this.appElement.innerHTML = template({
-        chats: this.state.chats,
-        selected: this.state.selectedChat
-      });
+      pageComponent = Pages.chats;
     } else if (this.state.currentPage === 'register') {
-      template = Handlebars.compile(Pages.register);
-      this.appElement.innerHTML = template({});
+      pageComponent = new Pages.Register();
     } else if (this.state.currentPage === 'profileIndex') {
-      template = Handlebars.compile(Pages.profileIndex);
-      this.appElement.innerHTML = template({ profile: this.state.profile });
+      pageComponent = Pages.profileIndex;
     } else if (this.state.currentPage === 'profileEditData') {
-      template = Handlebars.compile(Pages.profileEditData);
-      this.appElement.innerHTML = template({ profile: this.state.profile });
+      pageComponent = Pages.profileEditData;
     } else if (this.state.currentPage === 'profileEditPassword') {
-      template = Handlebars.compile(Pages.profileEditPassword);
-      this.appElement.innerHTML = template({ profile: this.state.profile });
+      pageComponent = Pages.profileEditPassword;
     } else {
-      template = Handlebars.compile(Pages.error404);
-      this.appElement.innerHTML = template({});
+      pageComponent = Pages.error404;
     }
-    this.attachEventListeners();
+
+    if (pageComponent && pageComponent.getContent) {
+      const content = pageComponent.getContent();
+      if (content) {
+        this.appElement.appendChild(content);
+      }
+    }
   }
 
   private attachEventListeners(): void {

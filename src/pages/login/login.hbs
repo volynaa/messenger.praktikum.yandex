@@ -4,28 +4,32 @@
             <h2 class="mt-30 mb-40">Вход</h2>
             <form class="input-container" id="login-form">
                 <label for="login" class="grey-text">Логин</label>
-                {{> Input
+                {{{ Input
                         id="login"
+                        name="login"
                         type="text"
                         placeholder="Логин"
                         minLen="3"
                         maxLen="20"
-                        pat="^[a-zA-Zа-яА-Я0-9_-]+$"
-                }}
+                        req=true
+                        pat="^[a-zA-Z0-9_-]+$"
+                }}}
 
                 <label for="password" class="grey-text">Пароль</label>
-                {{> Input
+                {{{ Input
                         id="password"
+                        name="password"
                         type="text"
                         placeholder="Пароль"
                         minLen="8"
                         maxLen="40"
+                        req=true
                         pat="^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$"
-                }}
+                }}}
 
                 <div class="button-container">
                     <div>{{{Button id="log-in" text="Авторизоваться" dataPage="chats" type="submit"}}}</div>
-                    <div>{{{Button id="register" text="Регистрация" dataPage="register" type="submit"}}}</div>
+                    <div>{{{Button id="register" text="Регистрация" dataPage="register" type="button"}}}</div>
                 </div>
             </form>
         </div>

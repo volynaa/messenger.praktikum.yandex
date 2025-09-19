@@ -19,29 +19,19 @@ class FormValidator {
     if (!form) {
       throw new Error(`Form with id "${formId}" not found`);
     }
-
     this.form = form;
     this.inputs = this.form.querySelectorAll('input');
     this.init();
   }
 
   private init(): void {
-    this.form.addEventListener('submit', (e) => this.validateForm(e));
-
     this.inputs.forEach((input) => {
-      input.addEventListener('blur', () => this.validateField(input));
-      input.addEventListener('input', () => this.clearError(input));
-
       this.initializeValidationRules(input);
     });
   }
 
   private initializeValidationRules(input: FormField): void {
     const rules: ValidationRules = {};
-
-    if (input.hasAttribute('required')) {
-      rules.required = true;
-    }
 
     const minLenAttr = input.getAttribute('minLen');
     if (minLenAttr) {
@@ -53,9 +43,13 @@ class FormValidator {
       rules.maxLen = parseInt(maxLenAttr, 10);
     }
 
-    const patternAttr = input.getAttribute('pattern');
+    const patternAttr = input.getAttribute('pat');
     if (patternAttr) {
       rules.pattern = patternAttr;
+    }
+    const requiredAttr = input.getAttribute('req');
+    if (requiredAttr) {
+      rules.required = requiredAttr === 'true' || requiredAttr === '';
     }
 
     input.validationRules = rules;
@@ -84,7 +78,7 @@ class FormValidator {
     let isValid = true;
     let errorMessage = '';
 
-    if (input.required && !value) {
+    if (input.validationRules?.required && !value) {
       errorMessage = 'Это поле обязательно для заполнения';
       isValid = false;
     }
@@ -117,14 +111,12 @@ class FormValidator {
 
     if (isValid && input.id === 'doublePassword') {
       const passwordInput = Array.from(this.inputs).find(
-          (inp) => inp.type === 'password' && inp.id !== 'doublePassword'
-      );
+          (inp) => inp.name === 'password');
       if (passwordInput && passwordInput.value !== value) {
         errorMessage = 'Пароли должны совпадать';
         isValid = false;
       }
     }
-
     if (!isValid) {
       this.showError(input, errorMessage);
     }
@@ -133,12 +125,11 @@ class FormValidator {
   }
 
   private showError(input: FormField, message: string): void {
-    this.clearError(input); // Сначала очищаем предыдущую ошибку
+    this.clearError(input);
 
     const errorElement = document.createElement('span');
     errorElement.className = 'error-message';
     errorElement.textContent = message;
-
     Object.assign(errorElement.style, {
       color: 'red',
       fontSize: '12px',
@@ -167,7 +158,6 @@ class FormValidator {
   public validateAll(): boolean {
     let isValid = true;
     this.clearAllErrors();
-
     this.inputs.forEach((input) => {
       if (!this.validateField(input)) {
         isValid = false;

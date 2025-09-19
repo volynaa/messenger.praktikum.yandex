@@ -1,7 +1,7 @@
 import Block from "../ui/block";
 
 interface ButtonProps {
-    [key: string]: any;
+    [key: string]: unknown;
     id?: string;
     text?: string;
     dataPage?: string;
@@ -13,7 +13,7 @@ interface ButtonProps {
     };
 }
 
-class Button extends Block<ButtonProps> {
+export default class Button extends Block<ButtonProps> {
     constructor(props: ButtonProps) {
         super('div', props);
     }

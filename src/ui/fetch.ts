@@ -6,7 +6,8 @@ const METHODS = {
 } as const;
 
 type Method = keyof typeof METHODS;
-type HTTPMethod = (typeof METHODS)[Method];
+type HTTPMethod = <R = unknown>(url: string, options?: Partial<RequestOptions<QueryParams>>) => Promise<R>;
+
 
 interface RequestOptions {
   method?: HTTPMethod;
@@ -38,19 +39,20 @@ function queryStringify(data: Record<string, unknown>): string {
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 class HTTPTransport {
-  get = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.GET }, options.timeout);
+  private createMethod(method: METHODS): HTTPMethod {
+    return (url, options = {}) => this.request(url, { ...options, method });
+  }
+  protected readonly get = this.createMethod(METHODS.GET);
 
-  post = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.POST }, options.timeout);
+  protected readonly put = this.createMethod(METHODS.PUT);
 
-  put = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.PUT }, options.timeout);
+  protected readonly post = this.createMethod(METHODS.POST);
 
-  delete = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.DELETE }, options.timeout);
-
-  request = (url: string, options: HTTPTransportOptions, timeout: number = 5000): Promise<XMLHttpRequest> => {
+  protected readonly delete = this.createMethod(METHODS.DELETE);
+  private request<R>(
+      url: string,
+      options: RequestOptions<QueryParams>,
+  ): Promise<R>  {
     const { headers = {}, method, data } = options;
 
     return new Promise((resolve, reject) => {
