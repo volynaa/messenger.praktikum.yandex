@@ -84,7 +84,7 @@ export default class Login extends Block {
       const button = target.tagName === 'BUTTON' ? target : target.closest('button');
       if (!button) return;
       if (target.id === 'register') {
-        const targetPage = e.target.dataset.page;
+        const targetPage = target.dataset.page;
         if (targetPage) {
           const app = App.getInstance();
           app.changePage(targetPage);

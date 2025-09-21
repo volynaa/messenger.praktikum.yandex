@@ -40,7 +40,7 @@ export default class App {
 
   constructor() {
     this.state = {
-      currentPage: 'login',
+      currentPage: 'chats',
       chats: [
         {
           id: '1', name: 'Андрей', avatar: '', lastMessage: 'Привет!', time: '10:49', countNewMessage: 2,
@@ -65,25 +65,20 @@ export default class App {
 
   render(): void {
     if (!this.appElement) return;
-
     this.appElement.innerHTML = '';
-
     let pageComponent: unknown;
 
     if (this.state.currentPage === 'login') {
       pageComponent = new Pages.Login();
     } else if (this.state.currentPage === 'chats') {
-      pageComponent = Pages.chats;
+      pageComponent = new Pages.Chats();
     } else if (this.state.currentPage === 'register') {
       pageComponent = new Pages.Register();
-    } else if (this.state.currentPage === 'profileIndex') {
-      pageComponent = Pages.profileIndex;
-    } else if (this.state.currentPage === 'profileEditData') {
-      pageComponent = Pages.profileEditData;
-    } else if (this.state.currentPage === 'profileEditPassword') {
-      pageComponent = Pages.profileEditPassword;
+    } else if (this.state.currentPage === 'profileIndex' || this.state.currentPage === 'profileEditData'
+        || this.state.currentPage === 'profileEditPassword') {
+      pageComponent = new Pages.Profile();
     } else {
-      pageComponent = Pages.error404;
+      pageComponent = new Pages.Error404();
     }
 
     if (pageComponent && pageComponent.getContent) {

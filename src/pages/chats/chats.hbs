@@ -1,12 +1,25 @@
 <div class="app">
     <main class="chats-page">
         <aside class="chats-list">
-            <button class="button-profile" id="profile" aria-label="Профиль">
-                <span>Профиль</span>
-                <img src="/arrow-right.svg" id="arrowIcon" alt="">
-            </button>
+            {{{ Button
+                    id="profile"
+                    name="profile"
+                    withIcon=true
+                    iconSrc="/arrow-right.svg"
+                    className="button-profile"
+                    classDiv="button-cont"
+                    text="Профиль"
+                    aria_label="Профиль"
+                    dataPage="profileIndex"
+            }}}
             <form role="search">
-                <input class="chat-search" placeholder="Поиск" aria-label="Поиск чатов">
+                {{{ Input
+                        id="search"
+                        name="search"
+                        className="chat-search"
+                        placeholder="Поиск"
+                        aria-label="Поиск чатов"
+                }}}
             </form>
             <section id="chat-container" aria-label="Список чатов">
                 {{#if chats.length}}

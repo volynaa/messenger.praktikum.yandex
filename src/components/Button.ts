@@ -7,6 +7,12 @@ interface ButtonProps {
     dataPage?: string;
     type?: string;
     className?: string;
+    classDiv?: string;
+    withIcon?: boolean;
+    iconSrc?: string;
+    iconAlt?: string;
+    iconClass?: string;
+    aria_label?: string;
     events?: {
         click?: (event: Event) => void;
         submit?: (event: Event) => void;
@@ -22,15 +28,22 @@ export default class Button extends Block<ButtonProps> {
         const fragment = document.createDocumentFragment();
         const container = document.createElement('div');
 
+        const iconHtml = this.props.withIcon && this.props.iconSrc
+            ? `<img src="${this.props.iconSrc}" alt="${this.props.iconAlt || ''}" class="${this.props.iconClass || ''}">`
+            : '';
         container.innerHTML = `
-      <button 
-        id="${this.props.id || ''}" 
-        class="${this.props.className || 'button'}"
-        ${this.props.dataPage ? `data-page="${this.props.dataPage}"` : ''}
-        ${this.props.type ? `type="${this.props.type}"` : 'type="button"'}
-      >
-        ${this.props.text || ''}
-      </button>
+      <div class="${this.props.classDiv || ''}">
+        <button 
+          id="${this.props.id || ''}" 
+          class="${this.props.className || 'button'}"
+          ${this.props.dataPage ? `data-page="${this.props.dataPage}"` : ''}
+          ${this.props.aria_label ? `aria-label="${this.props.aria_label}"` : ''}
+          ${this.props.type ? `type="${this.props.type}"` : 'type="button"'}
+        >
+          ${this.props.text || ''}
+        </button>
+        ${iconHtml}
+      </div>
     `;
 
         if (container.firstElementChild) {
@@ -48,6 +61,12 @@ interface ButtonHelperProps {
         dataPage?: string;
         type?: string;
         className?: string;
+        classDiv?: string;
+        withIcon?: boolean;
+        iconSrc?: string;
+        iconAlt?: string;
+        iconClass?: string;
+        aria_label?: string;
     };
 }
 
@@ -57,7 +76,13 @@ export function buttonHelper(props: ButtonHelperProps): string {
         text: props.hash.text,
         dataPage: props.hash.dataPage,
         type: props.hash.type,
-        className: props.hash.className
+        className: props.hash.className,
+        classDiv: props.hash.classDiv,
+        withIcon: props.hash.withIcon,
+        iconSrc: props.hash.iconSrc,
+        iconAlt: props.hash.iconAlt,
+        iconClass: props.hash.iconClass,
+        aria_label: props.hash.aria_label,
     });
 
     const content = button.getContent();

@@ -8,9 +8,6 @@
     height: 95vh;
 
     .button-profile{
-        display: flex;
-        gap: 8px;
-        margin-right: 10px;
         margin-left: auto;
         font-size: 12px;
         line-height: 12px;
@@ -19,8 +16,6 @@
         background: none;
         border: none;
     }
-
-
 
     .chat-item{
         display: flex;
@@ -207,4 +202,11 @@
 
 .chat-message-selected{
     display: block;
+}
+
+.button-cont{
+    display: flex;
+    margin-right: 10px;
+    margin-left: auto;
+    cursor: pointer;
 }

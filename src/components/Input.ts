@@ -7,6 +7,8 @@ interface InputProps {
     dataPage?: string;
     type?: string;
     className?: string;
+    value?:string;
+    aria_label?:string;
     req?: boolean | string;
     events?: {
         click?: (event: Event) => void;
@@ -27,6 +29,7 @@ export default class Input extends Block<InputProps> {
         id="${this.props.id || ''}" 
         class="${this.props.className || 'input'}"
         ${this.props.type ? `type="${this.props.type}"` : 'type="input"'}
+        ${this.props.aria_label ? `aria-label="${this.props.aria_label}"` : ''}
         ${this.props.req ? `req="${this.props.req}"` : `req=${false}`}
         ${this.props.placeholder ? `placeholder="${this.props.placeholder}"` : 'placeholder=""'}
         ${this.props.value ? `value="${this.props.value}"` : 'value=""'}
