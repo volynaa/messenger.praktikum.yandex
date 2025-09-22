@@ -72,7 +72,7 @@ export class HTTPTransport {
       });
 
       xhr.onload = function () {
-        resolve(xhr);
+        resolve(xhr as R);
       };
 
       xhr.onabort = () => reject(new Error('Request aborted'));

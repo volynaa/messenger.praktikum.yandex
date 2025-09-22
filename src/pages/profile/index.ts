@@ -127,7 +127,7 @@ export default class Profile extends Block {
             }
         }
     }
-    private getFormValue(formData: FormData | unknown, fieldName: string): string {
+    private getFormValue(formData: FormData, fieldName: string): string {
         const value = formData.get(fieldName);
         return value ? value.toString() : '';
     }
