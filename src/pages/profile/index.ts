@@ -14,6 +14,15 @@ const templates = {
     profileEditData,
     profileEditPassword
 };
+export interface ProfileData {
+    email: string;
+    login: string;
+    first_name: string;
+    second_name: string;
+    display_name: string;
+    avatar: string;
+    phone: string;
+}
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
     constructor() {
@@ -88,15 +97,15 @@ export default class Profile extends Block {
             if (registerForm) {
                 const app = App.getInstance();
 
-                const formData = new FormData(registerForm);
+                const formData = new FormData(registerForm as HTMLFormElement);
                 if(app.getState().currentPage === 'profileEditData'){
-                    const data ={
-                        email: formData.get('email'),
-                        login: formData.get('login'),
-                        first_name: formData.get('first_name'),
-                        display_name: formData.get('display_name'),
-                        second_name: formData.get('second_name'),
-                        phone: formData.get('phone'),
+                    const data: Partial<ProfileData> = {
+                        email: this.getFormValue(formData, 'email'),
+                        login: this.getFormValue(formData, 'login'),
+                        first_name: this.getFormValue(formData, 'first_name'),
+                        display_name: this.getFormValue(formData, 'display_name'),
+                        second_name: this.getFormValue(formData, 'second_name'),
+                        phone: this.getFormValue(formData, 'phone'),
                     }
                     console.log('Почта:', data.email);
                     console.log('Логин:', data.login);
@@ -117,5 +126,9 @@ export default class Profile extends Block {
                 }
             }
         }
+    }
+    private getFormValue(formData: FormData | unknown, fieldName: string): string {
+        const value = formData.get(fieldName);
+        return value ? value.toString() : '';
     }
 }

@@ -94,7 +94,6 @@ export class HTTPTransport {
     });
   }
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function fetchWithRetry(url: string, options: RequestOptions & { tries?: number } = {}): Promise<Response> {
   const { tries = 1, ...fetchOptions } = options;
 

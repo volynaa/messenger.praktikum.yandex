@@ -31,6 +31,9 @@ export interface AppState {
   profile: Profile;
   selectedChat?: Chat;
 }
+interface PageComponent {
+  getContent: () => DocumentFragment;
+}
 export default class App {
   private static instance: App;
 
@@ -67,22 +70,22 @@ export default class App {
   render(): void {
     if (!this.appElement) return;
     this.appElement.innerHTML = '';
-    let pageComponent: unknown;
+    let pageComponent: PageComponent | null = null;
 
     if (this.state.currentPage === 'login') {
-      pageComponent = new Pages.Login();
+      pageComponent = new Pages.Login() as PageComponent;
     } else if (this.state.currentPage === 'chats') {
-      pageComponent = new Pages.Chats();
+      pageComponent = new Pages.Chats() as PageComponent;
     } else if (this.state.currentPage === 'register') {
-      pageComponent = new Pages.Register();
+      pageComponent = new Pages.Register() as PageComponent;
     } else if (this.state.currentPage === 'profileIndex' || this.state.currentPage === 'profileEditData'
         || this.state.currentPage === 'profileEditPassword') {
-      pageComponent = new Pages.Profile();
+      pageComponent = new Pages.Profile() as PageComponent;
     } else {
-      pageComponent = new Pages.Error404();
+      pageComponent = new Pages.Error404() as PageComponent;
     }
 
-    if (pageComponent && pageComponent.getContent) {
+    if (pageComponent) {
       const content = pageComponent.getContent();
       if (content) {
         this.appElement.appendChild(content);
