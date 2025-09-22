@@ -31,9 +31,6 @@ export interface AppState {
   profile: Profile;
   selectedChat?: Chat;
 }
-interface PageComponent {
-  getContent: () => DocumentFragment | null;
-}
 export default class App {
   private static instance: App;
 
