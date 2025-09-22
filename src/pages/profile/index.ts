@@ -1,4 +1,4 @@
-import './profile.css'
+import './profile.pcss'
 import Block from "../../ui/block";
 import Handlebars from "handlebars";
 import { inputHelper } from '../../components/Input';

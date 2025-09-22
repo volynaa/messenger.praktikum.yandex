@@ -41,7 +41,7 @@ export default class App {
 
   constructor() {
     this.state = {
-      currentPage: 'profileEditData',
+      currentPage: 'login',
       chats: [
         {
           id: '1', name: 'Андрей', avatar: '', lastMessage: 'Привет!', time: '10:49', countNewMessage: 2,

@@ -6,7 +6,7 @@ import { chatHelper } from '../../components/Chat';
 import { imgHelper } from '../../components/Img';
 import App from "../../App";
 import chats from './chats.hbs?raw';
-import './chats.css'
+import './chats.pcss'
 import FormValidator from "../../ui/validation";
 
 export default class Chats extends Block {

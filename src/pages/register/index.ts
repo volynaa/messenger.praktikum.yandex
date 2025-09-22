@@ -1,6 +1,6 @@
 import FormValidator from '../../ui/validation';
 import App from '../../App';
-import './register.css';
+import './register.pcss';
 import Block from "../../ui/block";
 import Handlebars from "handlebars";
 import {inputHelper} from "../../components/Input";
