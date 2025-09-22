@@ -61,24 +61,6 @@ class FormValidator {
     input.validationRules = rules;
   }
 
-  private validateForm(e: Event): boolean {
-    this.clearAllErrors();
-
-    let isValid = true;
-
-    this.inputs.forEach((input) => {
-      if (!this.validateField(input)) {
-        isValid = false;
-      }
-    });
-
-    if (!isValid) {
-      e.preventDefault();
-    }
-
-    return isValid;
-  }
-
   private validateField(input: FormField): boolean {
     const value = input.value.trim();
     let isValid = true;
