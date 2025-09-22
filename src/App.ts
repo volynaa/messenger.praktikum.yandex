@@ -32,7 +32,7 @@ export interface AppState {
   selectedChat?: Chat;
 }
 interface PageComponent {
-  getContent: () => DocumentFragment;
+  getContent: () => HTMLElement | null;
 }
 export default class App {
   private static instance: App;
