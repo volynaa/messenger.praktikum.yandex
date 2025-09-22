@@ -16,7 +16,7 @@ export interface Chat {
 }
 
 export interface Profile {
-  mail: string;
+  email: string;
   login: string;
   first_name: string;
   second_name: string;
@@ -31,7 +31,9 @@ export interface AppState {
   profile: Profile;
   selectedChat?: Chat;
 }
-
+interface PageComponent {
+  getContent: () => DocumentFragment | null;
+}
 export default class App {
   private static instance: App;
 
@@ -52,7 +54,7 @@ export default class App {
         },
       ],
       profile: {
-        mail: 'rrr@mail.ru',
+        email: 'rrr@mail.ru',
         login: 'rrr',
         first_name: 'Никита',
         second_name: 'Вол',
@@ -99,14 +101,14 @@ export default class App {
   public getState(): AppState {
     return this.state;
   }
-  public setSelectedChat(id): void{
+  public setSelectedChat(id: string): void{
     this.state.selectedChat = this.state.chats.find((chat) => chat.id === id);
     this.render()
   }
 
-  public setProfile(data): void{
-    this.state.profile = {
-      mail: data.email,
+  public setProfile(data: Partial<Profile>): void{
+    this.state.profile = <Profile>{
+      email: data.email,
       login: data.login,
       first_name: data.first_name,
       second_name: data.second_name,
