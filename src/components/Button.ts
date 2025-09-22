@@ -44,7 +44,9 @@ class Button extends Block<ButtonProps> {
         </button>
     `;
         if (this.props.classDiv) {
-            this.element.className = this.props.classDiv;
+            if(this.element){
+                this.element.className = this.props.classDiv;
+            }
         }
         if (container.firstElementChild) {
             fragment.appendChild(container.firstElementChild);

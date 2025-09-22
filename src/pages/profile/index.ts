@@ -33,7 +33,8 @@ export default class Profile extends Block {
         Handlebars.registerHelper('Input', inputHelper);
         Handlebars.registerHelper('Button', buttonHelper);
         Handlebars.registerHelper('Img', imgHelper);
-        const compiledTemplate = Handlebars.compile(templates[state.currentPage]);
+        const templateContent = templates[state.currentPage as keyof typeof templates] || profileIndex;
+        const compiledTemplate = Handlebars.compile(templateContent);
         template.innerHTML = compiledTemplate({profile: state.profile});
         fragment.appendChild(template.content.cloneNode(true));
         return fragment;

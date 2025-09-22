@@ -87,7 +87,10 @@ export default class Register extends Block {
       const button = target.tagName === 'BUTTON' ? target : target.closest('button');
       if (!button) return;
       if (target.id === 'log-in') {
-        const targetPage = e.target.dataset.page;
+        if (!e.target) return;
+
+        const target = e.target as HTMLElement;
+        const targetPage = target.dataset.page;
         if (targetPage) {
           const app = App.getInstance();
           app.changePage(targetPage);

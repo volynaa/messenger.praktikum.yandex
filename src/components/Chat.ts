@@ -1,6 +1,6 @@
 import Block from "../ui/block";
-
-interface ChatProps {
+import { Props } from '../ui/block';
+interface ChatProps extends Props {
     id?: string;
     avatar?: string;
     name?: string;
