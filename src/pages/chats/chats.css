@@ -210,3 +210,8 @@
     margin-left: auto;
     cursor: pointer;
 }
+
+.button-send{
+    margin-left: 15px;
+    margin-top: 2px;
+}

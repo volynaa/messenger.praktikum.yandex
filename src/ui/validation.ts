@@ -1,5 +1,6 @@
 export interface ValidationRules {
   required?: boolean;
+  errorShow?: boolean;
   minLen?: number;
   maxLen?: number;
   pattern?: string;
@@ -47,10 +48,15 @@ class FormValidator {
     if (patternAttr) {
       rules.pattern = patternAttr;
     }
+
     const requiredAttr = input.getAttribute('req');
     if (requiredAttr) {
       rules.required = requiredAttr === 'true' || requiredAttr === '';
     }
+
+    const errorAttr = input.getAttribute('errorShow');
+    rules.errorShow = errorAttr === 'true';
+
 
     input.validationRules = rules;
   }
@@ -109,7 +115,7 @@ class FormValidator {
       }
     }
 
-    if (isValid && input.id === 'doublePassword') {
+    if (isValid && input.id === 'password-repeat') {
       const passwordInput = Array.from(this.inputs).find(
           (inp) => inp.name === 'password');
       if (passwordInput && passwordInput.value !== value) {
@@ -117,7 +123,7 @@ class FormValidator {
         isValid = false;
       }
     }
-    if (!isValid) {
+    if (!isValid&&input.validationRules?.errorShow) {
       this.showError(input, errorMessage);
     }
 

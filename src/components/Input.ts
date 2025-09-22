@@ -10,13 +10,14 @@ interface InputProps {
     value?:string;
     aria_label?:string;
     req?: boolean | string;
+    errorShow?: boolean | string;
     events?: {
         click?: (event: Event) => void;
         submit?: (event: Event) => void;
     };
 }
 
-export default class Input extends Block<InputProps> {
+class Input extends Block<InputProps> {
     constructor(props: InputProps) {
         super('div', props);
     }
@@ -37,6 +38,7 @@ export default class Input extends Block<InputProps> {
         ${this.props.minLen ? `minLen="${this.props.minLen}"` : 'minLen=""'}
         ${this.props.maxLen ? `maxLen="${this.props.maxLen}"` : 'maxLen=""'}
         ${this.props.pat ? `pat="${this.props.pat}"` : 'pat=""'}
+        ${this.props.errorShow === false ? `errorShow="false"` : 'errorShow="true"'}
       </input>
     `;
 
@@ -59,6 +61,7 @@ interface InputHelperProps {
         maxLen?: string;
         pat?: string;
         className?: string;
+        errorShow?: boolean | string;
         req?: boolean | string;
     };
 }
@@ -74,7 +77,8 @@ export function inputHelper(props: InputHelperProps): string {
         maxLen: props.hash.maxLen,
         pat: props.hash.pat,
         className: props.hash.className,
-        req: props.hash.req
+        req: props.hash.req,
+        errorShow: props.hash.errorShow
     });
 
     const content = input.getContent();

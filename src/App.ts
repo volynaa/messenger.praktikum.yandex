@@ -21,6 +21,7 @@ export interface Profile {
   first_name: string;
   second_name: string;
   display_name: string;
+  avatar: string;
   phone: string;
 }
 
@@ -40,7 +41,7 @@ export default class App {
 
   constructor() {
     this.state = {
-      currentPage: 'chats',
+      currentPage: 'profileEditData',
       chats: [
         {
           id: '1', name: 'Андрей', avatar: '', lastMessage: 'Привет!', time: '10:49', countNewMessage: 2,
@@ -54,8 +55,9 @@ export default class App {
         mail: 'rrr@mail.ru',
         login: 'rrr',
         first_name: 'Никита',
-        second_name: 'В',
+        second_name: 'Вол',
         display_name: 'Никита',
+        avatar: '/photo.svg',
         phone: '88005553535',
       },
       selectedChat: undefined,
@@ -150,7 +152,21 @@ export default class App {
   public getState(): AppState {
     return this.state;
   }
+  public setSelectedChat(id): void{
+    this.state.selectedChat = this.state.chats.find((chat) => chat.id === id);
+    this.render()
+  }
 
+  public setProfile(data): void{
+    this.state.profile = {
+      mail: data.email,
+      login: data.login,
+      first_name: data.first_name,
+      second_name: data.second_name,
+      display_name: data.display_name,
+      phone: data.phone,
+    }
+  }
   public static getInstance(): App {
     if (!App.instance) {
       App.instance = new App();

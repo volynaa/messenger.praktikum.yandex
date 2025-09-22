@@ -5,7 +5,6 @@ const METHODS = {
   DELETE: 'DELETE',
 } as const;
 
-type Method = keyof typeof METHODS;
 type HTTPMethod = <R = unknown>(url: string, options?: Partial<RequestOptions<QueryParams>>) => Promise<R>;
 
 
@@ -15,10 +14,6 @@ interface RequestOptions {
   data?: Record<string, unknown> | FormData | XMLHttpRequestBodyInit;
   timeout?: number;
   tries?: number;
-}
-
-interface HTTPTransportOptions extends RequestOptions {
-  method: HTTPMethod;
 }
 
 function queryStringify(data: Record<string, unknown>): string {
@@ -96,7 +91,7 @@ class HTTPTransport {
         xhr.send(data);
       }
     });
-  };
+  }
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function fetchWithRetry(url: string, options: RequestOptions & { tries?: number } = {}): Promise<Response> {

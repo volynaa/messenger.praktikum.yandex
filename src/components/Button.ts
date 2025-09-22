@@ -19,7 +19,7 @@ interface ButtonProps {
     };
 }
 
-export default class Button extends Block<ButtonProps> {
+class Button extends Block<ButtonProps> {
     constructor(props: ButtonProps) {
         super('div', props);
     }
@@ -32,7 +32,6 @@ export default class Button extends Block<ButtonProps> {
             ? `<img src="${this.props.iconSrc}" alt="${this.props.iconAlt || ''}" class="${this.props.iconClass || ''}">`
             : '';
         container.innerHTML = `
-      <div class="${this.props.classDiv || ''}">
         <button 
           id="${this.props.id || ''}" 
           class="${this.props.className || 'button'}"
@@ -41,11 +40,12 @@ export default class Button extends Block<ButtonProps> {
           ${this.props.type ? `type="${this.props.type}"` : 'type="button"'}
         >
           ${this.props.text || ''}
+          ${iconHtml}
         </button>
-        ${iconHtml}
-      </div>
     `;
-
+        if (this.props.classDiv) {
+            this.element.className = this.props.classDiv;
+        }
         if (container.firstElementChild) {
             fragment.appendChild(container.firstElementChild);
         }

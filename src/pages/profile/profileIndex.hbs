@@ -41,14 +41,29 @@
             <span class="right-element">{{profile.phone}}</span>
         </div>
 
-        <div class="form-group mt-50 color-blue" id="editData">
-            <span class="left-element">Изменить данные</span>
-        </div>
-        <div class="form-group color-blue" id="editPassword">
-            <span class="left-element">Изменить пароль</span>
-        </div>
-        <div class="form-group color-red">
-            <span class="left-element">Выйти</span>
-        </div>
+        {{{ Button
+                id="editData"
+                name="editData"
+                className="color-blue"
+                classDiv="form-group mt-50"
+                text="Изменить данные"
+                aria_label="Изменить данные"
+                dataPage="profileEditData"
+        }}}
+        {{{ Button
+                id="editPassword"
+                name="editPassword"
+                className="color-blue"
+                classDiv="form-group"
+                text="Изменить пароль"
+                aria_label="Изменить пароль"
+                dataPage="profileEditPassword"
+        }}}
+        {{{ Button
+                className="color-red"
+                classDiv="form-group"
+                text="Выйти"
+                aria_label="Выйти"
+        }}}
     </main>
 </div>

@@ -24,22 +24,14 @@
             <section id="chat-container" aria-label="Список чатов">
                 {{#if chats.length}}
                     {{# each chats}}
-                        <div class="chat-item" id="{{id}}">
-                            {{#if avatar.length}}
-                                <img src="{{avatar}}" alt="Аватар пользователя">
-                            {{else}}
-                                <div class="chat-avatar"> </div>
-                            {{/if}}
-
-                            <div class="chat-info">
-                                <h2 class="chat-name">{{name}}</h2>
-                                <span class="last-message">{{lastMessage}}</span>
-                            </div>
-                            <div class="chat-time">{{time}}</div>
-                            {{#if countNewMessage}}
-                                <div class="chat-count-message">{{countNewMessage}}</div>
-                            {{/if}}
-                        </div>
+                        {{{Chat
+                            id=id
+                            avatar=avatar
+                            name=name
+                            lastMessage=lastMessage
+                            time=time
+                            countNewMessage=countNewMessage
+                        }}}
                     {{/each}}
                 {{/if}}
             </section>
@@ -73,11 +65,24 @@
                     <button type="button" aria-label="Прикрепить файл">
                         <img src="/clip.svg" alt="">
                     </button>
-                    <form class="flex">
-                        <input id="message" name="message" class="chat-message-footer-input" placeholder="Сообщение" aria-label="Текст сообщения">
-                        <button type="submit" aria-label="Отправить сообщение">
-                            <img src="/arrow-right-blue.svg" alt="">
-                        </button>
+                    <form class="flex" id="message-form">
+                        {{{ Input
+                                id="message"
+                                name="message"
+                                type="text"
+                                placeholder="Сообщение"
+                                aria_label="Текст сообщения"
+                                className="chat-message-footer-input"
+                                req=true
+                                errorShow=false
+                        }}}
+                        {{{ Img
+                                id="sendMessage"
+                                src="/arrow-right-blue.svg"
+                                alt="Отправить сообщение"
+                                className="button-send"
+                        }}}
+
                     </form>
                 </footer>
             {{else}}

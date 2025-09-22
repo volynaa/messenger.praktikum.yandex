@@ -8,15 +8,18 @@ import App from "../../App";
 import profileIndex from './profileIndex.hbs?raw';
 import profileEditData from './profileEditData.hbs?raw';
 import profileEditPassword from './profileEditPassword.hbs?raw';
+import FormValidator from "../../ui/validation";
 const templates = {
     profileIndex,
     profileEditData,
     profileEditPassword
 };
 export default class Profile extends Block {
+    private validator: FormValidator | null = null;
     constructor() {
         super('div',{
             events: {
+                submit: (e: Event) => this.handleSubmit(e),
                 click: (e: Event) => this.handleButtonClick(e)
             }
         });
@@ -36,11 +39,82 @@ export default class Profile extends Block {
         return fragment;
 
     }
+    protected componentDidMount(): void {
+        setTimeout(() => {
+            this.initializeValidator();
+        }, 100);
+    }
+
+    private initializeValidator(): void {
+        try {
+            const registerForm = this.element?.querySelector('#input-container') as HTMLFormElement;
+            if (registerForm) {
+                this.validator = new FormValidator('input-container');
+            }
+        } catch (error) {
+            console.error('Form validation initialization error:', error);
+        }
+    }
     private handleButtonClick(e: Event): void {
-        const targetPage = e.target.dataset.page;
-        if (targetPage) {
-            const app = App.getInstance();
-            app.changePage(targetPage);
+        const target = e.target as HTMLElement;
+        if ((target as HTMLButtonElement).type !== 'submit') {
+            if (target.closest('[data-page]')) {
+                const targetPage = target.closest('[data-page]')?.getAttribute('data-page');
+
+                if (targetPage) {
+                    const app = App.getInstance();
+                    app.changePage(targetPage);
+                }
+                return;
+            }
+        }
+    }
+    private handleSubmit(e: Event): void {
+        e.preventDefault();
+
+        if (!this.validator) {
+            console.error('Validator not initialized');
+            return;
+        }
+
+        const submitter = (e as SubmitEvent).submitter;
+        if (!submitter) {
+            return;
+        }
+
+        if (this.validator.isValid()) {
+            const registerForm = this.element?.querySelector('#input-container') as HTMLFormElement;
+            if (registerForm) {
+                const app = App.getInstance();
+
+                const formData = new FormData(registerForm);
+                if(app.getState().currentPage === 'profileEditData'){
+                    const data ={
+                        email: formData.get('email'),
+                        login: formData.get('login'),
+                        first_name: formData.get('first_name'),
+                        display_name: formData.get('display_name'),
+                        second_name: formData.get('second_name'),
+                        phone: formData.get('phone'),
+                    }
+                    console.log('Почта:', data.email);
+                    console.log('Логин:', data.login);
+                    console.log('Имя:', data.first_name);
+                    console.log('Имя в чате:', data.display_name);
+                    console.log('Фамилия:', data.second_name);
+                    console.log('Телефон:', data.phone);
+                    app.setProfile(data)
+                }
+                else{
+                    console.log('Старый пароль:', formData.get('old_password'));
+                    console.log('Новый пароль:', formData.get('new_password'));
+                    console.log('Новый пароль еще раз:', formData.get('doublePassword'));
+                }
+                const targetPage = submitter.dataset.page;
+                if (targetPage) {
+                    app.changePage(targetPage);
+                }
+            }
         }
     }
 }
