@@ -1,12 +1,4 @@
-import Handlebars from 'handlebars';
 import * as Pages from './pages';
-
-import Input from './components/Input';
-import { buttonHelper } from './components/Button';
-
-Handlebars.registerPartial('Input', Input);
-Handlebars.registerHelper('Button', buttonHelper);
-
 export interface Message {
   text: string;
   type: number;
@@ -24,11 +16,12 @@ export interface Chat {
 }
 
 export interface Profile {
-  mail: string;
+  email: string;
   login: string;
   first_name: string;
   second_name: string;
   display_name: string;
+  avatar: string;
   phone: string;
 }
 
@@ -38,7 +31,9 @@ export interface AppState {
   profile: Profile;
   selectedChat?: Chat;
 }
-
+interface PageComponent {
+  getContent: () => HTMLElement | null;
+}
 export default class App {
   private static instance: App;
 
@@ -59,11 +54,12 @@ export default class App {
         },
       ],
       profile: {
-        mail: 'rrr@mail.ru',
+        email: 'rrr@mail.ru',
         login: 'rrr',
         first_name: 'Никита',
-        second_name: 'В',
+        second_name: 'Вол',
         display_name: 'Никита',
+        avatar: '/photo.svg',
         phone: '88005553535',
       },
       selectedChat: undefined,
@@ -73,87 +69,28 @@ export default class App {
 
   render(): void {
     if (!this.appElement) return;
+    this.appElement.innerHTML = '';
+    let pageComponent: PageComponent | null = null;
 
-    let template: Handlebars.TemplateDelegate<unknown>;
     if (this.state.currentPage === 'login') {
-      template = Handlebars.compile(Pages.login);
-      this.appElement.innerHTML = template({});
+      pageComponent = new Pages.Login() as PageComponent;
     } else if (this.state.currentPage === 'chats') {
-      template = Handlebars.compile(Pages.chats);
-      this.appElement.innerHTML = template({
-        chats: this.state.chats,
-        selected: this.state.selectedChat
-      });
+      pageComponent = new Pages.Chats() as PageComponent;
     } else if (this.state.currentPage === 'register') {
-      template = Handlebars.compile(Pages.register);
-      this.appElement.innerHTML = template({});
-    } else if (this.state.currentPage === 'profileIndex') {
-      template = Handlebars.compile(Pages.profileIndex);
-      this.appElement.innerHTML = template({ profile: this.state.profile });
-    } else if (this.state.currentPage === 'profileEditData') {
-      template = Handlebars.compile(Pages.profileEditData);
-      this.appElement.innerHTML = template({ profile: this.state.profile });
-    } else if (this.state.currentPage === 'profileEditPassword') {
-      template = Handlebars.compile(Pages.profileEditPassword);
-      this.appElement.innerHTML = template({ profile: this.state.profile });
+      pageComponent = new Pages.Register() as PageComponent;
+    } else if (this.state.currentPage === 'profileIndex' || this.state.currentPage === 'profileEditData'
+        || this.state.currentPage === 'profileEditPassword') {
+      pageComponent = new Pages.Profile() as PageComponent;
     } else {
-      template = Handlebars.compile(Pages.error404);
-      this.appElement.innerHTML = template({});
+      pageComponent = new Pages.Error404() as PageComponent;
     }
-    this.attachEventListeners();
-  }
 
-  private attachEventListeners(): void {
-    const backButton = document.getElementById('back-profile');
-    if (backButton) {
-      backButton.addEventListener('click', () => {
-        this.changePage('chats');
-      });
+    if (pageComponent) {
+      const content = pageComponent.getContent();
+      if (content) {
+        this.appElement.appendChild(content);
+      }
     }
-    const backEditButton = document.getElementById('back-edit');
-    if (backEditButton) {
-      backEditButton.addEventListener('click', () => {
-        this.changePage('profileIndex');
-      });
-    }
-    const profileButton = document.getElementById('profile');
-    if (profileButton) {
-      profileButton.addEventListener('click', () => {
-        this.changePage('profileIndex');
-      });
-    }
-    const profileEditData = document.getElementById('editData');
-    if (profileEditData) {
-      profileEditData.addEventListener('click', () => {
-        this.changePage('profileEditData');
-      });
-    }
-    const profileEditPassword = document.getElementById('editPassword');
-    if (profileEditPassword) {
-      profileEditPassword.addEventListener('click', () => {
-        this.changePage('profileEditPassword');
-      });
-    }
-    const comebackButton = document.getElementById('comeback');
-    if (comebackButton) {
-      comebackButton.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLElement;
-        const targetPage = target.dataset.page;
-        if (targetPage) {
-          this.changePage(targetPage);
-        }
-      });
-    }
-    const chatItems = document.querySelectorAll('.chat-item');
-    chatItems.forEach((chatItem) => {
-      chatItem.addEventListener('click', () => {
-        const chatId = chatItem.id;
-        const selectedChat = this.state.chats.find((chat) => chat.id === chatId);
-
-        this.state.selectedChat = selectedChat;
-        this.render();
-      });
-    });
   }
 
   changePage(page: string): void {
@@ -164,7 +101,22 @@ export default class App {
   public getState(): AppState {
     return this.state;
   }
+  public setSelectedChat(id: string): void{
+    this.state.selectedChat = this.state.chats.find((chat) => chat.id === id);
+    this.render()
+  }
 
+  public setProfile(data: Partial<Profile>): void{
+    this.state.profile = <Profile>{
+      email: data.email,
+      login: data.login,
+      first_name: data.first_name,
+      second_name: data.second_name,
+      display_name: data.display_name,
+      phone: data.phone,
+      avatar: data.avatar,
+    }
+  }
   public static getInstance(): App {
     if (!App.instance) {
       App.instance = new App();

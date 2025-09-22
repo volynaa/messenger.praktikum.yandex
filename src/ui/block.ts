@@ -75,6 +75,7 @@ export default abstract class Block<P extends Props = Props> {
   private init(): void {
     this._createResources();
     this.eventBus.emit(Block.EVENTS.FLOW_RENDER);
+    this._componentDidMount();
   }
 
   private _componentDidMount(): void {
@@ -134,7 +135,7 @@ export default abstract class Block<P extends Props = Props> {
     });
   }
 
-  private _removeEvents(): void {
+  private  _removeEvents(): void {
     const { events = {} } = this.props;
 
     Object.keys(events).forEach(eventName => {

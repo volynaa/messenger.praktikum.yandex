@@ -5,8 +5,7 @@ const METHODS = {
   DELETE: 'DELETE',
 } as const;
 
-type Method = keyof typeof METHODS;
-type HTTPMethod = (typeof METHODS)[Method];
+type HTTPMethod = (typeof METHODS)[keyof typeof METHODS];
 
 interface RequestOptions {
   method?: HTTPMethod;
@@ -15,12 +14,8 @@ interface RequestOptions {
   timeout?: number;
   tries?: number;
 }
-
-interface HTTPTransportOptions extends RequestOptions {
-  method: HTTPMethod;
-}
-
-function queryStringify(data: Record<string, unknown>): string {
+type QueryParams = Record<string, string | number | boolean>;
+function queryStringify(data: QueryParams): string {
   if (typeof data !== 'object' || data === null) {
     throw new Error('Data must be object');
   }
@@ -37,21 +32,24 @@ function queryStringify(data: Record<string, unknown>): string {
   }, '?');
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-class HTTPTransport {
-  get = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.GET }, options.timeout);
+export class HTTPTransport {
+  private createMethod(method: HTTPMethod) {
+    return <R = unknown>(url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<R> => {
+      return this.request<R>(url, { ...options, method });
+    };
+  }
+  public readonly get = this.createMethod(METHODS.GET);
 
-  post = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.POST }, options.timeout);
+  public readonly put = this.createMethod(METHODS.PUT);
 
-  put = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.PUT }, options.timeout);
+  public readonly post = this.createMethod(METHODS.POST);
 
-  delete = (url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<XMLHttpRequest> =>
-      this.request(url, { ...options, method: METHODS.DELETE }, options.timeout);
-
-  request = (url: string, options: HTTPTransportOptions, timeout: number = 5000): Promise<XMLHttpRequest> => {
-    const { headers = {}, method, data } = options;
+  public readonly delete = this.createMethod(METHODS.DELETE);
+  private request<R>(
+      url: string,
+      options: RequestOptions & { method: HTTPMethod },
+  ): Promise<R>  {
+    const { headers = {}, method, data, timeout = 5000 } = options;
 
     return new Promise((resolve, reject) => {
       if (!method) {
@@ -65,7 +63,7 @@ class HTTPTransport {
       xhr.open(
           method,
           isGet && data && typeof data === 'object' && !(data instanceof FormData)
-              ? `${url}${queryStringify(data as Record<string, unknown>)}`
+              ? `${url}${queryStringify(data as QueryParams)}`
               : url,
       );
 
@@ -74,7 +72,7 @@ class HTTPTransport {
       });
 
       xhr.onload = function () {
-        resolve(xhr);
+        resolve(xhr as R);
       };
 
       xhr.onabort = () => reject(new Error('Request aborted'));
@@ -94,10 +92,9 @@ class HTTPTransport {
         xhr.send(data);
       }
     });
-  };
+  }
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function fetchWithRetry(url: string, options: RequestOptions & { tries?: number } = {}): Promise<Response> {
+export async function fetchWithRetry(url: string, options: RequestOptions & { tries?: number } = {}): Promise<Response> {
   const { tries = 1, ...fetchOptions } = options;
 
   const onError = (err: Error): Promise<Response> => {
