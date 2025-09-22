@@ -91,59 +91,6 @@ export default class App {
     }
   }
 
-  private attachEventListeners(): void {
-    const backButton = document.getElementById('back-profile');
-    if (backButton) {
-      backButton.addEventListener('click', () => {
-        this.changePage('chats');
-      });
-    }
-    const backEditButton = document.getElementById('back-edit');
-    if (backEditButton) {
-      backEditButton.addEventListener('click', () => {
-        this.changePage('profileIndex');
-      });
-    }
-    const profileButton = document.getElementById('profile');
-    if (profileButton) {
-      profileButton.addEventListener('click', () => {
-        this.changePage('profileIndex');
-      });
-    }
-    const profileEditData = document.getElementById('editData');
-    if (profileEditData) {
-      profileEditData.addEventListener('click', () => {
-        this.changePage('profileEditData');
-      });
-    }
-    const profileEditPassword = document.getElementById('editPassword');
-    if (profileEditPassword) {
-      profileEditPassword.addEventListener('click', () => {
-        this.changePage('profileEditPassword');
-      });
-    }
-    const comebackButton = document.getElementById('comeback');
-    if (comebackButton) {
-      comebackButton.addEventListener('click', (e) => {
-        const target = e.currentTarget as HTMLElement;
-        const targetPage = target.dataset.page;
-        if (targetPage) {
-          this.changePage(targetPage);
-        }
-      });
-    }
-    const chatItems = document.querySelectorAll('.chat-item');
-    chatItems.forEach((chatItem) => {
-      chatItem.addEventListener('click', () => {
-        const chatId = chatItem.id;
-        const selectedChat = this.state.chats.find((chat) => chat.id === chatId);
-
-        this.state.selectedChat = selectedChat;
-        this.render();
-      });
-    });
-  }
-
   changePage(page: string): void {
     this.state.currentPage = page;
     this.render();
@@ -165,6 +112,7 @@ export default class App {
       second_name: data.second_name,
       display_name: data.display_name,
       phone: data.phone,
+      avatar: data.avatar,
     }
   }
   public static getInstance(): App {
