@@ -12,6 +12,7 @@ export default class Login extends Block {
   constructor() {
     super('div', {
       events: {
+        focusout: (e: Event) => this.handleSubmit(e),
         submit: (e: Event) => this.handleSubmit(e),
         click: (e: Event) => this.handleButtonClick(e)
       }
@@ -46,6 +47,7 @@ export default class Login extends Block {
     }
   }
   private handleSubmit(e: Event): void {
+    console.log('ter')
     e.preventDefault();
 
     if (!this.validator) {
