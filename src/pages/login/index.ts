@@ -13,6 +13,7 @@ export default class Login extends Block {
     super('div', {
       events: {
         blur: (e: Event) => this.handleBlur(e),
+        focusout : (e: Event) => this.handleFocusout(e),
         submit: (e: Event) => this.handleSubmit(e),
         click: (e: Event) => this.handleButtonClick(e)
       }
@@ -46,8 +47,11 @@ export default class Login extends Block {
       console.error('Form validation initialization error:', error);
     }
   }
+  private handleFocusout(e: Event): void {
+    console.log('handleFocusout')
+  }
   private handleBlur(e: Event): void {
-    console.log('yes')
+    console.log('handleBlur')
   }
   private handleSubmit(e: Event): void {
     e.preventDefault();
