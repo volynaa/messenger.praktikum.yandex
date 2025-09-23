@@ -12,7 +12,7 @@ export default class Login extends Block {
   constructor() {
     super('div', {
       events: {
-        blur: (e: Event) => this.handleSubmit(e),
+        blur: (e: Event) => this.handleBlur(e),
         submit: (e: Event) => this.handleSubmit(e),
         click: (e: Event) => this.handleButtonClick(e)
       }
