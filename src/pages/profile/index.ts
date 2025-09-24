@@ -28,6 +28,7 @@ export default class Profile extends Block {
     constructor() {
         super('div',{
             events: {
+                focusout : (e: Event) => this.handleBlur(e),
                 submit: (e: Event) => this.handleSubmit(e),
                 click: (e: Event) => this.handleButtonClick(e)
             }
@@ -65,6 +66,11 @@ export default class Profile extends Block {
             console.error('Form validation initialization error:', error);
         }
     }
+    private handleBlur(e: Event): void {
+        if (this.validator) {
+            this.validator.isValidOneElement(e)
+        }
+    }
     private handleButtonClick(e: Event): void {
         const target = e.target as HTMLElement;
         if ((target as HTMLButtonElement).type !== 'submit') {
@@ -79,6 +85,7 @@ export default class Profile extends Block {
             }
         }
     }
+
     private handleSubmit(e: Event): void {
         e.preventDefault();
 

@@ -12,6 +12,7 @@ export default class Login extends Block {
   constructor() {
     super('div', {
       events: {
+        focusout : (e: Event) => this.handleBlur(e),
         submit: (e: Event) => this.handleSubmit(e),
         click: (e: Event) => this.handleButtonClick(e)
       }
@@ -43,6 +44,11 @@ export default class Login extends Block {
       }
     } catch (error) {
       console.error('Form validation initialization error:', error);
+    }
+  }
+  private handleBlur(e: Event): void {
+    if (this.validator) {
+      this.validator.isValidOneElement(e)
     }
   }
   private handleSubmit(e: Event): void {

@@ -77,7 +77,7 @@
                             minLen="8"
                             maxLen="40"
                             req=true
-                            pat="^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$"
+                            pat="^(?=.*[A-Z])(?=.*\d).+$"
                     }}}
                 </div>
 
@@ -91,13 +91,13 @@
                             minLen="8"
                             maxLen="40"
                             req=true
-                            pat="^(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]+$"
+                            pat="^(?=.*[A-Z])(?=.*\d).+$"
                     }}}
                 </div>
 
                 <div class="button-container">
                     <div>{{{ Button id="register" text="Зарегистрироваться" dataPage="login" type="submit"}}}</div>
-                    <div>{{{ Button id="log-in" text="Авторизация" dataPage="login" type="submit"}}}</div>
+                    <div>{{{ Button id="log-in" text="Авторизация" dataPage="login" type="button"}}}</div>
                 </div>
             </form>
         </div>
