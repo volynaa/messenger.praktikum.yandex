@@ -21,5 +21,3 @@
  ## На веб-приложение:
 
  Netlify: https://sdfgshd.netlify.app/
-
-
