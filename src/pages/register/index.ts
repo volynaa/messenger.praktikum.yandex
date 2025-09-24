@@ -12,6 +12,7 @@ export default class Register extends Block {
   constructor() {
     super('div', {
       events: {
+        focusout : (e: Event) => this.handleBlur(e),
         submit: (e: Event) => this.handleSubmit(e),
         click: (e: Event) => this.handleButtonClick(e)
       }
@@ -34,7 +35,11 @@ export default class Register extends Block {
       this.initializeValidator();
     }, 0);
   }
-
+  private handleBlur(e: Event): void {
+    if (this.validator) {
+      this.validator.isValidOneElement(e)
+    }
+  }
   private initializeValidator(): void {
     try {
       const registerForm = this.element?.querySelector('#register-form') as HTMLFormElement;

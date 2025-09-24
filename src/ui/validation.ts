@@ -130,11 +130,13 @@ class FormValidator {
   }
 
   private clearError(input: FormField): void {
-    const errorElement = input.nextElementSibling as HTMLElement;
-    if (errorElement && errorElement.classList.contains('error-message')) {
-      errorElement.remove();
+    if(input){
+      const errorElement = input.nextElementSibling as HTMLElement;
+      if (errorElement && errorElement.classList.contains('error-message')) {
+        errorElement.remove();
+      }
+      input.classList.remove('input-error');
     }
-    input.classList.remove('input-error');
   }
 
   private clearAllErrors(): void {
@@ -157,6 +159,22 @@ class FormValidator {
 
   public isValid(): boolean {
     return this.validateAll();
+  }
+
+  public isValidOneElement(e): boolean {
+    let isValid = true;
+    let elem = undefined
+    this.inputs.forEach((input) => {
+      if(input.id===e.target.id){
+        elem = input
+      }
+    });
+    this.clearError(elem);
+    if (elem && !this.validateField(elem)) {
+      isValid = false;
+    }
+
+    return isValid;
   }
 }
 
