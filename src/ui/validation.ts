@@ -161,19 +161,23 @@ class FormValidator {
     return this.validateAll();
   }
 
-  public isValidOneElement(e): boolean {
+  public isValidOneElement(e: Event): boolean {
     let isValid = true;
     let elem = undefined
-    this.inputs.forEach((input) => {
-      if(input.id===e.target.id){
-        elem = input
-      }
-    });
-    this.clearError(elem);
-    if (elem && !this.validateField(elem)) {
-      isValid = false;
+    const target = e.target as HTMLInputElement;
+    if(target){
+      this.inputs.forEach((input) => {
+        if(input.id===target.id){
+          elem = input
+        }
+      });
     }
-
+    if(elem){
+      this.clearError(elem);
+      if (!this.validateField(elem)) {
+        isValid = false;
+      }
+    }
     return isValid;
   }
 }
