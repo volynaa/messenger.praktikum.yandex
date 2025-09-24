@@ -9,6 +9,10 @@
  Установить зависимости проекта: `npm install`
  
  Собрать проект: `npm run build`
+
+ ESLint: `npm run lint`
+
+ Stylelint: `npm run lint:styles`
  
  Запустить проект на localhost: `npm run start`
  
