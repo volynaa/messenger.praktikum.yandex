@@ -1,4 +1,5 @@
 import * as Pages from './pages';
+import Router from './ui/router'
 export interface Message {
   text: string;
   type: number;
@@ -36,12 +37,14 @@ interface PageComponent {
 }
 export default class App {
   private static instance: App;
-
+  private router: Router;
   private state: AppState;
 
   private appElement: HTMLElement | null;
 
   constructor() {
+    this.router = new Router('#app');
+
     this.state = {
       currentPage: 'login',
       chats: [
@@ -66,36 +69,21 @@ export default class App {
     };
     this.appElement = document.getElementById('app');
   }
-
-  render(): void {
-    if (!this.appElement) return;
-    this.appElement.innerHTML = '';
-    let pageComponent: PageComponent | null = null;
-
-    if (this.state.currentPage === 'login') {
-      pageComponent = new Pages.Login() as PageComponent;
-    } else if (this.state.currentPage === 'chats') {
-      pageComponent = new Pages.Chats() as PageComponent;
-    } else if (this.state.currentPage === 'register') {
-      pageComponent = new Pages.Register() as PageComponent;
-    } else if (this.state.currentPage === 'profileIndex' || this.state.currentPage === 'profileEditData'
-        || this.state.currentPage === 'profileEditPassword') {
-      pageComponent = new Pages.Profile() as PageComponent;
-    } else {
-      pageComponent = new Pages.Error404() as PageComponent;
-    }
-
-    if (pageComponent) {
-      const content = pageComponent.getContent();
-      if (content) {
-        this.appElement.appendChild(content);
-      }
-    }
+  private configureRoutes() {
+    this.router
+        .use('/', Pages.Login)
+        .use('/messenger', Pages.Chats)
+        .use('/settings', Pages.Profile)
+        .use('/settings/data', Pages.Profile)
+        .use('/settings/password', Pages.Profile)
+        .use('/sign-up', Pages.Register)
+        .use('/404', Pages.Error404)
+        .use('/500', Pages.Error500)
+        .start();
   }
+  render(): void {
+    this.configureRoutes()
 
-  changePage(page: string): void {
-    this.state.currentPage = page;
-    this.render();
   }
 
   public getState(): AppState {

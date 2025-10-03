@@ -4,7 +4,7 @@ import {buttonHelper} from "../../components/Button";
 import { inputHelper } from '../../components/Input';
 import { chatHelper } from '../../components/Chat';
 import { imgHelper } from '../../components/Img';
-import App from "../../App";
+import App, {AppState} from "../../App";
 import chats from './chats.hbs?raw';
 import './chats.pcss'
 import FormValidator from "../../ui/validation";

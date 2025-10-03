@@ -5,10 +5,10 @@ import loginTemplate from './login.hbs?raw';
 import Handlebars from 'handlebars';
 import { inputHelper } from '../../components/Input';
 import { buttonHelper } from '../../components/Button';
-
+import Router from '../../ui/router';
 export default class Login extends Block {
   private validator: FormValidator | null = null;
-
+  private router: Router;
   constructor() {
     super('div', {
       events: {
@@ -17,6 +17,7 @@ export default class Login extends Block {
         click: (e: Event) => this.handleButtonClick(e)
       }
     })
+    this.router = new Router('#app');
   }
 
   protected render(): DocumentFragment {
@@ -76,8 +77,7 @@ export default class Login extends Block {
 
         const targetPage = submitter.dataset.page;
         if (targetPage) {
-          const app = App.getInstance();
-          app.changePage(targetPage);
+          this.router.go(targetPage);
         }
       }
     }

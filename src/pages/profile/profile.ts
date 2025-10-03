@@ -9,11 +9,8 @@ import profileIndex from './profileIndex.hbs?raw';
 import profileEditData from './profileEditData.hbs?raw';
 import profileEditPassword from './profileEditPassword.hbs?raw';
 import FormValidator from "../../ui/validation";
-const templates = {
-    profileIndex,
-    profileEditData,
-    profileEditPassword
-};
+import Router from '../../ui/router';
+
 export interface ProfileData {
     email: string;
     login: string;
@@ -25,6 +22,7 @@ export interface ProfileData {
 }
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
+    private router: Router;
     constructor() {
         super('div',{
             events: {
@@ -33,9 +31,14 @@ export default class Profile extends Block {
                 click: (e: Event) => this.handleButtonClick(e)
             }
         });
+        this.router = new Router('#app');
     }
 
     protected render(): DocumentFragment {
+        const templates = {
+            '/settings/data':profileEditData,
+            '/settings/password':profileEditPassword
+        };
         const app = App.getInstance();
         const state = app.getState();
         const fragment = document.createDocumentFragment();
@@ -43,7 +46,8 @@ export default class Profile extends Block {
         Handlebars.registerHelper('Input', inputHelper);
         Handlebars.registerHelper('Button', buttonHelper);
         Handlebars.registerHelper('Img', imgHelper);
-        const templateContent = templates[state.currentPage as keyof typeof templates] || profileIndex;
+
+        const templateContent = templates[window.location.pathname] || profileIndex;
         const compiledTemplate = Handlebars.compile(templateContent);
         template.innerHTML = compiledTemplate({profile: state.profile});
         fragment.appendChild(template.content.cloneNode(true));
