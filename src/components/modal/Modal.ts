@@ -26,10 +26,10 @@ export class Modal extends Block {
             Handlebars.registerHelper('Button', buttonHelper);
             const contentTemplate = Handlebars.compile(`
                 <form class="input-container" id="login-form">
-                    <label for="login" class="grey-text">Логин</label>
+                    <label for="add-login" class="grey-text">Логин</label>
                     {{{ Input
-                            id="login"
-                            name="login"
+                            id="add-login"
+                            name="add-login"
                             type="text"
                             placeholder="Логин"
                             minLen="3"
@@ -42,7 +42,7 @@ export class Modal extends Block {
         }
         if(this.props.showFooterButton){
             const contentTemplate = Handlebars.compile(`
-            {{{Button id="login" text="Добавить" className="button" type="submit"}}}
+            {{{Button id="add-login" text="Добавить" className="button" type="submit"}}}
             {{{Button id="modal-close"  className="button button-close" text="Закрыть" type="button"}}}
             `);
             buttonBlock = contentTemplate({});
@@ -52,7 +52,7 @@ export class Modal extends Block {
             <div class="modal-content">
                 ${this.props.title ? `<div class="modal-header"><h3>${this.props.title}</h3></div>` : ''}
                 <div class="modal-body mt-20">${content}</div>
-                ${this.props.showCloseButton ? '<button id="modal-close" class="modal-close">&times;</button>' : ''}
+                ${this.props.showCloseButton ? '<button id="modal-close" class="modal-close" type="button">&times;</button>' : ''}
                 ${this.props.showFooterButton ? 
                 `<div class="flex gap-10 mt-30">
                     ${buttonBlock}

@@ -65,15 +65,37 @@
                         <div class="chat-message-avatar"> </div>
                     {{/if}}
                     <h2 class="chat-name">{{selected.title}}</h2>
-                    <div class="burger-menu">
-                        <img src="/burger-menu.svg" alt="Меню">
+                    <div id="burger-menu" class="burger-menu">
+                        <img src="/chat/burger-menu.svg" alt="Меню">
+                    </div>
+                    <div class="menu" style="opacity: {{#if openMenu}}1{{else}}0{{/if}}">
+                        {{{ Button
+                                id="add-user"
+                                name="add-user"
+                                withIcon=true
+                                iconSrc="/chat/plus.svg"
+                                classDiv="menu-but-container"
+                                iconClass="icon"
+                                text="Добавить пользователя"
+                                aria_label="Добавить пользователя"
+                        }}}
+                        {{{ Button
+                                id="delete-user"
+                                name="delete-user"
+                                withIcon=true
+                                iconSrc="/chat/plus.svg"
+                                classDiv="menu-but-container"
+                                iconClass="icon"
+                                text="Удалить пользователя"
+                                aria_label="Удалить пользователя"
+                        }}}
                     </div>
                 </header>
                 <section class="chat-message-body">
                     {{# each selected.message}}
                         {{#if type}}
                             <div class="chat-message-body-incoming">{{text}}
-                                <img src="/sent.svg" alt="Доставлено">
+                                <img src="/chat/sent.svg" alt="Доставлено">
                                 <span class="chat-message-body-time">{{time}}</span>
                             </div>
                         {{else}}
@@ -85,7 +107,7 @@
                 </section>
                 <footer class="chat-message-footer">
                     <button type="button" aria-label="Прикрепить файл">
-                        <img src="/clip.svg" alt="">
+                        <img src="/chat/clip.svg" alt="">
                     </button>
                     <form class="flex" id="message-form">
                         {{{ Input

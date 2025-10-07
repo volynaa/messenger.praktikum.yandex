@@ -15,9 +15,10 @@ export default class Chats extends Block {
     private validator: FormValidator | null = null;
     private router: Router;
     private http: BaseAPI;
-    private modal: boolean = false;
+    private modalAddUser: boolean = false;
     private chatsList: [] | null = null;
     private selectedChat: {};
+    private openMenu: boolean = false;
     constructor() {
         super('div',{
             isLoading: true,
@@ -28,6 +29,8 @@ export default class Chats extends Block {
             }
         });
         this.router = new Router('#app');
+        this.http = new BaseAPI();
+        this.getChats();
     }
 
     protected render(): DocumentFragment {
@@ -46,15 +49,14 @@ export default class Chats extends Block {
         template.innerHTML = compiledTemplate({
             chats: this.chatsList,
             selected: this.selectedChat,
-            modal: this.modal
+            modal: this.modalAddUser,
+            openMenu: this.openMenu
         });
         fragment.appendChild(template.content.cloneNode(true));
         return fragment;
 
     }
     protected async componentDidMount() {
-        this.http = new BaseAPI();
-        await this.getChats();
         this.initializeValidator();
     }
     private async getChats() {
@@ -79,18 +81,29 @@ export default class Chats extends Block {
     }
 
     public changeModal(): void {
-        this.modal = !this.modal;
-        this.setProps({ modal: this.modal });
+        this.modalAddUser = !this.modalAddUser;
+        this.setProps({ modal: this.modalAddUser });
     }
+    public changeMenu(): void {
+        this.openMenu = !this.openMenu
+        this.setProps({ openMenu: this.openMenu });
+    }
+
     private handleClick(e: Event): void {
         const target = e.target as HTMLElement;
         if (target.type === 'submit') {
             this.handleSubmit(e);
             return;
         }
-
-        if(target.id === 'add-chat' || target.id === 'modal-close') {
+        if(target.closest('#add-user') || target.closest('#modal-close')) {
             this.changeModal();
+            return;
+        }
+        if(target.closest('.burger-menu')) {
+            this.changeMenu();
+            return;
+        }
+        if(target.id === 'add-chat' || target.id === 'modal-close') {
             return;
         }
         if (target.closest('[data-page]')) {
@@ -116,13 +129,27 @@ export default class Chats extends Block {
 
     private async handleSubmit(e: Event) {
         e.preventDefault();
-        const target = e.target
-        if(target.id === 'login' && this.handleBlur(e)) {
-            const res = await this.http.post('chats',{
-                title: 'Новый чат'
-            })
-            if(res && res.status === 200) {
+        const target = e.target as HTMLElement;
+        if(target.closest('#add-login')) {
+            if(this.handleBlur(e)){
+                const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
+                if (loginForm) {
+                    const formData = new FormData(loginForm);
+                    console.log(this.http)
+                    const getUser = await this.http.post('user/search',{
+                        login: formData.get('add-login')
+                    })
+                    if(getUser && getUser.status === 200) {
+                        const res = await this.http.put('chats/users',{
+                            users: [+JSON.parse(getUser.response)[0].id],
+                            chatId: this.selectedChat.id,
+                        })
+                        if(res && res.status === 200) {
 
+                        }
+                    }
+
+                }
             }
             return;
         }
@@ -140,7 +167,7 @@ export default class Chats extends Block {
     }
 
     private handleBlur(e: Event): boolean {
-        if(e.target.id === 'login'){
+        if(e.target.id === 'add-login'){
             const validLogin = new FormValidator('login-form')
             if (validLogin) {
                 return validLogin.isValidOneElement(e);
