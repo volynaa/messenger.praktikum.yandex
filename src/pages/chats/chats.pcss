@@ -2,11 +2,16 @@
     display: flex;
 }
 
+.chat-container{
+    overflow: auto;
+    max-height: calc(100% - 140px);
+}
+
 .chats-list{
     border-right: 1px solid var(--border-grey);
     width: 310px;
     height: 95vh;
-
+    position: relative;
     .button-profile{
         margin-left: auto;
         font-size: 12px;
@@ -214,4 +219,14 @@
 .button-send{
     margin-left: 15px;
     margin-top: 2px;
+}
+
+.button-add-chat{
+    width: 301px;
+}
+
+.no-chats{
+    position: absolute;
+    top: 10%;
+    left: 30%
 }

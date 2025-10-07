@@ -12,29 +12,49 @@
                     aria_label="Профиль"
                     dataPage="/settings"
             }}}
-            <form role="search">
-                {{{ Input
-                        id="search"
-                        name="search"
-                        className="chat-search"
-                        placeholder="Поиск"
-                        aria-label="Поиск чатов"
-                }}}
-            </form>
-            <section id="chat-container" aria-label="Список чатов">
-                {{#if chats.length}}
-                    {{# each chats}}
+            {{{ Button
+                    id="add-chat"
+                    name="add-chat"
+                    withIcon=true
+                    className="button button-add-chat"
+                    classDiv="mt-10"
+                    text="Добавить чат"
+                    aria_label="Добавить чат"
+            }}}
+            {{#if chats.length}}
+                <form role="search">
+                    {{{ Input
+                            id="search"
+                            name="search"
+                            className="chat-search"
+                            placeholder="Поиск"
+                            aria-label="Поиск чатов"
+                    }}}
+                </form>
+            {{/if}}
+            {{#if (isEmpty chats)}}
+                <div class="no-chats">Чаты не найдены</div>
+            {{else if chats.length}}
+                <section id="chat-container" aria-label="Список чатов" class="chat-container">
+                    {{#each chats}}
                         {{{Chat
-                            id=id
-                            avatar=avatar
-                            name=name
-                            lastMessage=lastMessage
-                            time=time
-                            countNewMessage=countNewMessage
+                                id=id
+                                avatar=avatar
+                                name=title
+                                lastMessage=lastMessage
+                                time=time
+                                countNewMessage=countNewMessage
                         }}}
                     {{/each}}
-                {{/if}}
-            </section>
+                </section>
+            {{else}}
+                {{{Spinner
+                        size="medium"
+                        color="primary"
+                        text="Загрузка чатов..."
+                }}}
+            {{/if}}
+
         </aside>
         <section class="chat-message {{#if selected}}chat-message-selected{{/if}}">
             {{#if selected}}
@@ -44,8 +64,10 @@
                     {{else}}
                         <div class="chat-message-avatar"> </div>
                     {{/if}}
-                    <h2 class="chat-name">{{selected.name}}</h2>
-                    <img class="burger-menu" src="/burger-menu.svg" alt="Меню">
+                    <h2 class="chat-name">{{selected.title}}</h2>
+                    <div class="burger-menu">
+                        <img src="/burger-menu.svg" alt="Меню">
+                    </div>
                 </header>
                 <section class="chat-message-body">
                     {{# each selected.message}}
@@ -89,5 +111,12 @@
                 <label>Выберите чат чтобы отправить сообщение</label>
             {{/if}}
         </section>
+        {{#if modal}}
+            {{{Modal
+                title="Добавить пользователя"
+                showCloseButton=true
+                showFooterButton=true
+            }}}
+        {{/if}}
     </main>
 </div>
