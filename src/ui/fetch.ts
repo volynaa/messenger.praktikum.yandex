@@ -33,6 +33,10 @@ function queryStringify(data: QueryParams): string {
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class HTTPTransport {
+  private readonly pathBase: string = '';
+  constructor(url) {
+    this.pathBase = url
+  }
   private createMethod(method: HTTPMethod) {
     return <R = unknown>(url: string, options: Omit<RequestOptions, 'method'> = {}): Promise<R> => {
       return this.request<R>(url, { ...options, method });
@@ -56,15 +60,14 @@ export class HTTPTransport {
         reject(new Error('No method'));
         return;
       }
-
       const xhr = new XMLHttpRequest();
       const isGet = method === METHODS.GET;
-
+      const fullUrl = this.pathBase.length ? this.pathBase + url : url;
       xhr.open(
           method,
           isGet && data && typeof data === 'object' && !(data instanceof FormData)
-              ? `${url}${queryStringify(data as QueryParams)}`
-              : url,
+              ? `${fullUrl}${queryStringify(data as QueryParams)}`
+              : fullUrl,
       );
 
       Object.keys(headers).forEach((key) => {
@@ -74,12 +77,11 @@ export class HTTPTransport {
       xhr.onload = function () {
         resolve(xhr as R);
       };
-
       xhr.onabort = () => reject(new Error('Request aborted'));
       xhr.onerror = () => reject(new Error('Request failed'));
       xhr.ontimeout = () => reject(new Error('Request timeout'));
-
       xhr.timeout = timeout;
+      xhr.withCredentials = true;
 
       if (isGet || !data) {
         xhr.send();

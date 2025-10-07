@@ -4,13 +4,16 @@ import {buttonHelper} from "../../components/Button";
 import { inputHelper } from '../../components/Input';
 import { chatHelper } from '../../components/Chat';
 import { imgHelper } from '../../components/Img';
-import App, {AppState} from "../../App";
+import App from "../../App";
 import chats from './chats.hbs?raw';
 import './chats.pcss'
 import FormValidator from "../../ui/validation";
-
+import Router from '../../ui/router';
+import BaseAPI from "../../api/base-api";
 export default class Chats extends Block {
     private validator: FormValidator | null = null;
+    private router: Router;
+    private http: BaseAPI;
     constructor() {
         super('div',{
             events: {
@@ -18,6 +21,7 @@ export default class Chats extends Block {
                 click: (e: Event) => this.handleClick(e)
             }
         });
+        this.router = new Router('#app');
     }
 
     protected render(): DocumentFragment {
@@ -29,8 +33,10 @@ export default class Chats extends Block {
         Handlebars.registerHelper('Input', inputHelper);
         Handlebars.registerHelper('Chat', chatHelper);
         Handlebars.registerHelper('Img', imgHelper);
+        this.http = new BaseAPI();
+        const chatsList = this.getChats();
         const compiledTemplate = Handlebars.compile(chats);
-        template.innerHTML = compiledTemplate({chats: state.chats, selected: state.selectedChat});
+        template.innerHTML = compiledTemplate({chats: chatsList | [], selected: state.selectedChat});
         fragment.appendChild(template.content.cloneNode(true));
         return fragment;
 
@@ -39,6 +45,12 @@ export default class Chats extends Block {
         setTimeout(() => {
                 this.initializeValidator();
         }, 100);
+    }
+    private async getChats() {
+        const res = await this.http.get('chats')
+        if(res && res.status === 200) {
+            return res;
+        }
     }
     private initializeValidator(): void {
         try {
@@ -60,7 +72,7 @@ export default class Chats extends Block {
         if (target.closest('[data-page]')) {
             const targetPage = target.closest('[data-page]')?.getAttribute('data-page');
             if (targetPage) {
-                app.changePage(targetPage);
+                this.router.go(targetPage);
             }
             return;
         }

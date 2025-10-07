@@ -1,3 +1,5 @@
+import UserStore from '../stores/user';
+import BaseAPI from '../api/base-api';
 function isEqual(lhs, rhs) {
     return lhs === rhs;
 }
@@ -59,7 +61,14 @@ class Router {
     protected routes: Array<Route>;
     protected history: History;
     private _currentRoute: object | null;
-    private _rootQuery: string;
+    private readonly _rootQuery: string;
+    private userStore: UserStore;
+    private http: BaseAPI;
+
+    private readonly UNAUTHORIZED_ONLY_PATHS = ['/', '/sign-up'];
+
+    private readonly DEFAULT_AUTH_PATH = '/messenger';
+
     constructor(rootQuery) {
         if (Router.__instance) {
             return Router.__instance;
@@ -71,6 +80,8 @@ class Router {
         this._rootQuery = rootQuery;
 
         Router.__instance = this;
+        this.userStore = new UserStore();
+        this.http = new BaseAPI();
     }
 
     use(pathname, block) {
@@ -90,7 +101,25 @@ class Router {
     }
 
     _onRoute(pathname) {
-        const route = this.getRoute(pathname);
+        const isAuthorized = this.userStore.getUser() !== null;
+
+        if (isAuthorized && this.UNAUTHORIZED_ONLY_PATHS.includes(pathname)) {
+            this.replace(this.DEFAULT_AUTH_PATH);
+            return;
+        }
+
+        if(!this.getRoute(pathname)) {
+            this.replace('/404');
+            return;
+        }
+
+        if (!isAuthorized && this.isProtectedRoute(pathname)) {
+            this.replace('/');
+            return;
+        }
+
+        let route = this.getRoute(pathname);
+
         if (!route) {
             return;
         }
@@ -101,6 +130,16 @@ class Router {
 
         this._currentRoute = route;
         route.render();
+    }
+
+    replace(pathname) {
+        this.history.replaceState({}, '', pathname);
+        this._onRoute(pathname);
+    }
+
+    private isProtectedRoute(pathname: string): boolean {
+        const publicRoutes = ['/', '/sign-up', '/404', '/500'];
+        return !publicRoutes.includes(pathname);
     }
 
     go(pathname) {
@@ -117,11 +156,7 @@ class Router {
     }
 
     getRoute(pathname) {
-        let route = this.routes.find(route => route.match(pathname));
-        if(!route) {
-            route = this.routes.find(route => route.match('/404'));
-        }
-        return route;
+        return this.routes.find(route => route.match(pathname));
     }
 }
 
