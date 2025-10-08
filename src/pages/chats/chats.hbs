@@ -92,14 +92,14 @@
                     </div>
                 </header>
                 <section class="chat-message-body">
-                    {{# each selected.message}}
-                        {{#if type}}
-                            <div class="chat-message-body-incoming">{{text}}
+                    {{# each message}}
+                        {{#if (getTypeMessage user_id)}}
+                            <div class="chat-message-body-incoming">{{content}}
                                 <img src="/chat/sent.svg" alt="Доставлено">
                                 <span class="chat-message-body-time">{{time}}</span>
                             </div>
                         {{else}}
-                            <div class="chat-message-body-outgoing">{{text}}
+                            <div class="chat-message-body-outgoing">{{content}}
                                 <span class="chat-message-body-time">{{time}}</span>
                             </div>
                         {{/if}}
@@ -121,7 +121,7 @@
                                 errorShow=false
                         }}}
                         {{{ Img
-                                id="sendMessage"
+                                id="send-message"
                                 src="/arrow-right-blue.svg"
                                 alt="Отправить сообщение"
                                 className="button-send"

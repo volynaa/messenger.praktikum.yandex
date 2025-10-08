@@ -10,7 +10,9 @@ import './chats.pcss'
 import FormValidator from "../../ui/validation";
 import Router from '../../ui/router';
 import BaseAPI from "../../api/base-api";
+import {WebSocketTransport} from "../../ui/webSocket";
 import {spinnerHelper} from "../../components/spinner/Spinner";
+import UserStore from "../../stores/user";
 export default class Chats extends Block {
     private validator: FormValidator | null = null;
     private router: Router;
@@ -18,7 +20,10 @@ export default class Chats extends Block {
     private modalAddUser: boolean = false;
     private chatsList: [] | null = null;
     private selectedChat: {};
+    private message: [];
     private openMenu: boolean = false;
+    private socket: {};
+    private readonly userStore: UserStore;
     constructor() {
         super('div',{
             isLoading: true,
@@ -30,6 +35,7 @@ export default class Chats extends Block {
         });
         this.router = new Router('#app');
         this.http = new BaseAPI();
+        this.userStore = new UserStore();
         this.getChats();
     }
 
@@ -45,11 +51,16 @@ export default class Chats extends Block {
         Handlebars.registerHelper('isEmpty', function(array: any[]) {
             return Array.isArray(array) && array.length === 0;
         });
+        const currentUserId = this.userStore?.getUser()?.id;
+        Handlebars.registerHelper('getTypeMessage', function(userId: number) {
+            return Boolean(userId && currentUserId && userId === currentUserId);
+        });
         const compiledTemplate = Handlebars.compile(chats);
         template.innerHTML = compiledTemplate({
             chats: this.chatsList,
             selected: this.selectedChat,
             modal: this.modalAddUser,
+            message: this.message,
             openMenu: this.openMenu
         });
         fragment.appendChild(template.content.cloneNode(true));
@@ -91,8 +102,19 @@ export default class Chats extends Block {
 
     private handleClick(e: Event): void {
         const target = e.target as HTMLElement;
+
         if (target.type === 'submit') {
             this.handleSubmit(e);
+            return;
+        }
+        if(target.closest('#send-message')){
+            const message = this.element?.querySelector('#message') as HTMLFormElement;
+            if(this.socket&&message) {
+                this.socket.send({
+                    content: message.value,
+                    type: 'message'
+                });
+            }
             return;
         }
         if(target.closest('#add-user') || target.closest('#modal-close')) {
@@ -121,12 +143,55 @@ export default class Chats extends Block {
                 const findElem = this.chatsList.find(item => item.id === +chatId)
                 if(findElem) {
                     this.selectedChat = findElem
+                    this.getTokenChats()
+                        .then(response => JSON.parse(response))
+                        .then(data => {
+                            this.soketConnect(data.token)
+                        });
                     this.setProps({ selected: this.selectedChat });
                 }
             }
         }
     }
+    private handleConnected(): void {
+        this.socket?.send({
+            content: '0',
+            type: 'get old'
+        });
+    }
 
+    private handleMessage(data: any): void {
+        if (Array.isArray(data)) {
+            this.message = data.map(message => ({
+                ...message,
+                time: message.time.slice(11, 16)
+            }));
+        } else {
+            console.log(data)
+            this.message.push({
+                ...data,
+                time: data.time.slice(11, 16)
+            });
+        }
+        this.setProps({ message: this.message });
+    }
+
+    private async soketConnect(token) {
+        if(this.socket) {
+            this.socket.close();
+        }
+        this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore.getUser().id}/${this.selectedChat.id}/${token}`)
+        this.socket.on(WebSocketTransport.Connected, this.handleConnected.bind(this));
+        this.socket.on(WebSocketTransport.Message, this.handleMessage.bind(this));
+        await this.socket.connect();
+
+    }
+    private async getTokenChats() {
+        const res = await this.http.post(`chats/token/${this.selectedChat.id}`)
+        if(res && res.status === 200) {
+            return res.response
+        }
+    }
     private async handleSubmit(e: Event) {
         e.preventDefault();
         const target = e.target as HTMLElement;
@@ -135,7 +200,6 @@ export default class Chats extends Block {
                 const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
                 if (loginForm) {
                     const formData = new FormData(loginForm);
-                    console.log(this.http)
                     const getUser = await this.http.post('user/search',{
                         login: formData.get('add-login')
                     })
