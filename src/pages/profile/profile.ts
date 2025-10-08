@@ -9,11 +9,9 @@ import profileIndex from './profileIndex.hbs?raw';
 import profileEditData from './profileEditData.hbs?raw';
 import profileEditPassword from './profileEditPassword.hbs?raw';
 import FormValidator from "../../ui/validation";
-const templates = {
-    profileIndex,
-    profileEditData,
-    profileEditPassword
-};
+import Router from '../../ui/router';
+import BaseAPI from '../../api/base-api';
+import UserStore from '../../stores/user';
 export interface ProfileData {
     email: string;
     login: string;
@@ -23,8 +21,11 @@ export interface ProfileData {
     avatar: string;
     phone: string;
 }
+const userStore = new UserStore();
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
+    private router: Router;
+    private http: BaseAPI;
     constructor() {
         super('div',{
             events: {
@@ -33,19 +34,23 @@ export default class Profile extends Block {
                 click: (e: Event) => this.handleButtonClick(e)
             }
         });
+        this.router = new Router('#app');
+        this.http = new BaseAPI();
     }
 
     protected render(): DocumentFragment {
-        const app = App.getInstance();
-        const state = app.getState();
+        const templates = {
+            '/settings/data':profileEditData,
+            '/settings/password':profileEditPassword
+        };
         const fragment = document.createDocumentFragment();
         const template = document.createElement('template');
         Handlebars.registerHelper('Input', inputHelper);
         Handlebars.registerHelper('Button', buttonHelper);
         Handlebars.registerHelper('Img', imgHelper);
-        const templateContent = templates[state.currentPage as keyof typeof templates] || profileIndex;
+        const templateContent = templates[window.location.pathname] || profileIndex;
         const compiledTemplate = Handlebars.compile(templateContent);
-        template.innerHTML = compiledTemplate({profile: state.profile});
+        template.innerHTML = compiledTemplate({profile: userStore.getUser()});
         fragment.appendChild(template.content.cloneNode(true));
         return fragment;
 
@@ -71,15 +76,17 @@ export default class Profile extends Block {
             this.validator.isValidOneElement(e)
         }
     }
-    private handleButtonClick(e: Event): void {
+    private async handleButtonClick(e: Event) {
         const target = e.target as HTMLElement;
         if ((target as HTMLButtonElement).type !== 'submit') {
             if (target.closest('[data-page]')) {
                 const targetPage = target.closest('[data-page]')?.getAttribute('data-page');
-
                 if (targetPage) {
-                    const app = App.getInstance();
-                    app.changePage(targetPage);
+                    if(targetPage === '/'){
+                        userStore.outUser()
+                        await this.http.post('auth/logout',{})
+                    }
+                    this.router.go(targetPage);
                 }
                 return;
             }
@@ -129,7 +136,7 @@ export default class Profile extends Block {
                 }
                 const targetPage = submitter.dataset.page;
                 if (targetPage) {
-                    app.changePage(targetPage);
+                    this.router.go(targetPage);
                 }
             }
         }

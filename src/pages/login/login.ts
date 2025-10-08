@@ -1,14 +1,18 @@
 import FormValidator from '../../ui/validation';
-import App from '../../App';
 import Block from "../../ui/block";
 import loginTemplate from './login.hbs?raw';
 import Handlebars from 'handlebars';
 import { inputHelper } from '../../components/Input';
 import { buttonHelper } from '../../components/Button';
+import Router from '../../ui/router';
+import BaseAPI from '../../api/base-api';
+import UserStore from '../../stores/user';
 
 export default class Login extends Block {
   private validator: FormValidator | null = null;
-
+  private router: Router;
+  private http: BaseAPI;
+  private userStore: UserStore;
   constructor() {
     super('div', {
       events: {
@@ -17,6 +21,9 @@ export default class Login extends Block {
         click: (e: Event) => this.handleButtonClick(e)
       }
     })
+    this.router = new Router('#app');
+    this.http = new BaseAPI();
+    this.userStore = new UserStore();
   }
 
   protected render(): DocumentFragment {
@@ -51,7 +58,7 @@ export default class Login extends Block {
       this.validator.isValidOneElement(e)
     }
   }
-  private handleSubmit(e: Event): void {
+  private async handleSubmit(e: Event) {
     e.preventDefault();
 
     if (!this.validator) {
@@ -68,16 +75,23 @@ export default class Login extends Block {
       const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
       if (loginForm) {
         const formData = new FormData(loginForm);
-        const loginValue = formData.get('login');
-        const password = formData.get('password');
-
-        console.log('Логин:', loginValue);
-        console.log('Пароль:', password);
 
         const targetPage = submitter.dataset.page;
         if (targetPage) {
-          const app = App.getInstance();
-          app.changePage(targetPage);
+          const settings = {
+            login: formData.get('login'),
+            password: formData.get('password')
+          }
+
+          const resSignin = await this.http.post('auth/signin',settings)
+          if(resSignin && resSignin.status === 200) {
+            const resUser = await this.http.get('auth/user');
+
+            if(resUser && resUser.status === 200) {
+              this.userStore.setUser(JSON.parse(resUser.response));
+              this.router.go(targetPage);
+            }
+          }
         }
       }
     }
@@ -92,8 +106,7 @@ export default class Login extends Block {
       if (target.id === 'register') {
         const targetPage = target.dataset.page;
         if (targetPage) {
-          const app = App.getInstance();
-          app.changePage(targetPage);
+          this.router.go(targetPage);
         }
       }
     }

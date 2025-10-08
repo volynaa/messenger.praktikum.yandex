@@ -10,31 +10,51 @@
                     classDiv="button-cont"
                     text="Профиль"
                     aria_label="Профиль"
-                    dataPage="profileIndex"
+                    dataPage="/settings"
             }}}
-            <form role="search">
-                {{{ Input
-                        id="search"
-                        name="search"
-                        className="chat-search"
-                        placeholder="Поиск"
-                        aria-label="Поиск чатов"
-                }}}
-            </form>
-            <section id="chat-container" aria-label="Список чатов">
-                {{#if chats.length}}
-                    {{# each chats}}
+            {{{ Button
+                    id="add-chat"
+                    name="add-chat"
+                    withIcon=true
+                    className="button button-add-chat"
+                    classDiv="mt-10"
+                    text="Добавить чат"
+                    aria_label="Добавить чат"
+            }}}
+            {{#if chats.length}}
+                <form role="search">
+                    {{{ Input
+                            id="search"
+                            name="search"
+                            className="chat-search"
+                            placeholder="Поиск"
+                            aria-label="Поиск чатов"
+                    }}}
+                </form>
+            {{/if}}
+            {{#if (isEmpty chats)}}
+                <div class="no-chats">Чаты не найдены</div>
+            {{else if chats.length}}
+                <section id="chat-container" aria-label="Список чатов" class="chat-container">
+                    {{#each chats}}
                         {{{Chat
-                            id=id
-                            avatar=avatar
-                            name=name
-                            lastMessage=lastMessage
-                            time=time
-                            countNewMessage=countNewMessage
+                                id=id
+                                avatar=avatar
+                                name=title
+                                lastMessage=lastMessage
+                                time=time
+                                countNewMessage=countNewMessage
                         }}}
                     {{/each}}
-                {{/if}}
-            </section>
+                </section>
+            {{else}}
+                {{{Spinner
+                        size="medium"
+                        color="primary"
+                        text="Загрузка чатов..."
+                }}}
+            {{/if}}
+
         </aside>
         <section class="chat-message {{#if selected}}chat-message-selected{{/if}}">
             {{#if selected}}
@@ -44,18 +64,42 @@
                     {{else}}
                         <div class="chat-message-avatar"> </div>
                     {{/if}}
-                    <h2 class="chat-name">{{selected.name}}</h2>
-                    <img class="burger-menu" src="/burger-menu.svg" alt="Меню">
+                    <h2 class="chat-name">{{selected.title}}</h2>
+                    <div id="burger-menu" class="burger-menu">
+                        <img src="/chat/burger-menu.svg" alt="Меню">
+                    </div>
+                    <div class="menu" style="opacity: {{#if openMenu}}1{{else}}0{{/if}}">
+                        {{{ Button
+                                id="add-user"
+                                name="add-user"
+                                withIcon=true
+                                iconSrc="/chat/plus.svg"
+                                classDiv="menu-but-container"
+                                iconClass="icon"
+                                text="Добавить пользователя"
+                                aria_label="Добавить пользователя"
+                        }}}
+                        {{{ Button
+                                id="delete-user"
+                                name="delete-user"
+                                withIcon=true
+                                iconSrc="/chat/plus.svg"
+                                classDiv="menu-but-container"
+                                iconClass="icon"
+                                text="Удалить пользователя"
+                                aria_label="Удалить пользователя"
+                        }}}
+                    </div>
                 </header>
                 <section class="chat-message-body">
-                    {{# each selected.message}}
-                        {{#if type}}
-                            <div class="chat-message-body-incoming">{{text}}
-                                <img src="/sent.svg" alt="Доставлено">
+                    {{# each message}}
+                        {{#if (getTypeMessage user_id)}}
+                            <div class="chat-message-body-incoming">{{content}}
+                                <img src="/chat/sent.svg" alt="Доставлено">
                                 <span class="chat-message-body-time">{{time}}</span>
                             </div>
                         {{else}}
-                            <div class="chat-message-body-outgoing">{{text}}
+                            <div class="chat-message-body-outgoing">{{content}}
                                 <span class="chat-message-body-time">{{time}}</span>
                             </div>
                         {{/if}}
@@ -63,7 +107,7 @@
                 </section>
                 <footer class="chat-message-footer">
                     <button type="button" aria-label="Прикрепить файл">
-                        <img src="/clip.svg" alt="">
+                        <img src="/chat/clip.svg" alt="">
                     </button>
                     <form class="flex" id="message-form">
                         {{{ Input
@@ -77,7 +121,7 @@
                                 errorShow=false
                         }}}
                         {{{ Img
-                                id="sendMessage"
+                                id="send-message"
                                 src="/arrow-right-blue.svg"
                                 alt="Отправить сообщение"
                                 className="button-send"
@@ -89,5 +133,12 @@
                 <label>Выберите чат чтобы отправить сообщение</label>
             {{/if}}
         </section>
+        {{#if modal}}
+            {{{Modal
+                title="Добавить пользователя"
+                showCloseButton=true
+                showFooterButton=true
+            }}}
+        {{/if}}
     </main>
 </div>
