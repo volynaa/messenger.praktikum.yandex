@@ -5,7 +5,7 @@ interface ChatProps extends Props {
     id?: string;
     avatar?: string;
     name?: string;
-    lastMessage?: string;
+    lastMessage?: object;
     countNewMessage?: string;
     events?: {
         click?: (event: Event) => void;
@@ -59,7 +59,7 @@ interface ChatHelperProps {
         id?: string;
         avatar?: string;
         name?: string;
-        lastMessage?: string;
+        lastMessage?: object;
         countNewMessage?: string;
     };
 }
