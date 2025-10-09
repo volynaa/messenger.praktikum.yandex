@@ -1,7 +1,6 @@
 import Block from "../../ui/block";
 import Handlebars from "handlebars";
 import {buttonHelper} from "../../components/Button";
-import App from "../../App";
 import error500 from './500.hbs?raw';
 import Router from '../../ui/router';
 export default class Error500 extends Block {

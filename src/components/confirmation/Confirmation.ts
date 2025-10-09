@@ -6,7 +6,7 @@ interface ConfirmationOptions {
 }
 
 export default class Confirmation {
-     static show(options: ConfirmationOptions | string): void {
+    static show(options: ConfirmationOptions | string): void {
         const config: ConfirmationOptions = typeof options === 'string'
             ? { message: options }
             : options;
@@ -18,10 +18,10 @@ export default class Confirmation {
         } = config;
 
         const confirmation = document.createElement('div');
-        confirmation.className = `toast toast--${type}`;
+        confirmation.className = `toast toast-${type}`;
         confirmation.innerHTML = `
-      <div class="toast__content">
-        <span class="toast__message">${message}</span>
+      <div class="toast-content">
+        <span class="toast-message">${message}</span>
       </div>
     `;
 
@@ -29,7 +29,7 @@ export default class Confirmation {
 
         document.body.appendChild(confirmation);
 
-        setTimeout(() => confirmation.classList.add('toast--show'), 10);
+        setTimeout(() => confirmation.classList.add('toast-show'), 10);
 
         if (duration > 0) {
             setTimeout(() => this.hideConfirmation(confirmation), duration);
@@ -37,8 +37,8 @@ export default class Confirmation {
     }
 
     private static hideConfirmation(confirmation: HTMLElement): void {
-        confirmation.classList.remove('toast--show');
-        confirmation.classList.add('toast--hide');
+        confirmation.classList.remove('toast-show');
+        confirmation.classList.add('toast-hide');
 
         setTimeout(() => {
             if (confirmation.parentNode) {

@@ -23,15 +23,15 @@ export class Spinner extends Block<SpinnerProps> {
 
         const spinnerClasses = [
             'spinner',
-            `spinner--${this.props.size}`,
-            `spinner--${this.props.color}`,
+            `spinner-${this.props.size}`,
+            `spinner-${this.props.color}`,
             this.props.className ? this.props.className : ''
         ].filter(Boolean).join(' ');
 
         container.innerHTML = `
       <div class="${spinnerClasses}">
-        <div class="spinner__circle"></div>
-        ${this.props.text ? `<div class="spinner__text">${this.props.text}</div>` : ''}
+        <div class="spinner-circle"></div>
+        ${this.props.text ? `<div class="spinner-text">${this.props.text}</div>` : ''}
       </div>
     `;
 
@@ -40,7 +40,7 @@ export class Spinner extends Block<SpinnerProps> {
     }
 }
 
-export const spinnerHelper = function(this: any, options: any) {
+export const spinnerHelper = function(this: unknown, options: unknown) {
     const props = options.hash;
 
     const spinner = new Spinner(props);

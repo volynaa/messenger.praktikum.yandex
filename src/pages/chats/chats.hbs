@@ -113,7 +113,16 @@
                 </section>
                 <footer class="chat-message-footer">
                     <button type="button" aria-label="Прикрепить файл">
-                        <img src="/chat/clip.svg" alt="">
+                        {{{ Input
+                                id="avatar"
+                                name="avatar"
+                                type="file"
+                                accept="image/*"
+                                className="avatar-input"
+                        }}}
+                        <label for="avatar">
+                            <img id="clip" src="/chat/clip.svg" alt="">
+                        </label>
                     </button>
                     <form class="flex" id="message-form">
                         {{{ Input

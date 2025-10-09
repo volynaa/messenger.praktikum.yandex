@@ -51,14 +51,14 @@ class Route {
         render(this._props.rootQuery, this._block);
     }
 }
-interface Route {
+interface RouteData {
     path: string;
-    component: any;
+    component: unknown;
     authRequired?: boolean;
 }
 export default class Router {
     private static __instance: Router;
-    protected routes: Array<Route>;
+    protected routes: Array<RouteData>;
     protected history: History;
     private _currentRoute: object | null;
     private readonly _rootQuery: string;
@@ -118,7 +118,7 @@ export default class Router {
             return;
         }
 
-        let route = this.getRoute(pathname);
+        const route = this.getRoute(pathname);
 
         if (!route) {
             return;

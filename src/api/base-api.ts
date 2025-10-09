@@ -7,7 +7,7 @@ export default class BaseAPI {
         try {
             return chatAPIInstance.post(url, {data: options});
         }
-        catch (e){
+        catch {
             throw new Error('Bad request');
         }
     }
@@ -16,7 +16,7 @@ export default class BaseAPI {
         try {
             return chatAPIInstance.get(url);
         }
-        catch (e){
+        catch {
             throw new Error('Bad request');
         }
     }
@@ -25,7 +25,7 @@ export default class BaseAPI {
         try {
             return chatAPIInstance.put(url, {data: options});
         }
-        catch (e){
+        catch {
             throw new Error('Bad request');
         }
     }
@@ -34,7 +34,7 @@ export default class BaseAPI {
         try {
             return chatAPIInstance.delete(url, {data: options});
         }
-        catch (e){
+        catch {
             throw new Error('Bad request');
         }
     }

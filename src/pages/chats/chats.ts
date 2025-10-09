@@ -19,20 +19,20 @@ interface Chat {
     created_by: number;
     avatar: string | null;
     title: string;
-    last_message: {} | null;
+    last_message: object | null;
     unread_count: number;
     created_at?: string;
 }
 export default class Chats extends Block {
     private router: Router;
     private http: BaseAPI;
-    private modalAddUser: {} | null = null;
+    private modalAddUser: object | null = null;
     private chatsList: Chat[] | null = null;
     private cloneChatsList: Chat[] | null = null;
-    private selectedChat: {} | null = null;
+    private selectedChat: object | null = null;
     private message: [] | null = null;
     private openMenu: boolean = false;
-    private socket: {};
+    private socket: object;
     private readonly userStore: UserStore;
     constructor() {
         super('div',{
@@ -40,7 +40,8 @@ export default class Chats extends Block {
             events: {
                 focusout : (e: Event) => this.handleBlur(e),
                 submit: (e: Event) => this.handleSubmit(e),
-                click: (e: Event) => this.handleClick(e)
+                click: (e: Event) => this.handleClick(e),
+                change: (e: Event) => this.handleFileChange(e)
             }
         });
         this.router = new Router('#app');
@@ -58,7 +59,7 @@ export default class Chats extends Block {
         Handlebars.registerHelper('Img', imgHelper);
         Handlebars.registerHelper('Modal', modalHelper);
         Handlebars.registerHelper('Spinner', spinnerHelper);
-        Handlebars.registerHelper('isEmpty', function(array: any[]) {
+        Handlebars.registerHelper('isEmpty', function(array: unknown[]) {
             return Array.isArray(array) && array.length === 0;
         });
         const currentUserId = this.userStore?.getUser()?.id;
@@ -77,6 +78,18 @@ export default class Chats extends Block {
         return fragment;
 
     }
+    private handleFileChange(e: Event): void {
+        const target = e.target as HTMLInputElement;
+        if (target.id === 'avatar' && target.type === 'file') {
+            this.handleAvatarChange(e);
+        }
+    }
+    private handleAvatarChange(e: Event): void {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (!file) return;
+    }
+
     private async getChats() {
         const res = await this.http.get('chats')
         if(res && res.status === 200) {
@@ -209,7 +222,7 @@ export default class Chats extends Block {
         });
     }
 
-    private handleMessage(data: any): void {
+    private handleMessage(data: unknown): void {
         if (Array.isArray(data)) {
             this.message = this.filterMessage(data).map(message => ({
                 ...message,
@@ -351,7 +364,6 @@ export default class Chats extends Block {
             }
         }
     }
-
     private handleBlur(e: Event,form: string = 'login-form'): boolean {
         if(e.target.id === 'save-result' || e.target.id === 'send-message') {
             const validLogin = new FormValidator(form)

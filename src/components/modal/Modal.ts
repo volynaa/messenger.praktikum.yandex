@@ -41,7 +41,8 @@ export class Modal extends Block {
         }
         if(this.props.showFooterButton){
             const contentTemplate = Handlebars.compile(`
-            {{{Button id="save-result" text="${!this.props.data.content? 'Сохранить':'Подтвердить'}" className="button" type="${!this.props.data.content? 'submit':'button'}"}}}
+            {{{Button id="save-result" text="${!this.props.data.content? 'Сохранить':'Подтвердить'}" 
+                    className="button" type="${!this.props.data.content? 'submit':'button'}"}}}
             {{{Button id="modal-close"  className="button button-close" text="Закрыть" type="button"}}}
             `);
             buttonBlock = contentTemplate({});
