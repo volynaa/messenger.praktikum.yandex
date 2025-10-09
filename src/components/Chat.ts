@@ -1,12 +1,12 @@
 import Block from "../ui/block";
 import { Props } from '../ui/block';
+import UserStore from "../stores/user";
 interface ChatProps extends Props {
     id?: string;
     avatar?: string;
     name?: string;
     lastMessage?: string;
     countNewMessage?: string;
-    time?: string;
     events?: {
         click?: (event: Event) => void;
     };
@@ -18,9 +18,9 @@ class Chat extends Block<ChatProps> {
     }
 
     protected render(): DocumentFragment {
+        const userStore = new UserStore();
         const fragment = document.createDocumentFragment();
         const container = document.createElement('div');
-
         const avatarHtml = this.props.avatar
             ? `<img src="${this.props.avatar}" alt="Аватар пользователя">`
             : `<div class="chat-avatar"></div>`;
@@ -34,9 +34,14 @@ class Chat extends Block<ChatProps> {
                 ${avatarHtml}
                 <div class="chat-info">
                     <h2 class="chat-name">${this.props.name || ''}</h2>
-                    <span class="last-message">${this.props.lastMessage || ''}</span>
+                    <div>
+                        <span class="last-message" style="color:var(--text-dark)">
+                            ${this.props.lastMessage?.user.login === userStore?.getUser().login ? 'Вы: ': ''}
+                        </span>
+                        <span class="last-message">${this.props.lastMessage?.content || ''}</span>
+                    </div>
                 </div>
-                <div class="chat-time">${this.props.time || ''}</div>
+                <div class="chat-time">${this.props.lastMessage?.time.slice(11,16) || ''}</div>
                 ${countMessageHtml}
             </div>
         `;
@@ -56,7 +61,6 @@ interface ChatHelperProps {
         name?: string;
         lastMessage?: string;
         countNewMessage?: string;
-        time?: string;
     };
 }
 
@@ -67,7 +71,6 @@ export function chatHelper(props: ChatHelperProps): string {
         name: props.hash.name,
         lastMessage: props.hash.lastMessage,
         countNewMessage: props.hash.countNewMessage,
-        time: props.hash.time,
     });
 
     const content = chat.getContent();

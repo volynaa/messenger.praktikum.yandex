@@ -148,14 +148,4 @@ export class WebSocketTransport {
             }
         });
     }
-
-    public reconnect(): Promise<void> {
-        this.close();
-        return this.connect();
-    }
-
-    public destroy(): void {
-        this.close();
-        this.eventListeners.clear();
-    }
 }

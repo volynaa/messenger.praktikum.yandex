@@ -32,7 +32,7 @@ export default class BaseAPI {
 
     delete(url, options) {
         try {
-            return chatAPIInstance.post(url, {data: options});
+            return chatAPIInstance.delete(url, {data: options});
         }
         catch (e){
             throw new Error('Bad request');

@@ -7,6 +7,7 @@ import { buttonHelper } from '../../components/Button';
 import Router from '../../ui/router';
 import BaseAPI from '../../api/base-api';
 import UserStore from '../../stores/user';
+import Confirmation from "../../components/confirmation/Confirmation";
 
 export default class Login extends Block {
   private validator: FormValidator | null = null;
@@ -91,6 +92,18 @@ export default class Login extends Block {
               this.userStore.setUser(JSON.parse(resUser.response));
               this.router.go(targetPage);
             }
+            else{
+              Confirmation.show({
+                message: 'Ошибка авторизации. Попробуйте позже',
+                type: 'error'
+              });
+            }
+          }
+          else{
+            Confirmation.show({
+              message: `${resSignin.status===401 ? 'Неверный логин или пароль':'Ошибка авторизации. Попробуйте позже'}`,
+              type: 'error'
+            });
           }
         }
       }

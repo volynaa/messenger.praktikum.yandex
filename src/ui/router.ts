@@ -56,7 +56,7 @@ interface Route {
     component: any;
     authRequired?: boolean;
 }
-class Router {
+export default class Router {
     private static __instance: Router;
     protected routes: Array<Route>;
     protected history: History;
@@ -154,10 +154,10 @@ class Router {
     forward() {
         this.history.forward();
     }
-
+    getPath(){
+        return this._currentRoute._pathname
+    }
     getRoute(pathname) {
         return this.routes.find(route => route.match(pathname));
     }
 }
-
-export default Router;

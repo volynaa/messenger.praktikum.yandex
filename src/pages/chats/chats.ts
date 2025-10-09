@@ -12,15 +12,25 @@ import Router from '../../ui/router';
 import BaseAPI from "../../api/base-api";
 import {WebSocketTransport} from "../../ui/webSocket";
 import {spinnerHelper} from "../../components/spinner/Spinner";
+import Confirmation from "../../components/confirmation/Confirmation";
 import UserStore from "../../stores/user";
+interface Chat {
+    id: number;
+    created_by: number;
+    avatar: string | null;
+    title: string;
+    last_message: {} | null;
+    unread_count: number;
+    created_at?: string;
+}
 export default class Chats extends Block {
-    private validator: FormValidator | null = null;
     private router: Router;
     private http: BaseAPI;
-    private modalAddUser: boolean = false;
-    private chatsList: [] | null = null;
-    private selectedChat: {};
-    private message: [];
+    private modalAddUser: {} | null = null;
+    private chatsList: Chat[] | null = null;
+    private cloneChatsList: Chat[] | null = null;
+    private selectedChat: {} | null = null;
+    private message: [] | null = null;
     private openMenu: boolean = false;
     private socket: {};
     private readonly userStore: UserStore;
@@ -67,32 +77,26 @@ export default class Chats extends Block {
         return fragment;
 
     }
-    protected async componentDidMount() {
-        this.initializeValidator();
-    }
     private async getChats() {
         const res = await this.http.get('chats')
         if(res && res.status === 200) {
             this.chatsList = JSON.parse(res.response);
+            this.cloneChatsList = this.chatsList;
         }
         else {
             this.chatsList = []
+            this.cloneChatsList = []
         }
         this.setProps({ chats: this.chatsList })
     }
-    private initializeValidator(): void {
-        try {
-            const messageForm = this.element?.querySelector('#message-form') as HTMLFormElement;
-            if (messageForm) {
-                this.validator = new FormValidator('message-form');
-            }
-        } catch (error) {
-            console.error('Form validation initialization error:', error);
+    public changeModal(title='', content = '',name=''): void {
+        if(this.modalAddUser) {
+            this.modalAddUser = null;
+            this.openMenu = false;
         }
-    }
-
-    public changeModal(): void {
-        this.modalAddUser = !this.modalAddUser;
+        else {
+            this.modalAddUser = {title: title, content: content, name: name};
+        }
         this.setProps({ modal: this.modalAddUser });
     }
     public changeMenu(): void {
@@ -102,30 +106,30 @@ export default class Chats extends Block {
 
     private handleClick(e: Event): void {
         const target = e.target as HTMLElement;
-
-        if (target.type === 'submit') {
+        if (target.type === 'submit' || target.closest('#send-message')) {
             this.handleSubmit(e);
             return;
         }
-        if(target.closest('#send-message')){
-            const message = this.element?.querySelector('#message') as HTMLFormElement;
-            if(this.socket&&message) {
-                this.socket.send({
-                    content: message.value,
-                    type: 'message'
-                });
-            }
-            return;
-        }
+
         if(target.closest('#add-user') || target.closest('#modal-close')) {
-            this.changeModal();
+            this.changeModal('Добавить пользователя');
             return;
         }
-        if(target.closest('.burger-menu')) {
+        if(target.closest('#delete-user')) {
+            this.changeModal('Удалить пользователя');
+            return;
+        }
+        if(target.closest('#delete-chat')) {
+            const content = `Вы действительно хотите удалить чат "${this.selectedChat.title}"?`
+            this.changeModal('Удалить чат',content);
+            return;
+        }
+        if(target.closest('#burger-menu')) {
             this.changeMenu();
             return;
         }
-        if(target.id === 'add-chat' || target.id === 'modal-close') {
+        if(target.closest('#add-chat')){
+            this.changeModal('Добавить чат','','Имя');
             return;
         }
         if (target.closest('[data-page]')) {
@@ -136,21 +140,66 @@ export default class Chats extends Block {
             return;
         }
 
+        if(target.closest('#save-result') && this.modalAddUser.title === 'Удалить чат'){
+            this.deleteChat()
+            return;
+        }
+
         const chatElement = target.closest('.chat-item');
-        if (chatElement) {
-            const chatId = chatElement.getAttribute('id');
-            if (chatId) {
-                const findElem = this.chatsList.find(item => item.id === +chatId)
-                if(findElem) {
-                    this.selectedChat = findElem
-                    this.getTokenChats()
-                        .then(response => JSON.parse(response))
-                        .then(data => {
-                            this.soketConnect(data.token)
-                        });
-                    this.setProps({ selected: this.selectedChat });
-                }
-            }
+        if (!chatElement?.id) return;
+
+        const findElem = this.chatsList.find(item => item.id === +chatElement.id);
+        if (!findElem) return;
+
+        this.selectedChat = findElem;
+        this.message = null
+        this.setProps({ selected: this.selectedChat, message: this.message });
+
+        this.getTokenChats()
+            .then(response => JSON.parse(response))
+            .then(data => this.soketConnect(data.token));
+    }
+    private async deleteChat() {
+        const res = await this.http.delete('chats',{
+            chatId: this.selectedChat.id,
+            title: this.selectedChat.title
+        })
+        if(res && res.status === 200) {
+            this.chatsList= this.chatsList?.filter(item => item.id !== this.selectedChat.id)
+            this.cloneChatsList = this.chatsList
+            this.changeModal();
+            Confirmation.show('Чат успешно удален');
+            this.setProps({ chats: this.chatsList })
+        }
+        else{
+            Confirmation.show({
+                message: 'Ошибка при удалении чата. Попробуйте позже',
+                type: 'error'
+            });
+        }
+    }
+    private async createChat(name) {
+        const res = await this.http.post('chats',{
+            title: name || 'New chat'
+        })
+        if(res && res.status === 200) {
+            this.chatsList?.unshift({
+                avatar :null,
+                created_by: this.userStore.getUser().id,
+                id:JSON.parse(res.response).id,
+                last_message: null,
+                title: name || 'New chat',
+                unread_count: 0
+            })
+            this.changeModal();
+            Confirmation.show('Чат успешно добавлен');
+            this.setProps({ chats: this.chatsList })
+        }
+        else{
+            Confirmation.show({
+                message: 'Ошибка при добавлении чата. Попробуйте позже',
+                type: 'error'
+            });
         }
     }
     private handleConnected(): void {
@@ -162,20 +211,55 @@ export default class Chats extends Block {
 
     private handleMessage(data: any): void {
         if (Array.isArray(data)) {
-            this.message = data.map(message => ({
+            this.message = this.filterMessage(data).map(message => ({
                 ...message,
                 time: message.time.slice(11, 16)
             }));
+            this.setProps({ message: this.message });
+
         } else {
-            console.log(data)
+            const currentUser = this.userStore.getUser();
+            const isCurrentUser = currentUser.id === data.user_id;
+
+            const newMessage = {
+                content: data.content,
+                time: data.time,
+                user: {
+                    login: isCurrentUser ? currentUser.login : undefined
+                }
+            };
+
+            if (this.selectedChat.last_message) {
+                Object.assign(this.selectedChat.last_message, newMessage);
+            } else {
+                this.selectedChat.last_message = newMessage;
+            }
+
             this.message.push({
                 ...data,
                 time: data.time.slice(11, 16)
             });
+            this.setProps({ message: this.message, selected: this.selectedChat });
         }
-        this.setProps({ message: this.message });
     }
 
+    private filterMessage(data){
+        if (!data || data.length === 0) return [];
+        const result = [...data];
+        const n = result.length;
+
+        for (let i = 0; i < n - 1; i++) {
+            for (let j = 0; j < n - i - 1; j++) {
+                const timeA = new Date(result[j].time);
+                const timeB = new Date(result[j + 1].time);
+
+                if (timeA > timeB) {
+                    [result[j], result[j + 1]] = [result[j + 1], result[j]];
+                }
+            }
+        }
+        return result;
+    }
     private async soketConnect(token) {
         if(this.socket) {
             this.socket.close();
@@ -195,44 +279,82 @@ export default class Chats extends Block {
     private async handleSubmit(e: Event) {
         e.preventDefault();
         const target = e.target as HTMLElement;
-        if(target.closest('#add-login')) {
+
+        if(target.closest('#save-result')) {
             if(this.handleBlur(e)){
                 const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
                 if (loginForm) {
                     const formData = new FormData(loginForm);
                     const getUser = await this.http.post('user/search',{
-                        login: formData.get('add-login')
+                        login: formData.get('save-result')
                     })
-                    if(getUser && getUser.status === 200) {
-                        const res = await this.http.put('chats/users',{
-                            users: [+JSON.parse(getUser.response)[0].id],
-                            chatId: this.selectedChat.id,
-                        })
-                        if(res && res.status === 200) {
+                    const getUserBool = getUser && getUser.status === 200;
+                    if(this.modalAddUser.title === 'Добавить пользователя'){
 
+                        if(getUserBool) {
+                            const res = await this.http.put('chats/users',{
+                                users: [+JSON.parse(getUser.response)[0].id],
+                                chatId: this.selectedChat.id,
+                            })
+                            if(res && res.status === 200) {
+                                Confirmation.show('Пользователь успешно добавлен');
+                                this.changeModal();
+                                return;
+                            }
                         }
+                        Confirmation.show({
+                            message: 'Ошибка при добавлении пользователя. Попробуйте позже',
+                            type: 'error'
+                        });
+                    }
+                    if(this.modalAddUser.title === 'Удалить пользователя'){
+                        if(getUserBool) {
+                            const res = await this.http.delete('chats/users',{
+                                users: [+JSON.parse(getUser.response)[0].id],
+                                chatId: this.selectedChat.id,
+                            })
+                            if(res && res.status === 200) {
+                                Confirmation.show('Пользователь успешно удален');
+                                this.changeModal();
+                                return;
+                            }
+                        }
+                        Confirmation.show({
+                            message: 'Ошибка при удалении пользователя. Попробуйте позже',
+                            type: 'error'
+                        });
+
+                    }
+                    if(this.modalAddUser.title === 'Добавить чат'){
+                        const message = this.element?.querySelector('#save-result') as HTMLFormElement;
+                        this.createChat(message.value)
+                        return;
                     }
 
-                }
             }
+
+        }
             return;
         }
-        if (!this.validator) {
-            console.error('Validator not initialized');
-            return;
-        }
-        if (this.validator.isValid()) {
-            const messageForm = this.element?.querySelector('#message-form') as HTMLFormElement;
-            if (messageForm) {
-                const formData = new FormData(messageForm);
-                console.log('Сообщение:', formData.get('message'));
+
+
+        if(target.closest('#send-message')) {
+            if(this.handleBlur(e,'message-form')){
+                const message = this.element?.querySelector('#message') as HTMLFormElement;
+                if(this.socket&&message) {
+                    this.socket.send({
+                        content: message.value,
+                        type: 'message'
+                    });
+                }
+                return;
             }
         }
     }
 
-    private handleBlur(e: Event): boolean {
-        if(e.target.id === 'add-login'){
-            const validLogin = new FormValidator('login-form')
+    private handleBlur(e: Event,form: string = 'login-form'): boolean {
+        if(e.target.id === 'save-result' || e.target.id === 'send-message') {
+            const validLogin = new FormValidator(form)
             if (validLogin) {
                 return validLogin.isValidOneElement(e);
             }

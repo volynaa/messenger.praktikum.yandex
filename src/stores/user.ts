@@ -8,7 +8,6 @@ export default class UserStore {
     setUser(data: object) {
         UserStore.__user = data;
         localStorage.setItem('user', JSON.stringify(data));
-        console.log('User saved:', UserStore.__user);
     }
 
     outUser() {

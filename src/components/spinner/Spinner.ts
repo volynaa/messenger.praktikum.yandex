@@ -5,7 +5,7 @@ export interface SpinnerProps {
     size?: 'small' | 'medium' | 'large';
     color?: 'primary' | 'secondary' | 'white';
     text?: string;
-    overlay?: boolean;
+    className?: string;
 }
 
 export class Spinner extends Block<SpinnerProps> {
@@ -13,7 +13,6 @@ export class Spinner extends Block<SpinnerProps> {
         super('div', {
             size: 'medium',
             color: 'primary',
-            overlay: false,
             ...props
         });
     }
@@ -26,11 +25,10 @@ export class Spinner extends Block<SpinnerProps> {
             'spinner',
             `spinner--${this.props.size}`,
             `spinner--${this.props.color}`,
-            this.props.overlay ? 'spinner--overlay' : ''
+            this.props.className ? this.props.className : ''
         ].filter(Boolean).join(' ');
 
         container.innerHTML = `
-      ${this.props.overlay ? '<div class="spinner-overlay"></div>' : ''}
       <div class="${spinnerClasses}">
         <div class="spinner__circle"></div>
         ${this.props.text ? `<div class="spinner__text">${this.props.text}</div>` : ''}
