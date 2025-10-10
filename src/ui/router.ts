@@ -15,7 +15,7 @@ function render(query: string, block: Block): Element | null {
 }
 
 class Route {
-    private _pathname: string
+    protected _pathname: string
     private readonly _blockClass: new () => Block
     private _block: Block | null
     private _props: { rootQuery: string }
@@ -56,9 +56,9 @@ class Route {
 
 export default class Router {
     private static __instance: Router;
-    protected routes: Route[] | [] = [];
+    protected routes: Route[] = [];
     protected history: History| null = null;
-    private _currentRoute: object | null = null;
+    private _currentRoute: Route | null = null;
     private readonly _rootQuery: string = '';
     private userStore: UserStore | null = null;
 
@@ -87,8 +87,10 @@ export default class Router {
     }
 
     start() {
-        window.onpopstate = (event => {
-            this._onRoute(event.currentTarget.location.pathname);
+        window.onpopstate = ((event: PopStateEvent) => {
+            if (event.currentTarget instanceof Window) {
+                this._onRoute(event.currentTarget.location.pathname);
+            }
         }).bind(this);
 
         this._onRoute(window.location.pathname);
