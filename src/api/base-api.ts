@@ -24,18 +24,24 @@ export default class BaseAPI {
         }
     }
 
-    put<T>(url: string, options: T = undefined) {
+    put<T>(url: string, options?: T) {
         try {
-            return chatAPIInstance.put(url, {data: options});
+            const requestData = options !== undefined ?
+                { data: options as Record<string, unknown> } :
+                undefined;
+            return chatAPIInstance.put(url, requestData);
         }
         catch {
             throw new Error('Bad request');
         }
     }
 
-    delete<T>(url: string, options: T = undefined) {
+    delete<T>(url: string, options?: T) {
         try {
-            return chatAPIInstance.delete(url, {data: options});
+            const requestData = options !== undefined ?
+                { data: options as Record<string, unknown> } :
+                undefined;
+            return chatAPIInstance.delete(url, requestData);
         }
         catch {
             throw new Error('Bad request');

@@ -5,7 +5,7 @@ interface ChatProps extends Props {
     id?: string;
     avatar?: string;
     name?: string;
-    lastMessage?: object;
+    lastMessage?: Record<string, unknown>;
     countNewMessage?: string;
     events?: {
         click?: (event: Event) => void;
@@ -36,7 +36,7 @@ class Chat extends Block<ChatProps> {
                     <h2 class="chat-name">${this.props.name || ''}</h2>
                     <div>
                         <span class="last-message" style="color:var(--text-dark)">
-                            ${this.props.lastMessage?.user.login === userStore?.getUser().login ? 'Вы: ': ''}
+                            ${this.props.lastMessage?.user.login === userStore?.getUser()?.login ? 'Вы: ': ''}
                         </span>
                         <span class="last-message">${this.props.lastMessage?.content || ''}</span>
                     </div>

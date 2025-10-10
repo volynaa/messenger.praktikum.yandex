@@ -1,5 +1,5 @@
 export default class UserStore {
-    private static __user: object | null = null;
+    private static __user: Record<string, unknown> | null = null;
 
     constructor() {
         this.loadFromStorage();
