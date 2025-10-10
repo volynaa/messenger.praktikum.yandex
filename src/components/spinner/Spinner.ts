@@ -1,7 +1,8 @@
-import Block from '../../ui/block';
+import Block, {Props} from '../../ui/block';
 import './Spinner.pcss';
+import {Modal} from "../modal/Modal";
 
-export interface SpinnerProps {
+interface SpinnerProps extends Props{
     size?: 'small' | 'medium' | 'large';
     color?: 'primary' | 'secondary' | 'white';
     text?: string;
@@ -39,11 +40,17 @@ export class Spinner extends Block<SpinnerProps> {
         return fragment;
     }
 }
+interface spinnerHelperProps {
+    hash: {
+        size?: 'small' | 'medium' | 'large';
+        color?: 'primary' | 'secondary' | 'white';
+        text?: string;
+        className?: string;
+    };
+}
+export function spinnerHelper(props: spinnerHelperProps): string {
+    const modal = props.hash;
 
-export const spinnerHelper = function(this: unknown, options: unknown) {
-    const props = options.hash;
-
-    const spinner = new Spinner(props);
+    const spinner = new Spinner(modal);
     return spinner.getContent()?.outerHTML || '';
-};
-
+}
