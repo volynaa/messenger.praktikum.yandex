@@ -1,6 +1,5 @@
 import Block, {Props} from '../../ui/block';
 import './Spinner.pcss';
-import {Modal} from "../modal/Modal";
 
 interface SpinnerProps extends Props{
     size?: 'small' | 'medium' | 'large';
