@@ -8,7 +8,10 @@ import Router from '../../ui/router';
 import BaseAPI from '../../api/base-api';
 import UserStore from '../../stores/user';
 import Confirmation from "../../components/confirmation/Confirmation";
-
+interface ApiResponse {
+  status: number;
+  response: string;
+}
 export default class Login extends Block {
   private validator: FormValidator | null = null;
   private router: Router;
@@ -84,9 +87,9 @@ export default class Login extends Block {
             password: formData.get('password')
           }
 
-          const resSignin = await this.http.post('auth/signin',settings)
+          const resSignin = await this.http.post('auth/signin',settings) as ApiResponse
           if(resSignin && resSignin.status === 200) {
-            const resUser = await this.http.get('auth/user');
+            const resUser = await this.http.get('auth/user') as ApiResponse;
 
             if(resUser && resUser.status === 200) {
               this.userStore.setUser(JSON.parse(resUser.response));

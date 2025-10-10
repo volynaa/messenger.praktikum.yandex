@@ -21,6 +21,18 @@ export interface ProfileData {
     avatar: string;
     phone: string;
 }
+interface Password {
+    oldPassword: string,
+    newPassword: string
+}
+interface Data {
+    first_name: string,
+    second_name: string,
+    login: string,
+    email: string,
+    display_name: string,
+    phone: string,
+}
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
     private router: Router;
@@ -110,7 +122,7 @@ export default class Profile extends Block {
             this.validator.isValidOneElement(e)
         }
     }
-    private async editPassword(data) {
+    private async editPassword(data: Password) {
         const res = await this.http.put('user/password',{
             oldPassword: data.oldPassword,
             newPassword: data.newPassword
@@ -131,7 +143,7 @@ export default class Profile extends Block {
 
         await this.http.put('user/profile/avatar', formData);
     }
-    private async editData(data) {
+    private async editData(data: Data) {
         const res = await this.http.put('user/profile',{
             first_name: data.first_name,
             second_name: data.second_name,
@@ -141,11 +153,13 @@ export default class Profile extends Block {
             phone: data.phone,
         })
         if(res && res.status === 200) {
-            const user = this.userStore.getUser()
+            const user= this.userStore.getUser()
             Object.assign(user, data);
-            user.avatar = JSON.parse(res.response).avatar
-            await this.userStore.setUser(user)
-            this.setProps({profile: user}) // Не пойму почему не обновляются данные пользователя
+            if(user){
+                user.avatar = JSON.parse(res.response)?.avatar
+                await this.userStore.setUser(user)
+                this.setProps({profile: user}) // Не пойму почему не обновляются данные пользователя
+            }
             Confirmation.show('Данные успешно изменены');
         }
         else {
