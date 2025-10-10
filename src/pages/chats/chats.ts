@@ -45,7 +45,7 @@ export default class Chats extends Block {
         });
         this.router = new Router('#app');
         this.http = new BaseAPI();
-        this.userStore = new UserStore()?.getUser();
+        this.userStore = (new UserStore() as object)?.getUser();
         this.getChats();
     }
 
@@ -195,7 +195,7 @@ export default class Chats extends Block {
         if(res && res.status === 200) {
             this.chatsList?.unshift({
                 avatar :null,
-                created_by: this.userStore.getUser().id,
+                created_by: this.userStore.id,
                 id:JSON.parse(res.response).id,
                 last_message: null,
                 title: name || 'New chat',
@@ -228,7 +228,7 @@ export default class Chats extends Block {
             this.setProps({ message: this.message });
 
         } else {
-            const currentUser = this.userStore.getUser();
+            const currentUser = this.userStore;
             const isCurrentUser = currentUser.id === data.user_id;
 
             const newMessage = {
@@ -274,7 +274,7 @@ export default class Chats extends Block {
         if(this.socket) {
             this.socket.close();
         }
-        this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore.getUser().id}/${this.selectedChat.id}/${token}`)
+        this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore.id}/${this.selectedChat.id}/${token}`)
         this.socket.on(WebSocketTransport.Connected, this.handleConnected.bind(this));
         this.socket.on(WebSocketTransport.Message, this.handleMessage.bind(this));
         await this.socket.connect();
