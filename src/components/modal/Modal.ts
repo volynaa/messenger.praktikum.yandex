@@ -1,11 +1,15 @@
 import './Modal.pcss'
-import Block from "../../ui/block";
+import Block, {Props} from "../../ui/block";
 import {inputHelper} from "../Input";
 import {buttonHelper} from "../Button";
 import Handlebars from "handlebars";
-
+interface ModalConfig extends Props {
+    data?: object;
+    showCloseButton?: boolean;
+    showFooterButton?: boolean;
+}
 export class Modal extends Block {
-    constructor(props: Record<string, unknown>) {
+    constructor(props: ModalConfig) {
         super('div', props);
         this.element?.classList.add('modal');
     }
@@ -15,7 +19,7 @@ export class Modal extends Block {
         const container = document.createElement('div');
         let content = this.props.data.content
         let buttonBlock = ''
-        if(!this.props.data.content){
+        if(!content){
             Handlebars.registerHelper('Input', inputHelper);
             Handlebars.registerHelper('Button', buttonHelper);
             const contentTemplate = Handlebars.compile(`
@@ -59,7 +63,14 @@ export class Modal extends Block {
         return fragment;
     }
 }
-export function modalHelper(props: Record<string, unknown>): string {
+interface modalHelperProps {
+    hash: {
+        data?: object;
+        showCloseButton?: boolean;
+        showFooterButton?: boolean;
+    };
+}
+export function modalHelper(props: modalHelperProps): string {
     const modal = new Modal({
         data: props.hash.data,
         showCloseButton:  props.hash.showCloseButton,
