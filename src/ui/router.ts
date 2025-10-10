@@ -4,11 +4,11 @@ import Block from "./block";
 function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
 }
-function render(query: string, block: { getContent: () => HTMLElement }) {
+function render(query: string, block: Block | null) {
     const root = document.querySelector(query);
-    if (root && block.getContent()) {
+    if (root && block?.getContent()) {
         root.innerHTML = '';
-        root.appendChild(block.getContent());
+        root.appendChild(block?.getContent());
     }
     return root;
 }
@@ -52,14 +52,10 @@ class Route {
         this._block.show();
     }
 }
-interface RouteData {
-    path: string;
-    component: unknown;
-    authRequired?: boolean;
-}
+
 export default class Router {
     private static __instance: Router;
-    protected routes: Array<RouteData>;
+    protected routes: Route[];
     protected history: History;
     private _currentRoute: object | null;
     private readonly _rootQuery: string;
@@ -85,7 +81,7 @@ export default class Router {
         this.http = new BaseAPI();
     }
 
-    use(pathname: string, block: Block) {
+    use(pathname: string, block: Function) {
         const route = new Route(pathname, block, {rootQuery: this._rootQuery});
 
         this.routes.push(route);
