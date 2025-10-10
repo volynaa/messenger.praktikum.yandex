@@ -1,5 +1,6 @@
 import UserStore from '../stores/user';
 import BaseAPI from '../api/base-api';
+import Block from "./block";
 function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
 }
@@ -11,17 +12,13 @@ function render(query: string, block: { getContent: () => HTMLElement }) {
     }
     return root;
 }
-interface BlockInterface {
-    hide(): void;
-    show(): void;
-    getContent(): HTMLElement;
-}
+
 class Route {
     private _pathname: string
-    private _blockClass: new () => BlockInterface
-    private _block: BlockInterface | null
+    private _blockClass: typeof Block
+    private _block: Block | null
     private _props: object
-    constructor(pathname: string, view: new () => BlockInterface, props: object) {
+    constructor(pathname: string, view: typeof Block, props: object) {
         this._pathname = pathname;
         this._blockClass = view;
         this._block = null;
