@@ -47,12 +47,11 @@ export default class Profile extends Block {
         this.router = new Router('#app');
         this.http = new BaseAPI();
         this.userStore = new UserStore();
-        console.log(this.userStore.getUser())
         this.setProps({profile: this.userStore?.getUser()})
     }
 
     protected render(): DocumentFragment {
-        const templates = {
+        const templates: Record<string, unknown> = {
             '/settings/data':profileEditData,
             '/settings/password':profileEditPassword
         };
@@ -66,7 +65,7 @@ export default class Profile extends Block {
             const baseURL = 'https://ya-praktikum.tech/api/v2/resources';
             return `${baseURL}${avatarPath}`;
         });
-        const templateContent = templates[window.location.pathname] || profileIndex;
+        const templateContent = templates[window.location.pathname as keyof typeof templates] || profileIndex;
         const compiledTemplate = Handlebars.compile(templateContent);
 
         template.innerHTML = compiledTemplate({profile: this.userStore?.getUser() || {}});
