@@ -178,9 +178,7 @@ export default class Chats extends Block {
             this.getTokenChats()
                 .then(response => JSON.parse(response) as { token?: string })
                 .then(data => {
-                    if (data?.token) {
-                        this.soketConnect(data.token);
-                    }
+                    this.soketConnect(data.token as string);
                 });
         }
     }
