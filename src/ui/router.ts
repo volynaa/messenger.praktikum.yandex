@@ -18,7 +18,7 @@ class Route {
     private _blockClass: typeof Block
     private _block: Block | null
     private _props: object
-    constructor(pathname: string, view: typeof Block, props: object) {
+    constructor(pathname: string, view: typeof Block, props: { rootQuery: string }) {
         this._pathname = pathname;
         this._blockClass = view;
         this._block = null;
@@ -85,7 +85,7 @@ export default class Router {
         this.http = new BaseAPI();
     }
 
-    use(pathname: string, block: unknown) {
+    use(pathname: string, block: typeof Block) {
         const route = new Route(pathname, block, {rootQuery: this._rootQuery});
 
         this.routes.push(route);
@@ -101,7 +101,7 @@ export default class Router {
         this._onRoute(window.location.pathname);
     }
 
-    _onRoute(pathname) {
+    _onRoute(pathname: string) {
         const isAuthorized = this.userStore.getUser() !== null;
 
         if (isAuthorized && this.UNAUTHORIZED_ONLY_PATHS.includes(pathname)) {
@@ -133,7 +133,7 @@ export default class Router {
         route.render();
     }
 
-    replace(pathname) {
+    replace(pathname: string) {
         this.history.replaceState({}, '', pathname);
         this._onRoute(pathname);
     }
@@ -143,7 +143,7 @@ export default class Router {
         return !publicRoutes.includes(pathname);
     }
 
-    go(pathname) {
+    go(pathname: string) {
         this.history.pushState({}, '', pathname);
         this._onRoute(pathname);
     }
@@ -156,9 +156,12 @@ export default class Router {
         this.history.forward();
     }
     getPath(){
-        return this._currentRoute._pathname
+        if(this._currentRoute){
+            return this._currentRoute._pathname
+        }
+        return ''
     }
-    getRoute(pathname) {
+    getRoute(pathname: string) {
         return this.routes.find(route => route.match(pathname));
     }
 }
