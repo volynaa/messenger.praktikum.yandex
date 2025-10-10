@@ -183,7 +183,10 @@ export default class Chats extends Block {
             this.getTokenChats()
                 .then(response => JSON.parse(response) as { token?: string })
                 .then(data => {
-                    this.soketConnect(data.token as string);
+                    const token = data.token;
+                    if (typeof token === 'string') {
+                        this.soketConnect(token);
+                    }
                 });
         }
     }
@@ -236,7 +239,7 @@ export default class Chats extends Block {
         });
     }
 
-    private handleMessage(data: object): void {
+    private handleMessage(data: Message): void {
         if (Array.isArray(data)) {
             this.message = this.filterMessage(data).map(message => ({
                 ...message,
