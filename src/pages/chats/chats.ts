@@ -22,21 +22,25 @@ interface Chat {
     title: string;
     last_message: object | null;
     unread_count: number;
-    created_at?: string;
 }
 interface ApiResponse {
     status: number;
     response: string;
 }
+interface ModalUser {
+    title: string | null;
+    content: string | null;
+    name: string | null;
+}
 export default class Chats extends Block {
     private router: Router;
     private http: BaseAPI;
-    private modalAddUser: object | null = null;
+    private modalAddUser: ModalUser | null = null;
     private chatsList: Chat[] | null = null;
-    private selectedChat: object | null = null;
+    private selectedChat: Chat | null = null;
     private message: [] | null = null;
     private openMenu: boolean = false;
-    private socket: object | null = null;
+    private socket: WebSocket | null = null;
     private readonly userStore: User | null = null;
     constructor() {
         super('div',{
@@ -122,7 +126,7 @@ export default class Chats extends Block {
 
     private handleClick(e: Event): void {
         const target = e.target as HTMLElement;
-        if (target.type === 'submit' || target.closest('#send-message')) {
+        if (target.getAttribute('type') === 'submit' || target.closest('#send-message')) {
             this.handleSubmit(e);
             return;
         }
@@ -136,7 +140,7 @@ export default class Chats extends Block {
             return;
         }
         if(target.closest('#delete-chat')) {
-            const content = `Вы действительно хотите удалить чат "${this.selectedChat.title}"?`
+            const content = `Вы действительно хотите удалить чат "${this.selectedChat?.title}"?`
             this.changeModal('Удалить чат',content);
             return;
         }
@@ -156,7 +160,7 @@ export default class Chats extends Block {
             return;
         }
 
-        if(target.closest('#save-result') && this.modalAddUser.title === 'Удалить чат'){
+        if(target.closest('#save-result') && this.modalAddUser?.title === 'Удалить чат'){
             this.deleteChat()
             return;
         }
@@ -164,24 +168,25 @@ export default class Chats extends Block {
         const chatElement = target.closest('.chat-item');
         if (!chatElement?.id) return;
 
-        const findElem = this.chatsList.find(item => item.id === +chatElement.id);
-        if (!findElem) return;
+        if (this.chatsList) {
+            const findElem = this.chatsList.find(item => item.id === +chatElement.id);
+            if (!findElem) return;
+            this.selectedChat = findElem;
+            this.message = null
+            this.setProps({ selected: this.selectedChat, message: this.message });
 
-        this.selectedChat = findElem;
-        this.message = null
-        this.setProps({ selected: this.selectedChat, message: this.message });
-
-        this.getTokenChats()
-            .then(response => JSON.parse(response))
-            .then(data => this.soketConnect(data.token));
+            this.getTokenChats()
+                .then(response => JSON.parse(response))
+                .then(data => this.soketConnect(data.token));
+        }
     }
     private async deleteChat() {
         const res = await this.http.delete('chats',{
-            chatId: this.selectedChat.id,
-            title: this.selectedChat.title
+            chatId: this.selectedChat?.id,
+            title: this.selectedChat?.title
         })
         if(res && res.status === 200) {
-            this.chatsList= this.chatsList?.filter(item => item.id !== this.selectedChat.id)
+            this.chatsList= this.chatsList?.filter(item => item.id !== this.selectedChat?.id)
             this.changeModal();
             Confirmation.show('Чат успешно удален');
             this.setProps({ chats: this.chatsList })
@@ -200,7 +205,7 @@ export default class Chats extends Block {
         if(res && res.status === 200) {
             this.chatsList?.unshift({
                 avatar :null,
-                created_by: this.userStore.id,
+                created_by: this.userStore ? this.userStore.id : 0,
                 id:JSON.parse(res.response).id,
                 last_message: null,
                 title: name || 'New chat',
