@@ -35,7 +35,7 @@ interface ModalUser {
 interface Message {
     user_id: number;
     content: string | null;
-    time: number | string;
+    time: string;
 }
 export default class Chats extends Block {
     private router: Router;
