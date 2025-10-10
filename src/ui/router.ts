@@ -15,7 +15,7 @@ function render(query: string, block: { getContent: () => HTMLElement }) {
 
 class Route {
     private _pathname: string
-    private _blockClass: Block
+    private readonly _blockClass: Block
     private _block: Block | null
     private _props: object
     constructor(pathname: string, view: Block, props: { rootQuery: string }) {
@@ -45,11 +45,11 @@ class Route {
     render() {
         if (!this._block) {
             this._block = new this._blockClass();
+            render(this._props.rootQuery, this._block);
+            return;
         }
-        else {
-            this._block.show();
-        }
-        render(this._props.rootQuery, this._block);
+
+        this._block.show();
     }
 }
 interface RouteData {
