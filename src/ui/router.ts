@@ -1,5 +1,4 @@
 import UserStore from '../stores/user';
-import BaseAPI from '../api/base-api';
 import Block from "./block";
 function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
@@ -62,13 +61,12 @@ export default class Router {
     private _currentRoute: object | null = null;
     private readonly _rootQuery: string = '';
     private userStore: UserStore | null = null;
-    private http: BaseAPI | null = null;
 
     private readonly UNAUTHORIZED_ONLY_PATHS = ['/', '/sign-up'];
 
     private readonly DEFAULT_AUTH_PATH = '/messenger';
 
-    constructor(rootQuery) {
+    constructor(rootQuery: string) {
         if (Router.__instance) {
             return Router.__instance;
         }
@@ -80,7 +78,6 @@ export default class Router {
 
         Router.__instance = this;
         this.userStore = new UserStore();
-        this.http = new BaseAPI();
     }
 
     use(pathname: string, block: new () => Block) {
