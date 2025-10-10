@@ -1,4 +1,4 @@
-import Block from "../../ui/block";
+import Block, {Props} from "../../ui/block";
 import Handlebars from "handlebars";
 import {buttonHelper} from "../../components/Button";
 import { inputHelper } from '../../components/Input';
@@ -28,11 +28,10 @@ export default class Chats extends Block {
     private http: BaseAPI;
     private modalAddUser: object | null = null;
     private chatsList: Chat[] | null = null;
-    private cloneChatsList: Chat[] | null = null;
     private selectedChat: object | null = null;
     private message: [] | null = null;
     private openMenu: boolean = false;
-    private socket: object;
+    private socket: object | null = null;
     private readonly userStore: UserStore;
     constructor() {
         super('div',{
@@ -94,11 +93,9 @@ export default class Chats extends Block {
         const res = await this.http.get('chats')
         if(res && res.status === 200) {
             this.chatsList = JSON.parse(res.response);
-            this.cloneChatsList = this.chatsList;
         }
         else {
             this.chatsList = []
-            this.cloneChatsList = []
         }
         this.setProps({ chats: this.chatsList })
     }
@@ -179,7 +176,6 @@ export default class Chats extends Block {
         })
         if(res && res.status === 200) {
             this.chatsList= this.chatsList?.filter(item => item.id !== this.selectedChat.id)
-            this.cloneChatsList = this.chatsList
             this.changeModal();
             Confirmation.show('Чат успешно удален');
             this.setProps({ chats: this.chatsList })
