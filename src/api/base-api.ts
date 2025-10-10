@@ -24,7 +24,7 @@ export default class BaseAPI {
         }
     }
 
-    put<T>(url: string, options?: T) {
+    put(url: string, options: Record<string, unknown> | undefined = undefined) {
         try {
             const requestData = options !== undefined ?
                 { data: options as Record<string, unknown> } :
