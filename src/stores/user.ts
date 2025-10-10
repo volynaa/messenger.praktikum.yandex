@@ -1,14 +1,27 @@
-export default class UserStore {
-    private static __user: object | null = null;
+export interface User {
+    avatar: string | null,
+    display_name: string | null,
+    email: string | null,
+    first_name: string | null,
+    id: number,
+    login: string | null,
+    phone: string | null,
+    second_name: string | null,
+}
+export interface IUserStore {
+    getUser(): User | null;
+    setUser(user: User): void;
+}
+export default class UserStore implements IUserStore {
+    private static __user: User | null = null;
 
     constructor() {
         this.loadFromStorage();
     }
 
-    setUser(data: object) {
+    setUser(data: User) {
         UserStore.__user = data;
         localStorage.setItem('user', JSON.stringify(data));
-        console.log('User saved:', UserStore.__user);
     }
 
     outUser() {

@@ -1,12 +1,13 @@
 import Block from "../ui/block";
 import { Props } from '../ui/block';
+import UserStore from "../stores/user";
+import type {User} from "../stores/user";
 interface ChatProps extends Props {
     id?: string;
     avatar?: string;
     name?: string;
-    lastMessage?: string;
+    lastMessage?: Record<string, unknown>;
     countNewMessage?: string;
-    time?: string;
     events?: {
         click?: (event: Event) => void;
     };
@@ -18,9 +19,9 @@ class Chat extends Block<ChatProps> {
     }
 
     protected render(): DocumentFragment {
+        const userStore: User | null = new UserStore().getUser();
         const fragment = document.createDocumentFragment();
         const container = document.createElement('div');
-
         const avatarHtml = this.props.avatar
             ? `<img src="${this.props.avatar}" alt="Аватар пользователя">`
             : `<div class="chat-avatar"></div>`;
@@ -28,15 +29,21 @@ class Chat extends Block<ChatProps> {
         const countMessageHtml = this.props.countNewMessage
             ? `<div class="chat-count-message">${this.props.countNewMessage}</div>`
             : '';
-
+        const currentLogin = userStore?.login;
+        const currentTime = this.props.lastMessage ? (this.props.lastMessage?.time as string).slice(11,16) : ''
         container.innerHTML = `
             <div class="chat-item" id="${this.props.id || ''}">
                 ${avatarHtml}
                 <div class="chat-info">
                     <h2 class="chat-name">${this.props.name || ''}</h2>
-                    <span class="last-message">${this.props.lastMessage || ''}</span>
+                    <div>
+                        <span class="last-message" style="color:var(--text-dark)">
+                            ${(this.props.lastMessage?.user as Record<string, unknown>)?.login === currentLogin ? 'Вы: ': ''}
+                        </span>
+                        <span class="last-message">${this.props.lastMessage?.content || ''}</span>
+                    </div>
                 </div>
-                <div class="chat-time">${this.props.time || ''}</div>
+                <div class="chat-time">${currentTime}</div>
                 ${countMessageHtml}
             </div>
         `;
@@ -54,9 +61,8 @@ interface ChatHelperProps {
         id?: string;
         avatar?: string;
         name?: string;
-        lastMessage?: string;
+        lastMessage?: Record<string, unknown>;
         countNewMessage?: string;
-        time?: string;
     };
 }
 
@@ -67,7 +73,6 @@ export function chatHelper(props: ChatHelperProps): string {
         name: props.hash.name,
         lastMessage: props.hash.lastMessage,
         countNewMessage: props.hash.countNewMessage,
-        time: props.hash.time,
     });
 
     const content = chat.getContent();

@@ -4,7 +4,6 @@ import Handlebars from "handlebars";
 import { inputHelper } from '../../components/Input';
 import { buttonHelper } from '../../components/Button';
 import { imgHelper } from '../../components/Img';
-import App from "../../App";
 import profileIndex from './profileIndex.hbs?raw';
 import profileEditData from './profileEditData.hbs?raw';
 import profileEditPassword from './profileEditPassword.hbs?raw';
@@ -12,34 +11,47 @@ import FormValidator from "../../ui/validation";
 import Router from '../../ui/router';
 import BaseAPI from '../../api/base-api';
 import UserStore from '../../stores/user';
+import Confirmation from "../../components/confirmation/Confirmation";
 export interface ProfileData {
     email: string;
     login: string;
     first_name: string;
     second_name: string;
     display_name: string;
-    avatar: string;
+    avatar?: string;
     phone: string;
 }
-const userStore = new UserStore();
+interface ApiResponse {
+    status: number;
+    response: string;
+}
+interface Password {
+    oldPassword: string,
+    newPassword: string
+}
+
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
     private router: Router;
     private http: BaseAPI;
+    private readonly userStore: UserStore;
     constructor() {
         super('div',{
             events: {
                 focusout : (e: Event) => this.handleBlur(e),
                 submit: (e: Event) => this.handleSubmit(e),
-                click: (e: Event) => this.handleButtonClick(e)
+                click: (e: Event) => this.handleButtonClick(e),
+                change: (e: Event) => this.handleFileChange(e)
             }
         });
         this.router = new Router('#app');
         this.http = new BaseAPI();
+        this.userStore = new UserStore();
+        this.setProps({profile: this.userStore?.getUser()})
     }
 
     protected render(): DocumentFragment {
-        const templates = {
+        const templates: Record<string, unknown> = {
             '/settings/data':profileEditData,
             '/settings/password':profileEditPassword
         };
@@ -48,9 +60,15 @@ export default class Profile extends Block {
         Handlebars.registerHelper('Input', inputHelper);
         Handlebars.registerHelper('Button', buttonHelper);
         Handlebars.registerHelper('Img', imgHelper);
-        const templateContent = templates[window.location.pathname] || profileIndex;
+        Handlebars.registerHelper('avatarUrl', (avatarPath: string) => {
+            if (!avatarPath) return '/photo.svg';
+            const baseURL = 'https://ya-praktikum.tech/api/v2/resources';
+            return `${baseURL}${avatarPath}`;
+        });
+        const templateContent = templates[window.location.pathname as keyof typeof templates] || profileIndex;
         const compiledTemplate = Handlebars.compile(templateContent);
-        template.innerHTML = compiledTemplate({profile: userStore.getUser()});
+
+        template.innerHTML = compiledTemplate({profile: this.userStore?.getUser() || {}});
         fragment.appendChild(template.content.cloneNode(true));
         return fragment;
 
@@ -58,7 +76,7 @@ export default class Profile extends Block {
     protected componentDidMount(): void {
         setTimeout(() => {
             this.initializeValidator();
-        }, 100);
+        }, 0);
     }
 
     private initializeValidator(): void {
@@ -71,10 +89,82 @@ export default class Profile extends Block {
             console.error('Form validation initialization error:', error);
         }
     }
+    private handleFileChange(e: Event): void {
+        const target = e.target as HTMLInputElement;
+        if (target.id === 'avatar' && target.type === 'file') {
+            this.handleAvatarChange(e);
+        }
+    }
+    private handleAvatarChange(e: Event): void {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (!file) return;
+        this.showAvatarPreview(file);
+    }
+
+    private showAvatarPreview(file: File): void {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            const preview = this.element?.querySelector('.avatar-preview') as HTMLImageElement;
+            if (preview && e.target?.result) {
+                preview.src = e.target.result as string;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
     private handleBlur(e: Event): void {
         if (this.validator) {
             this.validator.isValidOneElement(e)
         }
+    }
+    private async editPassword(data: Password) {
+        const res = await this.http.put('user/password',{
+            oldPassword: data.oldPassword,
+            newPassword: data.newPassword
+        }) as ApiResponse
+        if(res && res.status === 200) {
+            Confirmation.show('Пароль успешно изменен');
+        }
+        else {
+            Confirmation.show({
+                message: 'Ошибка при изменении пароля. Попробуйте позже',
+                type: 'error'
+            });
+        }
+    }
+    private async uploadAvatar(file: File): Promise<void> {
+        const formData = new FormData();
+        formData.append('avatar', file);
+
+        await this.http.put('user/profile/avatar', formData);
+    }
+    private async editData(data: ProfileData) {
+        const res = await this.http.put('user/profile',{
+            first_name: data.first_name,
+            second_name: data.second_name,
+            login: data.login,
+            email: data.email,
+            display_name: data.display_name,
+            phone: data.phone,
+        }) as ApiResponse
+        if(res && res.status === 200) {
+            const user= this.userStore.getUser()
+            if(user){
+                Object.assign(user, data);
+                user.avatar = JSON.parse(res.response)?.avatar
+                await this.userStore.setUser(user)
+                this.setProps({profile: user}) // Не пойму почему не обновляются данные пользователя
+            }
+            Confirmation.show('Данные успешно изменены');
+        }
+        else {
+            Confirmation.show({
+                message: 'Ошибка при изменении данных. Попробуйте позже',
+                type: 'error'
+            });
+        }
+
     }
     private async handleButtonClick(e: Event) {
         const target = e.target as HTMLElement;
@@ -83,7 +173,7 @@ export default class Profile extends Block {
                 const targetPage = target.closest('[data-page]')?.getAttribute('data-page');
                 if (targetPage) {
                     if(targetPage === '/'){
-                        userStore.outUser()
+                        this.userStore.outUser()
                         await this.http.post('auth/logout',{})
                     }
                     this.router.go(targetPage);
@@ -95,7 +185,6 @@ export default class Profile extends Block {
 
     private handleSubmit(e: Event): void {
         e.preventDefault();
-
         if (!this.validator) {
             console.error('Validator not initialized');
             return;
@@ -109,11 +198,11 @@ export default class Profile extends Block {
         if (this.validator.isValid()) {
             const registerForm = this.element?.querySelector('#input-container') as HTMLFormElement;
             if (registerForm) {
-                const app = App.getInstance();
-
+                const path = this.router.getPath()
                 const formData = new FormData(registerForm as HTMLFormElement);
-                if(app.getState().currentPage === 'profileEditData'){
-                    const data: Partial<ProfileData> = {
+                const avatarInput = this.element?.querySelector('#avatar') as HTMLInputElement;
+                if(path === '/settings/data'){
+                    const data: ProfileData = {
                         email: this.getFormValue(formData, 'email'),
                         login: this.getFormValue(formData, 'login'),
                         first_name: this.getFormValue(formData, 'first_name'),
@@ -121,22 +210,21 @@ export default class Profile extends Block {
                         second_name: this.getFormValue(formData, 'second_name'),
                         phone: this.getFormValue(formData, 'phone'),
                     }
-                    console.log('Почта:', data.email);
-                    console.log('Логин:', data.login);
-                    console.log('Имя:', data.first_name);
-                    console.log('Имя в чате:', data.display_name);
-                    console.log('Фамилия:', data.second_name);
-                    console.log('Телефон:', data.phone);
-                    app.setProfile(data)
+                    if(avatarInput?.files&&avatarInput?.files[0]){
+                        this.uploadAvatar(avatarInput.files[0])
+                    }
+                    this.editData(data)
                 }
-                else{
-                    console.log('Старый пароль:', formData.get('old_password'));
-                    console.log('Новый пароль:', formData.get('new_password'));
-                    console.log('Новый пароль еще раз:', formData.get('doublePassword'));
+                if(path === '/settings/password'){
+                    const data: Password = {
+                        oldPassword: formData.get('old_password') as string,
+                        newPassword: formData.get('new_password') as string
+                    }
+                    this.editPassword(data)
                 }
                 const targetPage = submitter.dataset.page;
                 if (targetPage) {
-                    this.router.go(targetPage);
+                   this.router.go(targetPage);
                 }
             }
         }

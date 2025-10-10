@@ -8,6 +8,10 @@ import registerTemplate from './register.hbs?raw';
 import BaseAPI from '../../api/base-api';
 import Router from '../../ui/router';
 import UserStore from "../../stores/user";
+interface ApiResponse {
+  status: number;
+  response: string;
+}
 export default class Register extends Block {
   private validator: FormValidator | null = null;
   private router: Router;
@@ -83,9 +87,9 @@ export default class Register extends Block {
             email: formData.get('email'),
             password: formData.get('password'),
             phone: formData.get('phone')
-          })
+          }) as ApiResponse
           if(resSignup && resSignup.status === 200) {
-            const resUser = await this.http.get('auth/user');
+            const resUser = await this.http.get('auth/user') as ApiResponse;
 
             if(resUser && resUser.status === 200) {
               this.userStore.setUser(JSON.parse(resUser.response));

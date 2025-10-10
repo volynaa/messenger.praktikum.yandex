@@ -1,11 +1,11 @@
-import Block from '../../ui/block';
+import Block, {Props} from '../../ui/block';
 import './Spinner.pcss';
 
-export interface SpinnerProps {
+interface SpinnerProps extends Props{
     size?: 'small' | 'medium' | 'large';
     color?: 'primary' | 'secondary' | 'white';
     text?: string;
-    overlay?: boolean;
+    className?: string;
 }
 
 export class Spinner extends Block<SpinnerProps> {
@@ -13,7 +13,6 @@ export class Spinner extends Block<SpinnerProps> {
         super('div', {
             size: 'medium',
             color: 'primary',
-            overlay: false,
             ...props
         });
     }
@@ -24,16 +23,15 @@ export class Spinner extends Block<SpinnerProps> {
 
         const spinnerClasses = [
             'spinner',
-            `spinner--${this.props.size}`,
-            `spinner--${this.props.color}`,
-            this.props.overlay ? 'spinner--overlay' : ''
+            `spinner-${this.props.size}`,
+            `spinner-${this.props.color}`,
+            this.props.className ? this.props.className : ''
         ].filter(Boolean).join(' ');
 
         container.innerHTML = `
-      ${this.props.overlay ? '<div class="spinner-overlay"></div>' : ''}
       <div class="${spinnerClasses}">
-        <div class="spinner__circle"></div>
-        ${this.props.text ? `<div class="spinner__text">${this.props.text}</div>` : ''}
+        <div class="spinner-circle"></div>
+        ${this.props.text ? `<div class="spinner-text">${this.props.text}</div>` : ''}
       </div>
     `;
 
@@ -41,11 +39,17 @@ export class Spinner extends Block<SpinnerProps> {
         return fragment;
     }
 }
+interface spinnerHelperProps {
+    hash: {
+        size?: 'small' | 'medium' | 'large';
+        color?: 'primary' | 'secondary' | 'white';
+        text?: string;
+        className?: string;
+    };
+}
+export function spinnerHelper(props: spinnerHelperProps): string {
+    const spinner = props.hash;
 
-export const spinnerHelper = function(this: any, options: any) {
-    const props = options.hash;
-
-    const spinner = new Spinner(props);
-    return spinner.getContent()?.outerHTML || '';
-};
-
+    const content = new Spinner(spinner);
+    return content.getContent()?.outerHTML || '';
+}

@@ -1,48 +1,51 @@
 import './Modal.pcss'
-import Block from "../../ui/block";
+import Block, {Props} from "../../ui/block";
 import {inputHelper} from "../Input";
 import {buttonHelper} from "../Button";
 import Handlebars from "handlebars";
-export interface ModalConfig {
-    title?: string;
-    content: string;
+interface ModalConfig extends Props {
+    data?: {
+        content: string,
+        title: string,
+        name: string
+    };
     showCloseButton?: boolean;
     showFooterButton?: boolean;
 }
-
-export class Modal extends Block {
+export class Modal extends Block<ModalConfig> {
     constructor(props: ModalConfig) {
         super('div', props);
-        this.element.classList.add('modal');
+        this.element?.classList.add('modal');
     }
 
     protected render(): DocumentFragment {
         const fragment = document.createDocumentFragment();
         const container = document.createElement('div');
-        let content = this.props.content
+        let content = this.props.data?.content
         let buttonBlock = ''
-        if(!this.props.content){
+        if(!content){
             Handlebars.registerHelper('Input', inputHelper);
             Handlebars.registerHelper('Button', buttonHelper);
             const contentTemplate = Handlebars.compile(`
                 <form class="input-container" id="login-form">
-                    <label for="add-login" class="grey-text">Логин</label>
+                    <label for="add-login" class="grey-text">${this.props.data?.name || 'Логин'}</label>
                     {{{ Input
-                            id="add-login"
-                            name="add-login"
+                            id="save-result"
+                            name="save-result"
                             type="text"
-                            placeholder="Логин"
-                            minLen="3"
+                            placeholder="${this.props.data?.name || 'Логин'}"
+                            minLen="${this.props.data?.name ? 0:3}"
                             maxLen="20"
-                            req=true
-                            pat="^[a-zA-Z0-9_-]+$"
+                            req="${this.props.data?.name ? false:true}"
+                            pat="${this.props.data?.name ? '':'^[a-zA-Z0-9_-]+$'}"
                     }}}
                 </form>`);
             content = contentTemplate({});
         }
         if(this.props.showFooterButton){
             const contentTemplate = Handlebars.compile(`
-            {{{Button id="add-login" text="Добавить" className="button" type="submit"}}}
+            {{{Button id="save-result" text="${!this.props.data?.content? 'Сохранить':'Подтвердить'}" 
+                    className="button" type="${!this.props.data?.content? 'submit':'button'}"}}}
             {{{Button id="modal-close"  className="button button-close" text="Закрыть" type="button"}}}
             `);
             buttonBlock = contentTemplate({});
@@ -50,7 +53,7 @@ export class Modal extends Block {
         container.innerHTML = `
             <div class="modal-backdrop"></div>
             <div class="modal-content">
-                ${this.props.title ? `<div class="modal-header"><h3>${this.props.title}</h3></div>` : ''}
+                ${this.props.data?.title ? `<div class="modal-header"><h3>${this.props.data.title}</h3></div>` : ''}
                 <div class="modal-body mt-20">${content}</div>
                 ${this.props.showCloseButton ? '<button id="modal-close" class="modal-close" type="button">&times;</button>' : ''}
                 ${this.props.showFooterButton ? 
@@ -66,16 +69,18 @@ export class Modal extends Block {
 }
 interface modalHelperProps {
     hash: {
-        title?: string;
-        content: string;
+        data?: {
+            content: string,
+            title: string,
+            name: string
+        };
         showCloseButton?: boolean;
         showFooterButton?: boolean;
     };
 }
 export function modalHelper(props: modalHelperProps): string {
     const modal = new Modal({
-        title: props.hash.title,
-        content:  props.hash.content,
+        data: props.hash.data,
         showCloseButton:  props.hash.showCloseButton,
         showFooterButton:  props.hash.showFooterButton,
     });

@@ -1,9 +1,10 @@
+type EventCallback = (...args: unknown[]) => void;
 export class WebSocketTransport {
     private socket: WebSocket | null = null;
     private readonly url: string;
     private pingInterval: number | null = null;
     private readonly pingIntervalTime: number;
-    private eventListeners: Map<string, Function[]> = new Map();
+    private eventListeners: Map<string, EventCallback[]> = new Map();
 
     public static readonly Connected = 'connected';
     public static readonly Close = 'close';
@@ -15,14 +16,14 @@ export class WebSocketTransport {
         this.pingIntervalTime = pingIntervalTime;
     }
 
-    public on(event: string, callback: Function): void {
+    public on(event: string, callback: EventCallback): void {
         if (!this.eventListeners.has(event)) {
             this.eventListeners.set(event, []);
         }
         this.eventListeners.get(event)!.push(callback);
     }
 
-    public off(event: string, callback: Function): void {
+    public off(event: string, callback: EventCallback): void {
         const listeners = this.eventListeners.get(event);
         if (listeners) {
             const index = listeners.indexOf(callback);
@@ -32,7 +33,7 @@ export class WebSocketTransport {
         }
     }
 
-    private emit(event: string, ...args: any[]): void {
+    private emit(event: string, ...args: unknown[]): void {
         const listeners = this.eventListeners.get(event);
         if (listeners) {
             listeners.forEach(callback => {
@@ -66,18 +67,11 @@ export class WebSocketTransport {
         this.setupPing();
 
         return new Promise((resolve, reject) => {
-            const errorHandler = (error: Error) => {
-                this.off(WebSocketTransport.Connected, connectedHandler);
-                reject(error);
-            };
-
-            const connectedHandler = () => {
-                this.off(WebSocketTransport.Error, errorHandler);
+            this.on(WebSocketTransport.Error, reject);
+            this.on(WebSocketTransport.Connected, () => {
+                this.on(WebSocketTransport.Error, reject);
                 resolve();
-            };
-
-            this.on(WebSocketTransport.Error, errorHandler);
-            this.on(WebSocketTransport.Connected, connectedHandler);
+            });
         });
     }
 
@@ -131,7 +125,7 @@ export class WebSocketTransport {
             this.emit(WebSocketTransport.Close, event);
         });
 
-        socket.addEventListener('error', (event) => {
+        socket.addEventListener('error', () => {
             this.emit(WebSocketTransport.Error, new Error('WebSocket error'));
         });
 
@@ -143,19 +137,9 @@ export class WebSocketTransport {
                     return;
                 }
                 this.emit(WebSocketTransport.Message, data);
-            } catch (e) {
+            } catch {
                 this.emit(WebSocketTransport.Message, message.data);
             }
         });
-    }
-
-    public reconnect(): Promise<void> {
-        this.close();
-        return this.connect();
-    }
-
-    public destroy(): void {
-        this.close();
-        this.eventListeners.clear();
     }
 }

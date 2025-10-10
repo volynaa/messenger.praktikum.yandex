@@ -1,32 +1,34 @@
 import UserStore from '../stores/user';
-import BaseAPI from '../api/base-api';
-function isEqual(lhs, rhs) {
+import Block from "./block";
+function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
 }
-
-function render(query: string, block: { getContent: () => HTMLElement }) {
+function render(query: string, block: Block): Element | null {
     const root = document.querySelector(query);
-    if (root && block.getContent()) {
+    const content = block?.getContent();
+
+    if (root && content) {
         root.innerHTML = '';
-        root.appendChild(block.getContent());
+        root.appendChild(content);
     }
     return root;
 }
+
 class Route {
-    private _pathname: string
-    private _blockClass: unknown
-    private _block: unknown
-    private _props: object
-    constructor(pathname, view, props) {
-        this._pathname = pathname;
+    public pathname: string
+    private readonly _blockClass: new () => Block
+    private _block: Block | null
+    private _props: { rootQuery: string }
+    constructor(pathname: string, view: new () => Block, props: { rootQuery: string }) {
+        this.pathname = pathname;
         this._blockClass = view;
         this._block = null;
         this._props = props;
     }
 
-    navigate(pathname) {
+    navigate(pathname: string) {
         if (this.match(pathname)) {
-            this._pathname = pathname;
+            this.pathname = pathname;
             this.render();
         }
     }
@@ -37,8 +39,8 @@ class Route {
         }
     }
 
-    match(pathname) {
-        return isEqual(pathname, this._pathname);
+    match(pathname: string) {
+        return isEqual(pathname, this.pathname);
     }
 
     render() {
@@ -51,25 +53,20 @@ class Route {
         render(this._props.rootQuery, this._block);
     }
 }
-interface Route {
-    path: string;
-    component: any;
-    authRequired?: boolean;
-}
-class Router {
+
+export default class Router {
     private static __instance: Router;
-    protected routes: Array<Route>;
-    protected history: History;
-    private _currentRoute: object | null;
-    private readonly _rootQuery: string;
-    private userStore: UserStore;
-    private http: BaseAPI;
+    protected routes: Route[] = [];
+    protected history: History| null = null;
+    private _currentRoute: Route | null = null;
+    private readonly _rootQuery: string = '';
+    private userStore: UserStore | null = null;
 
     private readonly UNAUTHORIZED_ONLY_PATHS = ['/', '/sign-up'];
 
     private readonly DEFAULT_AUTH_PATH = '/messenger';
 
-    constructor(rootQuery) {
+    constructor(rootQuery: string) {
         if (Router.__instance) {
             return Router.__instance;
         }
@@ -81,27 +78,26 @@ class Router {
 
         Router.__instance = this;
         this.userStore = new UserStore();
-        this.http = new BaseAPI();
     }
 
-    use(pathname, block) {
+    use(pathname: string, block: new () => Block) {
         const route = new Route(pathname, block, {rootQuery: this._rootQuery});
-
         this.routes.push(route);
-
         return this;
     }
 
     start() {
-        window.onpopstate = (event => {
-            this._onRoute(event.currentTarget.location.pathname);
+        window.onpopstate = ((event: PopStateEvent) => {
+            if (event.currentTarget instanceof Window) {
+                this._onRoute(event.currentTarget.location.pathname);
+            }
         }).bind(this);
 
         this._onRoute(window.location.pathname);
     }
 
-    _onRoute(pathname) {
-        const isAuthorized = this.userStore.getUser() !== null;
+    _onRoute(pathname: string) {
+        const isAuthorized = this.userStore?.getUser() !== null;
 
         if (isAuthorized && this.UNAUTHORIZED_ONLY_PATHS.includes(pathname)) {
             this.replace(this.DEFAULT_AUTH_PATH);
@@ -118,7 +114,7 @@ class Router {
             return;
         }
 
-        let route = this.getRoute(pathname);
+        const route = this.getRoute(pathname);
 
         if (!route) {
             return;
@@ -132,9 +128,11 @@ class Router {
         route.render();
     }
 
-    replace(pathname) {
-        this.history.replaceState({}, '', pathname);
-        this._onRoute(pathname);
+    replace(pathname: string) {
+        if(this.history){
+            this.history.replaceState({}, '', pathname);
+            this._onRoute(pathname);
+        }
     }
 
     private isProtectedRoute(pathname: string): boolean {
@@ -142,22 +140,31 @@ class Router {
         return !publicRoutes.includes(pathname);
     }
 
-    go(pathname) {
-        this.history.pushState({}, '', pathname);
-        this._onRoute(pathname);
+    go(pathname: string) {
+        if(this.history){
+            this.history.pushState({}, '', pathname);
+            this._onRoute(pathname);
+        }
     }
 
     back() {
-        this.history.back();
+        if(this.history) {
+            this.history.back();
+        }
     }
 
     forward() {
-        this.history.forward();
+        if(this.history) {
+            this.history.forward();
+        }
     }
-
-    getRoute(pathname) {
+    getPath(){
+        if(this._currentRoute){
+            return this._currentRoute.pathname
+        }
+        return ''
+    }
+    getRoute(pathname: string) {
         return this.routes.find(route => route.match(pathname));
     }
 }
-
-export default Router;

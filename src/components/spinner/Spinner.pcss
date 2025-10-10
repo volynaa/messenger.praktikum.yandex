@@ -8,77 +8,62 @@
     top: 20%;
 }
 
-.spinner--overlay {
-    position: relative;
-}
-
-.spinner-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(2px);
-    z-index: 10;
-}
-
-.spinner__circle {
+.spinner-circle {
     border-radius: 50%;
     animation: spin 1s linear infinite;
     border-style: solid;
     border-bottom-color: transparent;
 }
 
-.spinner--small .spinner__circle {
+.spinner-small .spinner-circle {
     width: 20px;
     height: 20px;
     border-width: 2px;
 }
 
-.spinner--medium .spinner__circle {
+.spinner-medium .spinner-circle {
     width: 40px;
     height: 40px;
     border-width: 3px;
 }
 
-.spinner--large .spinner__circle {
+.spinner-large .spinner-circle {
     width: 60px;
     height: 60px;
     border-width: 4px;
 }
 
-.spinner--primary .spinner__circle {
+.spinner-primary .spinner-circle {
     border-color: #3369f3;
     border-bottom-color: transparent;
 }
 
-.spinner--secondary .spinner__circle {
+.spinner-secondary .spinner-circle {
     border-color: #999;
     border-bottom-color: transparent;
 }
 
-.spinner--white .spinner__circle {
+.spinner-white .spinner-circle {
     border-color: #fff;
     border-bottom-color: transparent;
 }
 
-.spinner__text {
+.spinner-text {
     margin-top: 8px;
     font-size: 14px;
     color: #999;
     text-align: center;
 }
 
-.spinner--primary .spinner__text {
+.spinner-primary .spinner-text {
     color: #3369f3;
 }
 
-.spinner--secondary .spinner__text {
+.spinner-secondary .spinner-text {
     color: #666;
 }
 
-.spinner--white .spinner__text {
+.spinner-white .spinner-text {
     color: #fff;
 }
 
@@ -86,39 +71,40 @@
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
 }
 
-.spinner--hidden {
+.spinner-hidden {
     display: none;
 }
 
-.spinner--centered {
+.spinner-centered {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 }
 
-.spinner--dots {
+.spinner-dots {
     display: inline-flex;
     gap: 4px;
 }
 
-.spinner--dots .spinner__dot {
+.spinner-dots .spinner-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     animation: bounce 1.4s infinite ease-in-out both;
 }
 
-.spinner--dots .spinner__dot:nth-child(1) {
+.spinner-dots .spinner-dot:nth-child(1) {
     animation-delay: -0.32s;
 }
 
-.spinner--dots .spinner__dot:nth-child(2) {
+.spinner-dots .spinner-dot:nth-child(2) {
     animation-delay: -0.16s;
 }
 
@@ -126,6 +112,7 @@
     0%, 80%, 100% {
         transform: scale(0);
     }
+
     40% {
         transform: scale(1);
     }
