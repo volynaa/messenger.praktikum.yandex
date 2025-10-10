@@ -30,6 +30,7 @@ class Chat extends Block<ChatProps> {
             : '';
         const currentUser = userStore?.getUser()
         const currentLogin = currentUser ? (currentUser as Record<string, unknown>).login : undefined;
+        const currentTime = this.props.lastMessage ? this.props.lastMessage?.time.slice(11,16) : ''
         container.innerHTML = `
             <div class="chat-item" id="${this.props.id || ''}">
                 ${avatarHtml}
@@ -42,7 +43,7 @@ class Chat extends Block<ChatProps> {
                         <span class="last-message">${this.props.lastMessage?.content || ''}</span>
                     </div>
                 </div>
-                <div class="chat-time">${(this.props.lastMessage as Record<string, unknown>)?.time.slice(11,16) || ''}</div>
+                <div class="chat-time">${currentTime}</div>
                 ${countMessageHtml}
             </div>
         `;
@@ -60,7 +61,7 @@ interface ChatHelperProps {
         id?: string;
         avatar?: string;
         name?: string;
-        lastMessage?: object;
+        lastMessage?: Record<string, unknown>;
         countNewMessage?: string;
     };
 }
