@@ -30,7 +30,7 @@ class Chat extends Block<ChatProps> {
             : '';
         const currentUser = userStore?.getUser()
         const currentLogin = currentUser ? (currentUser as Record<string, unknown>).login : undefined;
-        const currentTime = this.props.lastMessage ? this.props.lastMessage?.time.slice(11,16) : ''
+        const currentTime = this.props.lastMessage ? (this.props.lastMessage?.time as string).slice(11,16) : ''
         container.innerHTML = `
             <div class="chat-item" id="${this.props.id || ''}">
                 ${avatarHtml}

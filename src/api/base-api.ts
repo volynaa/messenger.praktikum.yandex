@@ -3,12 +3,9 @@ import {HTTPTransport} from "../ui/fetch";
 const chatAPIInstance = new HTTPTransport('https://ya-praktikum.tech/api/v2/');
 
 export default class BaseAPI {
-    post<T>(url: string, options?: T) {
+    post(url: string, options: Record<string, unknown> | undefined = undefined) {
         try {
-            const requestData = options !== undefined ?
-                { data: options as Record<string, unknown> } :
-                undefined;
-            return chatAPIInstance.post(url, requestData);
+            return chatAPIInstance.post(url, { data: options});
         }
         catch {
             throw new Error('Bad request');
