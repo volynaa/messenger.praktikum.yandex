@@ -35,6 +35,5 @@
     "express": "^5.1.0",
     "handlebars": "^4.7.8",
     "path-to-regexp": "^6.2.0"
-  },
-  "ignorePatterns": ["dist/", "node_modules/", "server.js"]
+  }
 }
