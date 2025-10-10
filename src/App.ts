@@ -1,6 +1,5 @@
 import * as Pages from './pages';
 import Router from './ui/router'
-import Block from "./ui/block";
 export interface Message {
   text: string;
   type: number;
@@ -25,14 +24,14 @@ export default class App {
   }
   private configureRoutes() {
     this.router
-        .use('/', Pages.Login as Block)
-        .use('/messenger', Pages.Chats as Block)
-        .use('/settings', Pages.Profile as Block)
-        .use('/settings/data', Pages.Profile as Block)
-        .use('/settings/password', Pages.Profile as Block)
-        .use('/sign-up', Pages.Register as Block)
-        .use('/404', Pages.Error404 as Block)
-        .use('/500', Pages.Error500 as Block)
+        .use('/', Pages.Login)
+        .use('/messenger', Pages.Chats)
+        .use('/settings', Pages.Profile)
+        .use('/settings/data', Pages.Profile)
+        .use('/settings/password', Pages.Profile)
+        .use('/sign-up', Pages.Register)
+        .use('/404', Pages.Error404)
+        .use('/500', Pages.Error500)
         .start();
   }
   render(): void {

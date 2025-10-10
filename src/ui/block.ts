@@ -33,7 +33,7 @@ class EventBus {
   }
 }
 
-export default class Block<P extends Props = Props> {
+export default abstract class Block<P extends Props = Props> {
   static EVENTS = {
     INIT: 'init',
     FLOW_CDM: 'flow:component-did-mount',
