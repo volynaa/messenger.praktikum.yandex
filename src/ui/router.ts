@@ -15,10 +15,10 @@ function render(query: string, block: Block | null) {
 
 class Route {
     private _pathname: string
-    private readonly _blockClass: Function
+    private readonly _blockClass: new () => Block
     private _block: Block | null
     private _props: object
-    constructor(pathname: string, view: Function, props: { rootQuery: string }) {
+    constructor(pathname: string, view: new () => Block, props: { rootQuery: string }) {
         this._pathname = pathname;
         this._blockClass = view;
         this._block = null;
@@ -45,11 +45,11 @@ class Route {
     render() {
         if (!this._block) {
             this._block = new this._blockClass();
-            render(this._props.rootQuery, this._block);
-            return;
         }
-
-        this._block.show();
+        else {
+            this._block.show();
+        }
+        render(this._props.rootQuery, this._block);
     }
 }
 
@@ -81,7 +81,7 @@ export default class Router {
         this.http = new BaseAPI();
     }
 
-    use(pathname: string, block: Function) {
+    use(pathname: string, block: new () => Block) {
         const route = new Route(pathname, block, {rootQuery: this._rootQuery});
 
         this.routes.push(route);
