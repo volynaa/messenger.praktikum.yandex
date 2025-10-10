@@ -1,4 +1,4 @@
-import Block, {Props} from "../../ui/block";
+import Block from "../../ui/block";
 import Handlebars from "handlebars";
 import {buttonHelper} from "../../components/Button";
 import { inputHelper } from '../../components/Input';
