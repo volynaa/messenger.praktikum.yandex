@@ -26,10 +26,7 @@ export default class BaseAPI {
 
     put(url: string, options: Record<string, unknown> | undefined = undefined) {
         try {
-            const requestData = options !== undefined ?
-                { data: options as Record<string, unknown> } :
-                undefined;
-            return chatAPIInstance.put(url, requestData);
+            return chatAPIInstance.put(url,  { data: options});
         }
         catch {
             throw new Error('Bad request');

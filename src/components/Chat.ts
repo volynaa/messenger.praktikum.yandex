@@ -28,7 +28,8 @@ class Chat extends Block<ChatProps> {
         const countMessageHtml = this.props.countNewMessage
             ? `<div class="chat-count-message">${this.props.countNewMessage}</div>`
             : '';
-
+        const currentUser = userStore?.getUser()
+        const currentLogin = currentUser ? currentUser.login : undefined;
         container.innerHTML = `
             <div class="chat-item" id="${this.props.id || ''}">
                 ${avatarHtml}
@@ -36,7 +37,7 @@ class Chat extends Block<ChatProps> {
                     <h2 class="chat-name">${this.props.name || ''}</h2>
                     <div>
                         <span class="last-message" style="color:var(--text-dark)">
-                            ${this.props.lastMessage?.user.login === userStore?.getUser()?.login ? 'Вы: ': ''}
+                            ${this.props.lastMessage?.user?.login === currentLogin ? 'Вы: ': ''}
                         </span>
                         <span class="last-message">${this.props.lastMessage?.content || ''}</span>
                     </div>
