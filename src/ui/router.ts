@@ -15,10 +15,10 @@ function render(query: string, block: { getContent: () => HTMLElement }) {
 
 class Route {
     private _pathname: string
-    private readonly _blockClass: Block
+    private readonly _blockClass: Function
     private _block: Block | null
     private _props: object
-    constructor(pathname: string, view: Block, props: { rootQuery: string }) {
+    constructor(pathname: string, view: Function, props: { rootQuery: string }) {
         this._pathname = pathname;
         this._blockClass = view;
         this._block = null;
