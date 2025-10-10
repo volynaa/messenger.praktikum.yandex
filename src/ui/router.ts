@@ -3,7 +3,6 @@ import BaseAPI from '../api/base-api';
 function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
 }
-
 function render(query: string, block: { getContent: () => HTMLElement }) {
     const root = document.querySelector(query);
     if (root && block.getContent()) {
@@ -12,12 +11,17 @@ function render(query: string, block: { getContent: () => HTMLElement }) {
     }
     return root;
 }
+interface BlockInterface {
+    hide(): void;
+    show(): void;
+    getContent(): HTMLElement;
+}
 class Route {
     private _pathname: string
-    private _blockClass: unknown
-    private _block: unknown
+    private _blockClass: new () => BlockInterface
+    private _block: BlockInterface | null
     private _props: object
-    constructor(pathname: string, view: unknown, props: object) {
+    constructor(pathname: string, view: new () => BlockInterface, props: object) {
         this._pathname = pathname;
         this._blockClass = view;
         this._block = null;
