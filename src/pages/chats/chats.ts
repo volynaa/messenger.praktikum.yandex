@@ -32,13 +32,18 @@ interface ModalUser {
     content: string | null;
     name: string | null;
 }
+interface Message {
+    user_id: number;
+    content: string | null;
+    time: string | null;
+}
 export default class Chats extends Block {
     private router: Router;
     private http: BaseAPI;
     private modalAddUser: ModalUser | null = null;
     private chatsList: Chat[] | null = null;
     private selectedChat: Chat | null = null;
-    private message: [] | null = null;
+    private message: Message[] | null = null;
     private openMenu: boolean = false;
     private socket: WebSocketTransport | null = null;
     private readonly userStore: User | null = null;
@@ -375,7 +380,8 @@ export default class Chats extends Block {
         }
     }
     private handleBlur(e: Event,form: string = 'login-form'): boolean {
-        if(e.target.id === 'save-result' || e.target.id === 'send-message') {
+        const target = e.target as HTMLElement;
+        if(target.id === 'save-result' || target.id === 'send-message') {
             const validLogin = new FormValidator(form)
             if (validLogin) {
                 return validLogin.isValidOneElement(e);
