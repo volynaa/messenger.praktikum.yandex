@@ -49,8 +49,8 @@ interface spinnerHelperProps {
     };
 }
 export function spinnerHelper(props: spinnerHelperProps): string {
-    const modal = props.hash;
+    const spinner = props.hash;
 
-    const spinner = new Spinner(modal);
-    return spinner.getContent()?.outerHTML || '';
+    const content = new Spinner(spinner);
+    return content.getContent()?.outerHTML || '';
 }
