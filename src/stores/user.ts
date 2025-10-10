@@ -8,7 +8,7 @@ interface User {
     phone: string | null,
     second_name: string | null,
 }
-interface IUserStore {
+export interface IUserStore {
     getUser(): User | null;
     setUser(user: User): void;
 }

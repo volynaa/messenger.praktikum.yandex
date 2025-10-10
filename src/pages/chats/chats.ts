@@ -14,6 +14,7 @@ import {WebSocketTransport} from "../../ui/webSocket";
 import {spinnerHelper} from "../../components/spinner/Spinner";
 import Confirmation from "../../components/confirmation/Confirmation";
 import UserStore from "../../stores/user";
+import type User from "../../stores/user";
 interface Chat {
     id: number;
     created_by: number;
@@ -32,7 +33,7 @@ export default class Chats extends Block {
     private message: [] | null = null;
     private openMenu: boolean = false;
     private socket: object | null = null;
-    private readonly userStore: UserStore;
+    private readonly userStore: UserStore | null;
     constructor() {
         super('div',{
             isLoading: true,
@@ -45,7 +46,7 @@ export default class Chats extends Block {
         });
         this.router = new Router('#app');
         this.http = new BaseAPI();
-        this.userStore = new UserStore()?.getUser();
+        this.userStore = new UserStore().getUser() as User | null;
         this.getChats();
     }
 
@@ -62,7 +63,7 @@ export default class Chats extends Block {
             return Array.isArray(array) && array.length === 0;
         });
 
-        const currentUserId = (this.userStore as Record<string, unknown>)?.id;
+        const currentUserId = this.userStore.id;
         Handlebars.registerHelper('getTypeMessage', function(userId: number) {
             return Boolean(userId && currentUserId && userId === currentUserId);
         });
