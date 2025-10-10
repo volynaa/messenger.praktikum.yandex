@@ -181,13 +181,6 @@ export default class Chats extends Block {
             this.setProps({ selected: this.selectedChat, message: this.message });
 
             this.getTokenChats()
-                .then(response => JSON.parse(response) as { token?: string })
-                .then(data => {
-                    const token = data.token;
-                    if (typeof token === 'string') {
-                        this.soketConnect(token);
-                    }
-                });
         }
     }
     private async deleteChat() {
@@ -304,7 +297,7 @@ export default class Chats extends Block {
     private async getTokenChats() {
         const res = await this.http.post(`chats/token/${this.selectedChat?.id}`) as ApiResponse
         if(res && res.status === 200) {
-            return res.response
+            this.soketConnect(JSON.parse(res.response).token);
         }
     }
     private async handleSubmit(e: Event) {
