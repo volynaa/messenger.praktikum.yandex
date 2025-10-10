@@ -45,7 +45,7 @@ export default class Chats extends Block {
         });
         this.router = new Router('#app');
         this.http = new BaseAPI();
-        this.userStore = (new UserStore() as Record<string, unknown>)?.getUser();
+        this.userStore = new UserStore()?.getUser();
         this.getChats();
     }
 
