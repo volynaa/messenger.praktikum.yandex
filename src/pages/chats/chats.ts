@@ -45,7 +45,7 @@ export default class Chats extends Block {
         });
         this.router = new Router('#app');
         this.http = new BaseAPI();
-        this.userStore = new UserStore();
+        this.userStore = new UserStore()?.getUser();
         this.getChats();
     }
 
@@ -61,7 +61,8 @@ export default class Chats extends Block {
         Handlebars.registerHelper('isEmpty', function(array: unknown[]) {
             return Array.isArray(array) && array.length === 0;
         });
-        const currentUserId = this.userStore?.getUser()?.id;
+
+        const currentUserId = (this.userStore as object)?.id;
         Handlebars.registerHelper('getTypeMessage', function(userId: number) {
             return Boolean(userId && currentUserId && userId === currentUserId);
         });
