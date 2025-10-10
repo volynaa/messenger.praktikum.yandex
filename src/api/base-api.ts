@@ -21,7 +21,7 @@ export default class BaseAPI {
         }
     }
 
-    put(url: string, options: Record<string, unknown> | undefined = undefined) {
+    put(url: string, options: Record<string, unknown> | undefined | FormData = undefined) {
         try {
             return chatAPIInstance.put(url,  { data: options});
         }

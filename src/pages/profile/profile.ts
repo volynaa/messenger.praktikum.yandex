@@ -150,8 +150,8 @@ export default class Profile extends Block {
         }) as ApiResponse
         if(res && res.status === 200) {
             const user= this.userStore.getUser()
-            Object.assign(user, data);
             if(user){
+                Object.assign(user, data);
                 user.avatar = JSON.parse(res.response)?.avatar
                 await this.userStore.setUser(user)
                 this.setProps({profile: user}) // Не пойму почему не обновляются данные пользователя
@@ -210,7 +210,7 @@ export default class Profile extends Block {
                         second_name: this.getFormValue(formData, 'second_name'),
                         phone: this.getFormValue(formData, 'phone'),
                     }
-                    if(avatarInput?.files[0]){
+                    if(avatarInput?.files&&avatarInput?.files[0]){
                         this.uploadAvatar(avatarInput.files[0])
                     }
                     this.editData(data)
