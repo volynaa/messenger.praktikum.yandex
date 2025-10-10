@@ -4,11 +4,13 @@ import Block from "./block";
 function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
 }
-function render(query: string, block: Block) {
+function render(query: string, block: Block): Element | null {
     const root = document.querySelector(query);
-    if (root && block?.getContent()) {
+    const content = block?.getContent();
+
+    if (root && content) {
         root.innerHTML = '';
-        root.appendChild(block?.getContent());
+        root.appendChild(content);
     }
     return root;
 }
@@ -17,7 +19,7 @@ class Route {
     private _pathname: string
     private readonly _blockClass: new () => Block
     private _block: Block | null
-    private _props: object
+    private _props: { rootQuery: string }
     constructor(pathname: string, view: new () => Block, props: { rootQuery: string }) {
         this._pathname = pathname;
         this._blockClass = view;
