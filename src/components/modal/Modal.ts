@@ -3,16 +3,11 @@ import Block from "../../ui/block";
 import {inputHelper} from "../Input";
 import {buttonHelper} from "../Button";
 import Handlebars from "handlebars";
-export interface ModalConfig {
-    data?: object;
-    showCloseButton?: boolean;
-    showFooterButton?: boolean;
-}
 
 export class Modal extends Block {
-    constructor(props: ModalConfig) {
+    constructor(props: Record<string, unknown>) {
         super('div', props);
-        this.element.classList.add('modal');
+        this.element?.classList.add('modal');
     }
 
     protected render(): DocumentFragment {
@@ -64,14 +59,7 @@ export class Modal extends Block {
         return fragment;
     }
 }
-interface modalHelperProps {
-    hash: {
-        data?: object;
-        showCloseButton?: boolean;
-        showFooterButton?: boolean;
-    };
-}
-export function modalHelper(props: modalHelperProps): string {
+export function modalHelper(props: Record<string, unknown>): string {
     const modal = new Modal({
         data: props.hash.data,
         showCloseButton:  props.hash.showCloseButton,

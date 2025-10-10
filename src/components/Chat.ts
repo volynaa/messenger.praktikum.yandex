@@ -42,7 +42,7 @@ class Chat extends Block<ChatProps> {
                         <span class="last-message">${this.props.lastMessage?.content || ''}</span>
                     </div>
                 </div>
-                <div class="chat-time">${this.props.lastMessage?.time.slice(11,16) || ''}</div>
+                <div class="chat-time">${(this.props.lastMessage as Record<string, unknown>)?.time.slice(11,16) || ''}</div>
                 ${countMessageHtml}
             </div>
         `;
