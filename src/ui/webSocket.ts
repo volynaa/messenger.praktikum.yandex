@@ -67,7 +67,7 @@ export class WebSocketTransport {
         this.setupPing();
 
         return new Promise((resolve, reject) => {
-            const errorHandler = (error: Error) => {
+            const errorHandler = (error: EventCallback) => {
                 this.off(WebSocketTransport.Connected, connectedHandler);
                 reject(error);
             };

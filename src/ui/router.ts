@@ -15,12 +15,12 @@ function render(query: string, block: Block): Element | null {
 }
 
 class Route {
-    protected _pathname: string
+    public pathname: string
     private readonly _blockClass: new () => Block
     private _block: Block | null
     private _props: { rootQuery: string }
     constructor(pathname: string, view: new () => Block, props: { rootQuery: string }) {
-        this._pathname = pathname;
+        this.pathname = pathname;
         this._blockClass = view;
         this._block = null;
         this._props = props;
@@ -28,7 +28,7 @@ class Route {
 
     navigate(pathname: string) {
         if (this.match(pathname)) {
-            this._pathname = pathname;
+            this.pathname = pathname;
             this.render();
         }
     }
@@ -40,7 +40,7 @@ class Route {
     }
 
     match(pathname: string) {
-        return isEqual(pathname, this._pathname);
+        return isEqual(pathname, this.pathname);
     }
 
     render() {
@@ -160,7 +160,7 @@ export default class Router {
     }
     getPath(){
         if(this._currentRoute){
-            return this._currentRoute._pathname
+            return this._currentRoute.pathname
         }
         return ''
     }
