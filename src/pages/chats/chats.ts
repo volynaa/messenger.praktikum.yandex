@@ -255,12 +255,13 @@ export default class Chats extends Block {
             if (this.selectedChat?.last_message) {
                 Object.assign(this.selectedChat.last_message, newMessage);
             } else {
-                this.selectedChat.last_message = newMessage;
+                this.selectedChat?.last_message = newMessage;
             }
             if(this.message){
+                const time = data.time ? data.time.slice(11, 16) : '10:00'
                 this.message.push({
                     ...data,
-                    time: data.time.slice(11, 16)
+                    time: time
                 });
                 this.setProps({ message: this.message, selected: this.selectedChat });
             }
