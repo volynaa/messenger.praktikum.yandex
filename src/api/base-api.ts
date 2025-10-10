@@ -36,7 +36,7 @@ export default class BaseAPI {
         }
     }
 
-    delete<T>(url: string, options: Record<string, unknown> | undefined = undefined) {
+    delete(url: string, options: Record<string, unknown> | undefined = undefined) {
         try {
             return chatAPIInstance.delete(url, { data: options});
         }
