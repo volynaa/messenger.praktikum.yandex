@@ -36,12 +36,9 @@ export default class BaseAPI {
         }
     }
 
-    delete<T>(url: string, options?: T) {
+    delete<T>(url: string, options: Record<string, unknown> | undefined = undefined) {
         try {
-            const requestData = options !== undefined ?
-                { data: options as Record<string, unknown> } :
-                undefined;
-            return chatAPIInstance.delete(url, requestData);
+            return chatAPIInstance.delete(url, { data: options});
         }
         catch {
             throw new Error('Bad request');
