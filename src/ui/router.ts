@@ -4,7 +4,7 @@ import Block from "./block";
 function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
 }
-function render(query: string, block: Block | null) {
+function render(query: string, block: Block) {
     const root = document.querySelector(query);
     if (root && block?.getContent()) {
         root.innerHTML = '';
@@ -55,12 +55,12 @@ class Route {
 
 export default class Router {
     private static __instance: Router;
-    protected routes: Route[];
-    protected history: History;
-    private _currentRoute: object | null;
-    private readonly _rootQuery: string;
-    private userStore: UserStore;
-    private http: BaseAPI;
+    protected routes: Route[] | [] = [];
+    protected history: History| null = null;
+    private _currentRoute: object | null = null;
+    private readonly _rootQuery: string = '';
+    private userStore: UserStore | null = null;
+    private http: BaseAPI | null = null;
 
     private readonly UNAUTHORIZED_ONLY_PATHS = ['/', '/sign-up'];
 
@@ -83,9 +83,7 @@ export default class Router {
 
     use(pathname: string, block: new () => Block) {
         const route = new Route(pathname, block, {rootQuery: this._rootQuery});
-
         this.routes.push(route);
-
         return this;
     }
 
@@ -98,7 +96,7 @@ export default class Router {
     }
 
     _onRoute(pathname: string) {
-        const isAuthorized = this.userStore.getUser() !== null;
+        const isAuthorized = this.userStore?.getUser() !== null;
 
         if (isAuthorized && this.UNAUTHORIZED_ONLY_PATHS.includes(pathname)) {
             this.replace(this.DEFAULT_AUTH_PATH);
@@ -130,8 +128,10 @@ export default class Router {
     }
 
     replace(pathname: string) {
-        this.history.replaceState({}, '', pathname);
-        this._onRoute(pathname);
+        if(this.history){
+            this.history.replaceState({}, '', pathname);
+            this._onRoute(pathname);
+        }
     }
 
     private isProtectedRoute(pathname: string): boolean {
@@ -140,16 +140,22 @@ export default class Router {
     }
 
     go(pathname: string) {
-        this.history.pushState({}, '', pathname);
-        this._onRoute(pathname);
+        if(this.history){
+            this.history.pushState({}, '', pathname);
+            this._onRoute(pathname);
+        }
     }
 
     back() {
-        this.history.back();
+        if(this.history) {
+            this.history.back();
+        }
     }
 
     forward() {
-        this.history.forward();
+        if(this.history) {
+            this.history.forward();
+        }
     }
     getPath(){
         if(this._currentRoute){
