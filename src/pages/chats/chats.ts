@@ -270,7 +270,7 @@ export default class Chats extends Block {
         }
     }
 
-    private filterMessage(data){
+    private filterMessage(data: Message[]): Message[]{
         if (!data || data.length === 0) return [];
         const result = [...data];
         const n = result.length;
