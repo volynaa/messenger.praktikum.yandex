@@ -24,6 +24,10 @@ interface Chat {
     unread_count: number;
     created_at?: string;
 }
+interface ApiResponse {
+    status: number;
+    response: string;
+}
 export default class Chats extends Block {
     private router: Router;
     private http: BaseAPI;
@@ -92,7 +96,7 @@ export default class Chats extends Block {
     }
 
     private async getChats() {
-        const res = await this.http.get('chats')
+        const res = await this.http.get('chats') as ApiResponse;
         if(res && res.status === 200) {
             this.chatsList = JSON.parse(res.response);
         }

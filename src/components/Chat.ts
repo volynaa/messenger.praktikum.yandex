@@ -1,6 +1,7 @@
 import Block from "../ui/block";
 import { Props } from '../ui/block';
 import UserStore from "../stores/user";
+import type {User} from "../stores/user";
 interface ChatProps extends Props {
     id?: string;
     avatar?: string;
@@ -18,7 +19,7 @@ class Chat extends Block<ChatProps> {
     }
 
     protected render(): DocumentFragment {
-        const userStore = new UserStore();
+        const userStore: User | null = new UserStore().getUser();
         const fragment = document.createDocumentFragment();
         const container = document.createElement('div');
         const avatarHtml = this.props.avatar
@@ -28,8 +29,7 @@ class Chat extends Block<ChatProps> {
         const countMessageHtml = this.props.countNewMessage
             ? `<div class="chat-count-message">${this.props.countNewMessage}</div>`
             : '';
-        const currentUser = userStore?.getUser()
-        const currentLogin = currentUser ? (currentUser as Record<string, unknown>).login : undefined;
+        const currentLogin = userStore?.login;
         const currentTime = this.props.lastMessage ? (this.props.lastMessage?.time as string).slice(11,16) : ''
         container.innerHTML = `
             <div class="chat-item" id="${this.props.id || ''}">
