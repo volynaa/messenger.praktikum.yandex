@@ -3,7 +3,7 @@ import {HTTPTransport} from "../ui/fetch";
 const chatAPIInstance = new HTTPTransport('https://ya-praktikum.tech/api/v2/');
 
 export default class BaseAPI {
-    post(url: string, options: object = {}) {
+    post<T>(url: string, options: T = undefined) {
         try {
             return chatAPIInstance.post(url, {data: options});
         }
@@ -21,7 +21,7 @@ export default class BaseAPI {
         }
     }
 
-    put(url: string, options: object = {}) {
+    put<T>(url: string, options: T = undefined) {
         try {
             return chatAPIInstance.put(url, {data: options});
         }
@@ -30,7 +30,7 @@ export default class BaseAPI {
         }
     }
 
-    delete(url: string, options: object = {}) {
+    delete<T>(url: string, options: T = undefined) {
         try {
             return chatAPIInstance.delete(url, {data: options});
         }
