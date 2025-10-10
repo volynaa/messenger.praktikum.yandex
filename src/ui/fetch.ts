@@ -34,7 +34,7 @@ function queryStringify(data: QueryParams): string {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export class HTTPTransport {
   private readonly pathBase: string = '';
-  constructor(url) {
+  constructor(url: string) {
     this.pathBase = url
   }
   private createMethod(method: HTTPMethod) {

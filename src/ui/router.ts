@@ -1,6 +1,6 @@
 import UserStore from '../stores/user';
 import BaseAPI from '../api/base-api';
-function isEqual(lhs, rhs) {
+function isEqual(lhs:string, rhs:string) {
     return lhs === rhs;
 }
 
@@ -17,14 +17,14 @@ class Route {
     private _blockClass: unknown
     private _block: unknown
     private _props: object
-    constructor(pathname, view, props) {
+    constructor(pathname: string, view: unknown, props: object) {
         this._pathname = pathname;
         this._blockClass = view;
         this._block = null;
         this._props = props;
     }
 
-    navigate(pathname) {
+    navigate(pathname: string) {
         if (this.match(pathname)) {
             this._pathname = pathname;
             this.render();
@@ -37,7 +37,7 @@ class Route {
         }
     }
 
-    match(pathname) {
+    match(pathname: string) {
         return isEqual(pathname, this._pathname);
     }
 
@@ -84,7 +84,7 @@ export default class Router {
         this.http = new BaseAPI();
     }
 
-    use(pathname, block) {
+    use(pathname: string, block: unknown) {
         const route = new Route(pathname, block, {rootQuery: this._rootQuery});
 
         this.routes.push(route);
