@@ -176,8 +176,12 @@ export default class Chats extends Block {
             this.setProps({ selected: this.selectedChat, message: this.message });
 
             this.getTokenChats()
-                .then(response => JSON.parse(response))
-                .then(data => this.soketConnect(data.token));
+                .then(response => JSON.parse(response) as { token?: string })
+                .then(data => {
+                    if (data?.token) {
+                        this.soketConnect(data.token);
+                    }
+                });
         }
     }
     private async deleteChat() {
@@ -239,17 +243,17 @@ export default class Chats extends Block {
 
         } else {
             const currentUser = this.userStore;
-            const isCurrentUser = currentUser.id === data.user_id;
+            const isCurrentUser = currentUser?.id === data.user_id;
 
             const newMessage = {
                 content: data.content,
                 time: data.time,
                 user: {
-                    login: isCurrentUser ? currentUser.login : undefined
+                    login: isCurrentUser ? currentUser?.login : undefined
                 }
             };
 
-            if (this.selectedChat.last_message) {
+            if (this.selectedChat?.last_message) {
                 Object.assign(this.selectedChat.last_message, newMessage);
             } else {
                 this.selectedChat.last_message = newMessage;
