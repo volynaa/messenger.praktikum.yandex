@@ -18,21 +18,18 @@ export interface ProfileData {
     first_name: string;
     second_name: string;
     display_name: string;
-    avatar: string;
+    avatar?: string;
     phone: string;
+}
+interface ApiResponse {
+    status: number;
+    response: string;
 }
 interface Password {
     oldPassword: string,
     newPassword: string
 }
-interface Data {
-    first_name: string,
-    second_name: string,
-    login: string,
-    email: string,
-    display_name: string,
-    phone: string,
-}
+
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
     private router: Router;
@@ -126,7 +123,7 @@ export default class Profile extends Block {
         const res = await this.http.put('user/password',{
             oldPassword: data.oldPassword,
             newPassword: data.newPassword
-        })
+        }) as ApiResponse
         if(res && res.status === 200) {
             Confirmation.show('Пароль успешно изменен');
         }
@@ -143,7 +140,7 @@ export default class Profile extends Block {
 
         await this.http.put('user/profile/avatar', formData);
     }
-    private async editData(data: Data) {
+    private async editData(data: ProfileData) {
         const res = await this.http.put('user/profile',{
             first_name: data.first_name,
             second_name: data.second_name,
@@ -151,7 +148,7 @@ export default class Profile extends Block {
             email: data.email,
             display_name: data.display_name,
             phone: data.phone,
-        })
+        }) as ApiResponse
         if(res && res.status === 200) {
             const user= this.userStore.getUser()
             Object.assign(user, data);
@@ -206,7 +203,7 @@ export default class Profile extends Block {
                 const formData = new FormData(registerForm as HTMLFormElement);
                 const avatarInput = this.element?.querySelector('#avatar') as HTMLInputElement;
                 if(path === '/settings/data'){
-                    const data: Partial<ProfileData> = {
+                    const data: ProfileData = {
                         email: this.getFormValue(formData, 'email'),
                         login: this.getFormValue(formData, 'login'),
                         first_name: this.getFormValue(formData, 'first_name'),
@@ -220,9 +217,9 @@ export default class Profile extends Block {
                     this.editData(data)
                 }
                 if(path === '/settings/password'){
-                    const data = {
-                        oldPassword: formData.get('old_password'),
-                        newPassword: formData.get('new_password')
+                    const data: Password = {
+                        oldPassword: formData.get('old_password') as string,
+                        newPassword: formData.get('new_password') as string
                     }
                     this.editPassword(data)
                 }

@@ -293,7 +293,9 @@ export default class Chats extends Block {
         }
         this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore?.id}/${this.selectedChat?.id}/${token}`)
         this.socket.on(WebSocketTransport.Connected, this.handleConnected.bind(this));
-        this.socket.on(WebSocketTransport.Message, this.handleMessage.bind(this));
+        this.socket.on(WebSocketTransport.Message, (data: unknown) => {
+            this.handleMessage(data as Message);
+        });
         await this.socket.connect();
 
     }
