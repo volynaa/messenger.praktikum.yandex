@@ -34,5 +34,3 @@ spaRoutes.forEach(route => {
 app.listen(PORT, () => {
     console.log(`Server running on port http://localhost:${PORT}`);
 });
-
-export default app;
