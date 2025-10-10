@@ -37,7 +37,7 @@ class Chat extends Block<ChatProps> {
                     <h2 class="chat-name">${this.props.name || ''}</h2>
                     <div>
                         <span class="last-message" style="color:var(--text-dark)">
-                            ${this.props.lastMessage?.user?.login === currentLogin ? 'Вы: ': ''}
+                            ${(this.props.lastMessage?.user as Record<string, unknown>)?.login === currentLogin ? 'Вы: ': ''}
                         </span>
                         <span class="last-message">${this.props.lastMessage?.content || ''}</span>
                     </div>
