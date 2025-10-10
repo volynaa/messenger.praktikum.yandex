@@ -8,7 +8,7 @@ interface ModalConfig extends Props {
     showCloseButton?: boolean;
     showFooterButton?: boolean;
 }
-export class Modal extends Block {
+export class Modal extends Block<ModalConfig> {
     constructor(props: ModalConfig) {
         super('div', props);
         this.element?.classList.add('modal');
