@@ -189,8 +189,8 @@ export default class Chats extends Block {
             chatId: this.selectedChat?.id,
             title: this.selectedChat?.title
         }) as ApiResponse
-        if(res && res.status === 200) {
-            this.chatsList= this.chatsList?.filter(item => item.id !== this.selectedChat?.id)
+        if(res && res.status === 200 && this.chatsList) {
+            this.chatsList= this.chatsList.filter(item => item.id !== this.selectedChat?.id)
             this.changeModal();
             Confirmation.show('Чат успешно удален');
             this.setProps({ chats: this.chatsList })
@@ -202,7 +202,7 @@ export default class Chats extends Block {
             });
         }
     }
-    private async createChat(name) {
+    private async createChat(name: string) {
         const res = await this.http.post('chats',{
             title: name || 'New chat'
         }) as ApiResponse
@@ -233,7 +233,7 @@ export default class Chats extends Block {
         });
     }
 
-    private handleMessage(data: unknown): void {
+    private handleMessage(data: object): void {
         if (Array.isArray(data)) {
             this.message = this.filterMessage(data).map(message => ({
                 ...message,
@@ -258,12 +258,13 @@ export default class Chats extends Block {
             } else {
                 this.selectedChat.last_message = newMessage;
             }
-
-            this.message.push({
-                ...data,
-                time: data.time.slice(11, 16)
-            });
-            this.setProps({ message: this.message, selected: this.selectedChat });
+            if(this.message){
+                this.message.push({
+                    ...data,
+                    time: data.time.slice(11, 16)
+                });
+                this.setProps({ message: this.message, selected: this.selectedChat });
+            }
         }
     }
 
@@ -351,7 +352,7 @@ export default class Chats extends Block {
                     }
                     if(this.modalAddUser?.title === 'Добавить чат'){
                         const message = this.element?.querySelector('#save-result') as HTMLFormElement;
-                        this.createChat(message.value)
+                        await this.createChat(message.value)
                         return;
                     }
 
