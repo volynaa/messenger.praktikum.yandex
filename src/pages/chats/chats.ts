@@ -40,7 +40,7 @@ export default class Chats extends Block {
     private selectedChat: Chat | null = null;
     private message: [] | null = null;
     private openMenu: boolean = false;
-    private socket: WebSocket | null = null;
+    private socket: WebSocketTransport | null = null;
     private readonly userStore: User | null = null;
     constructor() {
         super('div',{
@@ -184,7 +184,7 @@ export default class Chats extends Block {
         const res = await this.http.delete('chats',{
             chatId: this.selectedChat?.id,
             title: this.selectedChat?.title
-        })
+        }) as ApiResponse
         if(res && res.status === 200) {
             this.chatsList= this.chatsList?.filter(item => item.id !== this.selectedChat?.id)
             this.changeModal();
@@ -201,7 +201,7 @@ export default class Chats extends Block {
     private async createChat(name) {
         const res = await this.http.post('chats',{
             title: name || 'New chat'
-        })
+        }) as ApiResponse
         if(res && res.status === 200) {
             this.chatsList?.unshift({
                 avatar :null,
@@ -291,7 +291,7 @@ export default class Chats extends Block {
 
     }
     private async getTokenChats() {
-        const res = await this.http.post(`chats/token/${this.selectedChat.id}`)
+        const res = await this.http.post(`chats/token/${this.selectedChat?.id}`) as ApiResponse
         if(res && res.status === 200) {
             return res.response
         }
@@ -307,15 +307,15 @@ export default class Chats extends Block {
                     const formData = new FormData(loginForm);
                     const getUser = await this.http.post('user/search',{
                         login: formData.get('save-result')
-                    })
+                    }) as ApiResponse
                     const getUserBool = getUser && getUser.status === 200;
-                    if(this.modalAddUser.title === 'Добавить пользователя'){
+                    if(this.modalAddUser?.title === 'Добавить пользователя'){
 
                         if(getUserBool) {
                             const res = await this.http.put('chats/users',{
                                 users: [+JSON.parse(getUser.response)[0].id],
-                                chatId: this.selectedChat.id,
-                            })
+                                chatId: this.selectedChat?.id,
+                            }) as ApiResponse
                             if(res && res.status === 200) {
                                 Confirmation.show('Пользователь успешно добавлен');
                                 this.changeModal();
@@ -327,12 +327,12 @@ export default class Chats extends Block {
                             type: 'error'
                         });
                     }
-                    if(this.modalAddUser.title === 'Удалить пользователя'){
+                    if(this.modalAddUser?.title === 'Удалить пользователя'){
                         if(getUserBool) {
                             const res = await this.http.delete('chats/users',{
                                 users: [+JSON.parse(getUser.response)[0].id],
-                                chatId: this.selectedChat.id,
-                            })
+                                chatId: this.selectedChat?.id,
+                            }) as ApiResponse
                             if(res && res.status === 200) {
                                 Confirmation.show('Пользователь успешно удален');
                                 this.changeModal();
@@ -345,7 +345,7 @@ export default class Chats extends Block {
                         });
 
                     }
-                    if(this.modalAddUser.title === 'Добавить чат'){
+                    if(this.modalAddUser?.title === 'Добавить чат'){
                         const message = this.element?.querySelector('#save-result') as HTMLFormElement;
                         this.createChat(message.value)
                         return;
