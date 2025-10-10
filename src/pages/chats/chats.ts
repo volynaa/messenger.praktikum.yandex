@@ -35,7 +35,7 @@ interface ModalUser {
 interface Message {
     user_id: number;
     content: string | null;
-    time: string | null;
+    time: number | string;
 }
 export default class Chats extends Block {
     private router: Router;
@@ -236,7 +236,7 @@ export default class Chats extends Block {
         if (Array.isArray(data)) {
             this.message = this.filterMessage(data).map(message => ({
                 ...message,
-                time: message.time.slice(11, 16)
+                time: message.time ? message.time.slice(11, 16) : ''
             }));
             this.setProps({ message: this.message });
 
@@ -260,7 +260,7 @@ export default class Chats extends Block {
                 }
             }
             if(this.message){
-                const time = data.time ? data.time.slice(11, 16) : '10:00'
+                const time = data.time ? data.time.slice(11, 16) : ''
                 this.message.push({
                     ...data,
                     time: time
@@ -287,11 +287,11 @@ export default class Chats extends Block {
         }
         return result;
     }
-    private async soketConnect(token) {
+    private async soketConnect(token: string) {
         if(this.socket) {
             this.socket.close();
         }
-        this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore.id}/${this.selectedChat.id}/${token}`)
+        this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore?.id}/${this.selectedChat?.id}/${token}`)
         this.socket.on(WebSocketTransport.Connected, this.handleConnected.bind(this));
         this.socket.on(WebSocketTransport.Message, this.handleMessage.bind(this));
         await this.socket.connect();
