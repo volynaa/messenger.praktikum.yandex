@@ -29,7 +29,7 @@ class Chat extends Block<ChatProps> {
             ? `<div class="chat-count-message">${this.props.countNewMessage}</div>`
             : '';
         const currentUser = userStore?.getUser()
-        const currentLogin = currentUser ? currentUser.login : undefined;
+        const currentLogin = currentUser ? (currentUser as Record<string, unknown>).login : undefined;
         container.innerHTML = `
             <div class="chat-item" id="${this.props.id || ''}">
                 ${avatarHtml}
