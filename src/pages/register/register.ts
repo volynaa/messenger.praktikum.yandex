@@ -5,15 +5,13 @@ import Handlebars from "handlebars";
 import {inputHelper} from "../../components/Input";
 import {buttonHelper} from "../../components/Button";
 import registerTemplate from './register.hbs?raw';
-import BaseAPI, {HttpStatus} from '../../api/base-api';
 import Router from '../../ui/router';
-import UserStore from "../../stores/user";
-
+import { LogoutService} from '../../services/logout-service';
+import Confirmation from "../../components/confirmation/Confirmation";
 export default class Register extends Block {
   private validator: FormValidator | null = null;
   private readonly router = new Router('#app');
-  private readonly http = new BaseAPI();
-  private readonly userStore = new UserStore();
+  private readonly logoutService = new LogoutService();
   constructor() {
     super('div', {
       events: {
@@ -74,21 +72,15 @@ export default class Register extends Block {
         const formData = new FormData(registerForm);
         const targetPage = submitter.dataset.page;
         if (targetPage) {
-          const resSignup = await this.http.post('auth/signup', {
-            first_name: formData.get('first_name'),
-            second_name: formData.get('second_name'),
-            login: formData.get('login'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-            phone: formData.get('phone')
-          })
-          if(resSignup && resSignup.status === HttpStatus.Ok) {
-            const resUser = await this.http.get('auth/user');
-
-            if(resUser && resUser.status === HttpStatus.Ok) {
-              this.userStore.setUser(JSON.parse(resUser.response));
-              this.router.go(targetPage);
-            }
+          const res = await this.logoutService.signup(formData)
+          if(res){
+            this.router.go(targetPage);
+          }
+          else{
+            Confirmation.show({
+              message: 'Ошибка при регистрации пользователя. Попробуйте позже',
+              type: 'error'
+            });
           }
         }
       }

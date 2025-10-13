@@ -5,32 +5,34 @@ import Handlebars from 'handlebars';
 import { inputHelper } from '../../components/Input';
 import { buttonHelper } from '../../components/Button';
 import Router from '../../ui/router';
-import BaseAPI, {HttpStatus} from '../../api/base-api';
-import UserStore from '../../stores/user';
+import { AuthService, LoginData } from '../../services/auth-service';
 import Confirmation from "../../components/confirmation/Confirmation";
 export default class Login extends Block {
   private validator: FormValidator | null = null;
   private readonly router = new Router('#app');
-  private readonly http = new BaseAPI();
-  private readonly userStore = new UserStore();
+  private readonly authService = new AuthService();
+
   constructor() {
     super('div', {
       events: {
-        focusout : (e: Event) => this.handleBlur(e),
+        focusout: (e: Event) => this.handleBlur(e),
         submit: (e: Event) => this.handleSubmit(e),
         click: (e: Event) => this.handleButtonClick(e)
       }
-    })
+    });
   }
 
   protected render(): DocumentFragment {
     const fragment = document.createDocumentFragment();
     const template = document.createElement('template');
+
     Handlebars.registerHelper('Input', inputHelper);
     Handlebars.registerHelper('Button', buttonHelper);
+
     const compiledTemplate = Handlebars.compile(loginTemplate);
     template.innerHTML = compiledTemplate({});
     fragment.appendChild(template.content.cloneNode(true));
+
     return fragment;
   }
 
@@ -50,12 +52,14 @@ export default class Login extends Block {
       console.error('Form validation initialization error:', error);
     }
   }
+
   private handleBlur(e: Event): void {
     if (this.validator) {
-      this.validator.isValidOneElement(e)
+      this.validator.isValidOneElement(e);
     }
   }
-  private async handleSubmit(e: Event) {
+
+  private async handleSubmit(e: Event): Promise<void> {
     e.preventDefault();
 
     if (!this.validator) {
@@ -68,41 +72,40 @@ export default class Login extends Block {
       return;
     }
 
-    if (this.validator.isValid()) {
-      const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
-      if (loginForm) {
-        const formData = new FormData(loginForm);
+    if (!this.validator.isValid()) {
+      return;
+    }
 
-        const targetPage = submitter.dataset.page;
-        if (targetPage) {
-          const settings = {
-            login: formData.get('login'),
-            password: formData.get('password')
-          }
+    const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
+    if (!loginForm) {
+      return;
+    }
 
-          const resSignin = await this.http.post('auth/signin',settings)
-          if(resSignin && resSignin.status === HttpStatus.Ok) {
-            const resUser = await this.http.get('auth/user');
+    const formData = new FormData(loginForm);
+    const targetPage = submitter.dataset.page;
 
-            if(resUser && resUser.status === HttpStatus.Ok) {
-              this.userStore.setUser(JSON.parse(resUser.response));
-              this.router.go(targetPage);
-            }
-            else{
-              Confirmation.show({
-                message: 'Ошибка авторизации. Попробуйте позже',
-                type: 'error'
-              });
-            }
-          }
-          else{
-            Confirmation.show({
-              message: `${resSignin.status===401 ? 'Неверный логин или пароль':'Ошибка авторизации. Попробуйте позже'}`,
-              type: 'error'
-            });
-          }
-        }
-      }
+    if (!targetPage) {
+      return;
+    }
+
+    await this.processLogin(formData, targetPage);
+  }
+
+  private async processLogin(formData: FormData, targetPage: string): Promise<void> {
+    const loginData: LoginData = {
+      login: formData.get('login') as string,
+      password: formData.get('password') as string
+    };
+
+    const isSuccess = await this.authService.login(loginData);
+
+    if (isSuccess) {
+      this.router.go(targetPage);
+    } else {
+      Confirmation.show({
+        message: 'Неверный логин или пароль',
+        type: 'error'
+      });
     }
   }
 
@@ -112,6 +115,7 @@ export default class Login extends Block {
     if (target.tagName === 'BUTTON' || target.closest('button')) {
       const button = target.tagName === 'BUTTON' ? target : target.closest('button');
       if (!button) return;
+
       if (target.id === 'register') {
         const targetPage = target.dataset.page;
         if (targetPage) {

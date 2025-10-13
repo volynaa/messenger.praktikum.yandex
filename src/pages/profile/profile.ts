@@ -9,10 +9,11 @@ import profileEditData from './profileEditData.hbs?raw';
 import profileEditPassword from './profileEditPassword.hbs?raw';
 import FormValidator from "../../ui/validation";
 import Router from '../../ui/router';
-import BaseAPI, {HttpStatus} from '../../api/base-api';
 import UserStore from '../../stores/user';
 import Confirmation from "../../components/confirmation/Confirmation";
 import {productionConfig} from "../../config/production";
+import { AuthService} from '../../services/auth-service';
+import { ProfileService, Password} from '../../services/profile-service';
 export interface ProfileData {
     email: string;
     login: string;
@@ -22,17 +23,13 @@ export interface ProfileData {
     avatar?: string;
     phone: string;
 }
-interface Password {
-    oldPassword: string,
-    newPassword: string
-}
 
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
     private readonly router = new Router('#app');
-    private readonly http = new BaseAPI();
     private readonly userStore = new UserStore();
-
+    private readonly authService = new AuthService();
+    private readonly profileService = new ProfileService();
     constructor() {
         super('div',{
             events: {
@@ -116,54 +113,8 @@ export default class Profile extends Block {
             this.validator.isValidOneElement(e)
         }
     }
-    private async editPassword(data: Password) {
-        const res = await this.http.put('user/password',{
-            oldPassword: data.oldPassword,
-            newPassword: data.newPassword
-        })
-        if(res && HttpStatus.Ok) {
-            Confirmation.show('Пароль успешно изменен');
-        }
-        else {
-            Confirmation.show({
-                message: 'Ошибка при изменении пароля. Попробуйте позже',
-                type: 'error'
-            });
-        }
-    }
-    private async uploadAvatar(file: File): Promise<void> {
-        const formData = new FormData();
-        formData.append('avatar', file);
 
-        await this.http.put('user/profile/avatar', formData);
-    }
-    private async editData(data: ProfileData) {
-        const res = await this.http.put('user/profile',{
-            first_name: data.first_name,
-            second_name: data.second_name,
-            login: data.login,
-            email: data.email,
-            display_name: data.display_name,
-            phone: data.phone,
-        })
-        if(res && res.status === HttpStatus.Ok) {
-            const user= this.userStore.getUser()
-            if(user){
-                Object.assign(user, data);
-                user.avatar = JSON.parse(res.response)?.avatar
-                await this.userStore.setUser(user)
-                this.setProps({profile: user})
-            }
-            Confirmation.show('Данные успешно изменены');
-        }
-        else {
-            Confirmation.show({
-                message: 'Ошибка при изменении данных. Попробуйте позже',
-                type: 'error'
-            });
-        }
 
-    }
     private async handleButtonClick(e: Event) {
         const target = e.target as HTMLElement;
         if ((target as HTMLButtonElement).type !== 'submit') {
@@ -171,8 +122,7 @@ export default class Profile extends Block {
                 const targetPage = target.closest('[data-page]')?.getAttribute('data-page');
                 if (targetPage) {
                     if(targetPage === '/'){
-                        await this.http.post('auth/logout',{})
-                        await this.userStore.outUser()
+                        await this.authService.logout()
                     }
                     this.router.go(targetPage);
                 }
@@ -209,16 +159,50 @@ export default class Profile extends Block {
                         phone: this.getFormValue(formData, 'phone'),
                     }
                     if(avatarInput?.files&&avatarInput?.files[0]){
-                        this.uploadAvatar(avatarInput.files[0])
+                        this.profileService.uploadAvatar(avatarInput.files[0]).then(r => {
+                            if(!r){
+                                Confirmation.show({
+                                    message: 'Ошибка при загрузке аватара. Попробуйте позже',
+                                    type: 'error'
+                                });
+                            }
+                        })
                     }
-                    this.editData(data)
+                    this.profileService.editData(data).then(async r => {
+                        if (r) {
+                            const user = this.userStore.getUser()
+                            if (user) {
+                                Object.assign(user, data);
+                                user.avatar = JSON.parse(r)?.avatar
+                                await this.userStore.setUser(user)
+                                this.setProps({profile: user})
+                            }
+                            Confirmation.show('Данные успешно изменены');
+                        } else {
+                            Confirmation.show({
+                                message: 'Ошибка при изменении данных. Попробуйте позже',
+                                type: 'error'
+                            });
+                        }
+                    })
                 }
                 if(path === '/settings/password'){
                     const data: Password = {
                         oldPassword: formData.get('old_password') as string,
                         newPassword: formData.get('new_password') as string
                     }
-                    this.editPassword(data)
+                    this.profileService.editPassword(data).then(r => {
+                        if(r) {
+                            Confirmation.show('Пароль успешно изменен');
+                        }
+                        else {
+                            Confirmation.show({
+                                message: 'Ошибка при изменении пароля. Попробуйте позже',
+                                type: 'error'
+                            });
+                        }
+                    })
+
                 }
                 const targetPage = submitter.dataset.page;
                 if (targetPage) {
