@@ -8,13 +8,13 @@ import {modalHelper} from '../../components/modal/Modal';
 import chats from './chats.hbs?raw';
 import './chats.pcss'
 import FormValidator from "../../ui/validation";
+import {productionConfig} from "../../config/production";
 import Router from '../../ui/router';
-import BaseAPI from "../../api/base-api";
+import BaseAPI, {HttpStatus} from "../../api/base-api";
 import {WebSocketTransport} from "../../ui/webSocket";
 import {spinnerHelper} from "../../components/spinner/Spinner";
 import Confirmation from "../../components/confirmation/Confirmation";
 import UserStore from "../../stores/user";
-import type {User} from "../../stores/user";
 interface Chat {
     id: number;
     created_by: number;
@@ -22,10 +22,6 @@ interface Chat {
     title: string;
     last_message: object | null;
     unread_count: number;
-}
-interface ApiResponse {
-    status: number;
-    response: string;
 }
 interface ModalUser {
     title: string | null;
@@ -38,15 +34,15 @@ interface Message {
     time: string;
 }
 export default class Chats extends Block {
-    private router: Router;
-    private http: BaseAPI;
     private modalAddUser: ModalUser | null = null;
     private chatsList: Chat[] | null = null;
     private selectedChat: Chat | null = null;
     private message: Message[] | null = null;
     private openMenu: boolean = false;
     private socket: WebSocketTransport | null = null;
-    private readonly userStore: User | null = null;
+    private readonly router = new Router('#app');
+    private readonly http = new BaseAPI();
+    private readonly userStore = new UserStore().getUser();
     constructor() {
         super('div',{
             isLoading: true,
@@ -57,9 +53,6 @@ export default class Chats extends Block {
                 change: (e: Event) => this.handleFileChange(e)
             }
         });
-        this.router = new Router('#app');
-        this.http = new BaseAPI();
-        this.userStore = new UserStore().getUser();
         this.getChats();
     }
 
@@ -105,8 +98,8 @@ export default class Chats extends Block {
     }
 
     private async getChats() {
-        const res = await this.http.get('chats') as ApiResponse;
-        if(res && res.status === 200) {
+        const res = await this.http.get('chats');
+        if(res && res.status === HttpStatus.Ok) {
             this.chatsList = JSON.parse(res.response);
         }
         else {
@@ -187,8 +180,8 @@ export default class Chats extends Block {
         const res = await this.http.delete('chats',{
             chatId: this.selectedChat?.id,
             title: this.selectedChat?.title
-        }) as ApiResponse
-        if(res && res.status === 200 && this.chatsList) {
+        })
+        if(res && res.status === HttpStatus.Ok && this.chatsList) {
             this.chatsList= this.chatsList.filter(item => item.id !== this.selectedChat?.id)
             this.changeModal();
             Confirmation.show('Чат успешно удален');
@@ -204,8 +197,8 @@ export default class Chats extends Block {
     private async createChat(name: string) {
         const res = await this.http.post('chats',{
             title: name || 'New chat'
-        }) as ApiResponse
-        if(res && res.status === 200) {
+        })
+        if(res && res.status === HttpStatus.Ok) {
             this.chatsList?.unshift({
                 avatar :null,
                 created_by: this.userStore ? this.userStore.id : 0,
@@ -291,7 +284,7 @@ export default class Chats extends Block {
         if(this.socket) {
             this.socket.close();
         }
-        this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore?.id}/${this.selectedChat?.id}/${token}`)
+        this.socket = new WebSocketTransport(`wss://${productionConfig.domain}/ws/chats/${this.userStore?.id}/${this.selectedChat?.id}/${token}`)
         this.socket.on(WebSocketTransport.Connected, this.handleConnected.bind(this));
         this.socket.on(WebSocketTransport.Message, (data: unknown) => {
             this.handleMessage(data as Message);
@@ -300,8 +293,8 @@ export default class Chats extends Block {
 
     }
     private async getTokenChats() {
-        const res = await this.http.post(`chats/token/${this.selectedChat?.id}`) as ApiResponse
-        if(res && res.status === 200) {
+        const res = await this.http.post(`chats/token/${this.selectedChat?.id}`)
+        if(res && res.status === HttpStatus.Ok) {
             this.soketConnect(JSON.parse(res.response).token);
         }
     }
@@ -316,16 +309,16 @@ export default class Chats extends Block {
                     const formData = new FormData(loginForm);
                     const getUser = await this.http.post('user/search',{
                         login: formData.get('save-result')
-                    }) as ApiResponse
-                    const getUserBool = getUser && getUser.status === 200;
+                    })
+                    const getUserBool = getUser && getUser.status === HttpStatus.Ok;
                     if(this.modalAddUser?.title === 'Добавить пользователя'){
 
                         if(getUserBool) {
                             const res = await this.http.put('chats/users',{
                                 users: [+JSON.parse(getUser.response)[0].id],
                                 chatId: this.selectedChat?.id,
-                            }) as ApiResponse
-                            if(res && res.status === 200) {
+                            })
+                            if(res && res.status === HttpStatus.Ok) {
                                 Confirmation.show('Пользователь успешно добавлен');
                                 this.changeModal();
                                 return;
@@ -341,8 +334,8 @@ export default class Chats extends Block {
                             const res = await this.http.delete('chats/users',{
                                 users: [+JSON.parse(getUser.response)[0].id],
                                 chatId: this.selectedChat?.id,
-                            }) as ApiResponse
-                            if(res && res.status === 200) {
+                            })
+                            if(res && res.status === HttpStatus.Ok) {
                                 Confirmation.show('Пользователь успешно удален');
                                 this.changeModal();
                                 return;

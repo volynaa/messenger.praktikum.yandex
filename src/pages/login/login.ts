@@ -5,18 +5,14 @@ import Handlebars from 'handlebars';
 import { inputHelper } from '../../components/Input';
 import { buttonHelper } from '../../components/Button';
 import Router from '../../ui/router';
-import BaseAPI from '../../api/base-api';
+import BaseAPI, {HttpStatus} from '../../api/base-api';
 import UserStore from '../../stores/user';
 import Confirmation from "../../components/confirmation/Confirmation";
-interface ApiResponse {
-  status: number;
-  response: string;
-}
 export default class Login extends Block {
   private validator: FormValidator | null = null;
-  private router: Router;
-  private http: BaseAPI;
-  private userStore: UserStore;
+  private readonly router = new Router('#app');
+  private readonly http = new BaseAPI();
+  private readonly userStore = new UserStore();
   constructor() {
     super('div', {
       events: {
@@ -25,9 +21,6 @@ export default class Login extends Block {
         click: (e: Event) => this.handleButtonClick(e)
       }
     })
-    this.router = new Router('#app');
-    this.http = new BaseAPI();
-    this.userStore = new UserStore();
   }
 
   protected render(): DocumentFragment {
@@ -87,11 +80,11 @@ export default class Login extends Block {
             password: formData.get('password')
           }
 
-          const resSignin = await this.http.post('auth/signin',settings) as ApiResponse
-          if(resSignin && resSignin.status === 200) {
-            const resUser = await this.http.get('auth/user') as ApiResponse;
+          const resSignin = await this.http.post('auth/signin',settings)
+          if(resSignin && resSignin.status === HttpStatus.Ok) {
+            const resUser = await this.http.get('auth/user');
 
-            if(resUser && resUser.status === 200) {
+            if(resUser && resUser.status === HttpStatus.Ok) {
               this.userStore.setUser(JSON.parse(resUser.response));
               this.router.go(targetPage);
             }

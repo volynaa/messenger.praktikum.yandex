@@ -13,34 +13,34 @@ export interface IUserStore {
     setUser(user: User): void;
 }
 export default class UserStore implements IUserStore {
-    private static __user: User | null = null;
+    private __user: User | null = null;
 
     constructor() {
         this.loadFromStorage();
     }
 
     setUser(data: User) {
-        UserStore.__user = data;
+        this.__user = data;
         localStorage.setItem('user', JSON.stringify(data));
     }
 
     outUser() {
-        UserStore.__user = null;
+        this.__user = null;
         localStorage.removeItem('user');
     }
 
     getUser() {
-        if (!UserStore.__user) {
+        if (!this.__user) {
             this.loadFromStorage();
         }
-        return UserStore.__user;
+        return this.__user;
     }
 
     private loadFromStorage() {
         try {
             const stored = localStorage.getItem('user');
             if (stored) {
-                UserStore.__user = JSON.parse(stored);
+                this.__user = JSON.parse(stored);
             }
         } catch (error) {
             console.error('Error loading user from storage:', error);

@@ -1,42 +1,40 @@
 import {HTTPTransport} from "../ui/fetch";
+import {productionConfig} from "../config/production"
 
-const chatAPIInstance = new HTTPTransport('https://ya-praktikum.tech/api/v2/');
-
+const chatAPIInstance = new HTTPTransport(`${productionConfig.baseURL}`);
+export enum HttpStatus {
+    Ok = 200,
+    Created = 201,
+    NoContent = 204,
+    MultipleChoices = 300,
+    BadRequest = 400,
+    Unauthorized = 401,
+    Forbidden = 403,
+    NotFound = 404,
+    Conflict = 409,
+    InternalServerError = 500,
+}
+interface ApiResponse<T> {
+    status: number;
+    response: string;
+}
 export default class BaseAPI {
-    post(url: string, options: Record<string, unknown> | undefined = undefined) {
-        try {
-            return chatAPIInstance.post(url, { data: options});
-        }
-        catch {
-            throw new Error('Bad request');
-        }
+    post<T>(url: string, options: Record<string, unknown> | undefined = undefined): Promise<ApiResponse<T>> {
+        return chatAPIInstance.post(url, { data: options});
     }
 
-    get(url: string) {
-        try {
-            return chatAPIInstance.get(url);
-        }
-        catch {
-            throw new Error('Bad request');
-        }
+    get<T>(url: string): Promise<ApiResponse<T>> {
+        return chatAPIInstance.get(url);
     }
 
-    put(url: string, options: Record<string, unknown> | undefined | FormData = undefined) {
-        try {
-            return chatAPIInstance.put(url,  { data: options});
-        }
-        catch {
-            throw new Error('Bad request');
-        }
+    put<T>(url: string, options: Record<string, unknown> | undefined | FormData = undefined) : Promise<ApiResponse<T>> {
+        return chatAPIInstance.put(url,  { data: options});
+
     }
 
-    delete(url: string, options: Record<string, unknown> | undefined = undefined) {
-        try {
-            return chatAPIInstance.delete(url, { data: options});
-        }
-        catch {
-            throw new Error('Bad request');
-        }
+    delete<T>(url: string, options: Record<string, unknown> | undefined = undefined): Promise<ApiResponse<T>> {
+        return chatAPIInstance.delete(url, { data: options});
+
     }
 }
 

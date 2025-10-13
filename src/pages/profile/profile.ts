@@ -9,9 +9,10 @@ import profileEditData from './profileEditData.hbs?raw';
 import profileEditPassword from './profileEditPassword.hbs?raw';
 import FormValidator from "../../ui/validation";
 import Router from '../../ui/router';
-import BaseAPI from '../../api/base-api';
+import BaseAPI, {HttpStatus} from '../../api/base-api';
 import UserStore from '../../stores/user';
 import Confirmation from "../../components/confirmation/Confirmation";
+import {productionConfig} from "../../config/production";
 export interface ProfileData {
     email: string;
     login: string;
@@ -21,10 +22,6 @@ export interface ProfileData {
     avatar?: string;
     phone: string;
 }
-interface ApiResponse {
-    status: number;
-    response: string;
-}
 interface Password {
     oldPassword: string,
     newPassword: string
@@ -32,9 +29,10 @@ interface Password {
 
 export default class Profile extends Block {
     private validator: FormValidator | null = null;
-    private router: Router;
-    private http: BaseAPI;
-    private readonly userStore: UserStore;
+    private readonly router = new Router('#app');
+    private readonly http = new BaseAPI();
+    private readonly userStore = new UserStore();
+
     constructor() {
         super('div',{
             events: {
@@ -44,9 +42,6 @@ export default class Profile extends Block {
                 change: (e: Event) => this.handleFileChange(e)
             }
         });
-        this.router = new Router('#app');
-        this.http = new BaseAPI();
-        this.userStore = new UserStore();
         this.setProps({profile: this.userStore?.getUser()})
     }
 
@@ -62,8 +57,11 @@ export default class Profile extends Block {
         Handlebars.registerHelper('Img', imgHelper);
         Handlebars.registerHelper('avatarUrl', (avatarPath: string) => {
             if (!avatarPath) return '/photo.svg';
-            const baseURL = 'https://ya-praktikum.tech/api/v2/resources';
+            const baseURL = `${productionConfig.baseURL}resources`;
             return `${baseURL}${avatarPath}`;
+        });
+        Handlebars.registerHelper('getAvatarClass', function(avatar) {
+            return avatar ? 'profile-photo-load' : '';
         });
         const templateContent = templates[window.location.pathname as keyof typeof templates] || profileIndex;
         const compiledTemplate = Handlebars.compile(templateContent);
@@ -122,8 +120,8 @@ export default class Profile extends Block {
         const res = await this.http.put('user/password',{
             oldPassword: data.oldPassword,
             newPassword: data.newPassword
-        }) as ApiResponse
-        if(res && res.status === 200) {
+        })
+        if(res && HttpStatus.Ok) {
             Confirmation.show('Пароль успешно изменен');
         }
         else {
@@ -147,14 +145,14 @@ export default class Profile extends Block {
             email: data.email,
             display_name: data.display_name,
             phone: data.phone,
-        }) as ApiResponse
-        if(res && res.status === 200) {
+        })
+        if(res && res.status === HttpStatus.Ok) {
             const user= this.userStore.getUser()
             if(user){
                 Object.assign(user, data);
                 user.avatar = JSON.parse(res.response)?.avatar
                 await this.userStore.setUser(user)
-                this.setProps({profile: user}) // Не пойму почему не обновляются данные пользователя
+                this.setProps({profile: user})
             }
             Confirmation.show('Данные успешно изменены');
         }
@@ -173,8 +171,8 @@ export default class Profile extends Block {
                 const targetPage = target.closest('[data-page]')?.getAttribute('data-page');
                 if (targetPage) {
                     if(targetPage === '/'){
-                        this.userStore.outUser()
                         await this.http.post('auth/logout',{})
+                        await this.userStore.outUser()
                     }
                     this.router.go(targetPage);
                 }

@@ -4,14 +4,13 @@ import {buttonHelper} from "../../components/Button";
 import error500 from './500.hbs?raw';
 import Router from '../../ui/router';
 export default class Error500 extends Block {
-    private router: Router;
+    private readonly router = new Router('#app');
     constructor() {
         super('div',{
             events: {
                 click: (e: Event) => this.handleButtonClick(e)
             }
         });
-        this.router = new Router('#app');
     }
 
     protected render(): DocumentFragment {
