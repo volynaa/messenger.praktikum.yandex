@@ -8,7 +8,7 @@
     }}}
     <main class="profile-container">
         <figure class="profile-photo">
-            <img src={{avatarUrl profile.avatar}} alt="Аватар пользователя">
+            <img src="{{avatarUrl profile.avatar}}" class="{{getAvatarClass profile.avatar}}"   alt="Аватар пользователя">
         </figure>
         <h2 class="title">{{profile.first_name}}</h2>
         <div class="form-group">

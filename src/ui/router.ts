@@ -60,7 +60,7 @@ export default class Router {
     protected history: History| null = null;
     private _currentRoute: Route | null = null;
     private readonly _rootQuery: string = '';
-    private userStore: UserStore | null = null;
+    private readonly userStore= new UserStore();
 
     private readonly UNAUTHORIZED_ONLY_PATHS = ['/', '/sign-up'];
 
@@ -77,7 +77,6 @@ export default class Router {
         this._rootQuery = rootQuery;
 
         Router.__instance = this;
-        this.userStore = new UserStore();
     }
 
     use(pathname: string, block: new () => Block) {
@@ -108,7 +107,6 @@ export default class Router {
             this.replace('/404');
             return;
         }
-
         if (!isAuthorized && this.isProtectedRoute(pathname)) {
             this.replace('/');
             return;

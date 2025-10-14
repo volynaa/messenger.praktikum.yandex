@@ -1,20 +1,5 @@
 import * as Pages from './pages';
 import Router from './ui/router'
-export interface Message {
-  text: string;
-  type: number;
-  time: string;
-}
-
-export interface Chat {
-  id: string;
-  name: string;
-  avatar: string;
-  lastMessage: string;
-  time: string;
-  countNewMessage: number;
-  message: Message[];
-}
 export default class App {
   private static instance: App;
   private router: Router;

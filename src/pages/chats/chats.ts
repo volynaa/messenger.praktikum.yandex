@@ -8,24 +8,21 @@ import {modalHelper} from '../../components/modal/Modal';
 import chats from './chats.hbs?raw';
 import './chats.pcss'
 import FormValidator from "../../ui/validation";
+import {productionConfig} from "../../config/production";
 import Router from '../../ui/router';
-import BaseAPI from "../../api/base-api";
+import {HttpStatus} from "../../api/base-api";
 import {WebSocketTransport} from "../../ui/webSocket";
 import {spinnerHelper} from "../../components/spinner/Spinner";
 import Confirmation from "../../components/confirmation/Confirmation";
 import UserStore from "../../stores/user";
-import type {User} from "../../stores/user";
-interface Chat {
+import {ChatService} from "../../services/chat-service";
+export interface Chat {
     id: number;
     created_by: number;
     avatar: string | null;
     title: string;
     last_message: object | null;
     unread_count: number;
-}
-interface ApiResponse {
-    status: number;
-    response: string;
 }
 interface ModalUser {
     title: string | null;
@@ -38,15 +35,15 @@ interface Message {
     time: string;
 }
 export default class Chats extends Block {
-    private router: Router;
-    private http: BaseAPI;
     private modalAddUser: ModalUser | null = null;
     private chatsList: Chat[] | null = null;
     private selectedChat: Chat | null = null;
     private message: Message[] | null = null;
     private openMenu: boolean = false;
     private socket: WebSocketTransport | null = null;
-    private readonly userStore: User | null = null;
+    private readonly router = new Router('#app');
+    private readonly userStore = new UserStore().getUser();
+    private readonly chatService = new ChatService();
     constructor() {
         super('div',{
             isLoading: true,
@@ -57,10 +54,15 @@ export default class Chats extends Block {
                 change: (e: Event) => this.handleFileChange(e)
             }
         });
-        this.router = new Router('#app');
-        this.http = new BaseAPI();
-        this.userStore = new UserStore().getUser();
-        this.getChats();
+        this.chatService.getChats().then(r => {
+            if(r) {
+                this.chatsList = JSON.parse(r);
+            }
+            else {
+                this.chatsList = []
+            }
+            this.setProps({ chats: this.chatsList })
+        })
     }
 
     protected render(): DocumentFragment {
@@ -104,16 +106,6 @@ export default class Chats extends Block {
         if (!file) return;
     }
 
-    private async getChats() {
-        const res = await this.http.get('chats') as ApiResponse;
-        if(res && res.status === 200) {
-            this.chatsList = JSON.parse(res.response);
-        }
-        else {
-            this.chatsList = []
-        }
-        this.setProps({ chats: this.chatsList })
-    }
     public changeModal(title='', content = '',name=''): void {
         if(this.modalAddUser) {
             this.modalAddUser = null;
@@ -166,7 +158,21 @@ export default class Chats extends Block {
         }
 
         if(target.closest('#save-result') && this.modalAddUser?.title === 'Удалить чат'){
-            this.deleteChat()
+            this.chatService.deleteChat(this.selectedChat).then(r => {
+                if(r && this.chatsList){
+                    this.chatsList= this.chatsList.filter(item => item.id !== this.selectedChat?.id)
+                    this.changeModal();
+                    Confirmation.show('Чат успешно удален');
+                    this.selectedChat = null;
+                    this.setProps({ chats: this.chatsList, selected: this.selectedChat })
+                }
+                else{
+                    Confirmation.show({
+                        message: 'Ошибка при удалении чата. Попробуйте позже',
+                        type: 'error'
+                    })
+                }
+            })
             return;
         }
 
@@ -180,49 +186,11 @@ export default class Chats extends Block {
             this.message = null
             this.setProps({ selected: this.selectedChat, message: this.message });
 
-            this.getTokenChats()
-        }
-    }
-    private async deleteChat() {
-        const res = await this.http.delete('chats',{
-            chatId: this.selectedChat?.id,
-            title: this.selectedChat?.title
-        }) as ApiResponse
-        if(res && res.status === 200 && this.chatsList) {
-            this.chatsList= this.chatsList.filter(item => item.id !== this.selectedChat?.id)
-            this.changeModal();
-            Confirmation.show('Чат успешно удален');
-            this.setProps({ chats: this.chatsList })
-        }
-        else{
-            Confirmation.show({
-                message: 'Ошибка при удалении чата. Попробуйте позже',
-                type: 'error'
-            });
-        }
-    }
-    private async createChat(name: string) {
-        const res = await this.http.post('chats',{
-            title: name || 'New chat'
-        }) as ApiResponse
-        if(res && res.status === 200) {
-            this.chatsList?.unshift({
-                avatar :null,
-                created_by: this.userStore ? this.userStore.id : 0,
-                id:JSON.parse(res.response).id,
-                last_message: null,
-                title: name || 'New chat',
-                unread_count: 0
+            this.chatService.getTokenChats(this.selectedChat.id).then(r => {
+                if(r){
+                    this.soketConnect(r);
+                }
             })
-            this.changeModal();
-            Confirmation.show('Чат успешно добавлен');
-            this.setProps({ chats: this.chatsList })
-        }
-        else{
-            Confirmation.show({
-                message: 'Ошибка при добавлении чата. Попробуйте позже',
-                type: 'error'
-            });
         }
     }
     private handleConnected(): void {
@@ -291,7 +259,7 @@ export default class Chats extends Block {
         if(this.socket) {
             this.socket.close();
         }
-        this.socket = new WebSocketTransport(`wss://ya-praktikum.tech/ws/chats/${this.userStore?.id}/${this.selectedChat?.id}/${token}`)
+        this.socket = new WebSocketTransport(`wss://${productionConfig.domain}/ws/chats/${this.userStore?.id}/${this.selectedChat?.id}/${token}`)
         this.socket.on(WebSocketTransport.Connected, this.handleConnected.bind(this));
         this.socket.on(WebSocketTransport.Message, (data: unknown) => {
             this.handleMessage(data as Message);
@@ -299,70 +267,75 @@ export default class Chats extends Block {
         await this.socket.connect();
 
     }
-    private async getTokenChats() {
-        const res = await this.http.post(`chats/token/${this.selectedChat?.id}`) as ApiResponse
-        if(res && res.status === 200) {
-            this.soketConnect(JSON.parse(res.response).token);
-        }
-    }
     private async handleSubmit(e: Event) {
         e.preventDefault();
         const target = e.target as HTMLElement;
 
         if(target.closest('#save-result')) {
-            if(this.handleBlur(e)){
+            if (this.handleBlur(e)) {
                 const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
                 if (loginForm) {
                     const formData = new FormData(loginForm);
-                    const getUser = await this.http.post('user/search',{
-                        login: formData.get('save-result')
-                    }) as ApiResponse
-                    const getUserBool = getUser && getUser.status === 200;
-                    if(this.modalAddUser?.title === 'Добавить пользователя'){
-
-                        if(getUserBool) {
-                            const res = await this.http.put('chats/users',{
-                                users: [+JSON.parse(getUser.response)[0].id],
-                                chatId: this.selectedChat?.id,
-                            }) as ApiResponse
-                            if(res && res.status === 200) {
-                                Confirmation.show('Пользователь успешно добавлен');
-                                this.changeModal();
-                                return;
-                            }
+                    const getUser = await this.chatService.searchUser(formData.get('save-result') as string)
+                    const getUserBool = getUser && getUser.status === HttpStatus.Ok;
+                    if (this.modalAddUser?.title === 'Добавить пользователя') {
+                        if (getUserBool) {
+                            this.chatService.createUser(+JSON.parse(getUser.response)[0].id, this.selectedChat?.id).then(r => {
+                                if (r) {
+                                    Confirmation.show('Пользователь успешно добавлен');
+                                    this.changeModal();
+                                } else {
+                                    Confirmation.show({
+                                        message: 'Ошибка при добавлении пользователя. Попробуйте позже',
+                                        type: 'error'
+                                    });
+                                }
+                            })
+                            return;
                         }
-                        Confirmation.show({
-                            message: 'Ошибка при добавлении пользователя. Попробуйте позже',
-                            type: 'error'
-                        });
                     }
-                    if(this.modalAddUser?.title === 'Удалить пользователя'){
-                        if(getUserBool) {
-                            const res = await this.http.delete('chats/users',{
-                                users: [+JSON.parse(getUser.response)[0].id],
-                                chatId: this.selectedChat?.id,
-                            }) as ApiResponse
-                            if(res && res.status === 200) {
-                                Confirmation.show('Пользователь успешно удален');
-                                this.changeModal();
-                                return;
-                            }
+                    if (this.modalAddUser?.title === 'Удалить пользователя') {
+                        if (getUserBool) {
+                            this.chatService.deleteUser(+JSON.parse(getUser.response)[0].id, this.selectedChat?.id).then(r => {
+                                if (r) {
+                                    Confirmation.show('Пользователь успешно удален');
+                                    this.changeModal();
+                                } else {
+                                    Confirmation.show({
+                                        message: 'Ошибка при удалении пользователя. Попробуйте позже',
+                                        type: 'error'
+                                    });
+                                }
+                            })
+                            return;
                         }
-                        Confirmation.show({
-                            message: 'Ошибка при удалении пользователя. Попробуйте позже',
-                            type: 'error'
-                        });
-
                     }
-                    if(this.modalAddUser?.title === 'Добавить чат'){
+                    if (this.modalAddUser?.title === 'Добавить чат') {
                         const message = this.element?.querySelector('#save-result') as HTMLFormElement;
-                        await this.createChat(message.value)
+                        this.chatService.createChat(message.value).then(r => {
+                            if (r) {
+                                this.chatsList?.unshift({
+                                    avatar: null,
+                                    created_by: this.userStore ? this.userStore.id : 0,
+                                    id: JSON.parse(r).id,
+                                    last_message: null,
+                                    title: message.value || 'New chat',
+                                    unread_count: 0
+                                })
+                                this.changeModal();
+                                Confirmation.show('Чат успешно добавлен');
+                                this.setProps({chats: this.chatsList})
+                            } else {
+                                Confirmation.show({
+                                    message: 'Ошибка при добавлении чата. Попробуйте позже',
+                                    type: 'error'
+                                });
+                            }
+                        });
                         return;
                     }
-
+                }
             }
-
-        }
             return;
         }
 

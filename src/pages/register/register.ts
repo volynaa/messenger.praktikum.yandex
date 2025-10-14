@@ -5,18 +5,13 @@ import Handlebars from "handlebars";
 import {inputHelper} from "../../components/Input";
 import {buttonHelper} from "../../components/Button";
 import registerTemplate from './register.hbs?raw';
-import BaseAPI from '../../api/base-api';
 import Router from '../../ui/router';
-import UserStore from "../../stores/user";
-interface ApiResponse {
-  status: number;
-  response: string;
-}
+import { LogoutService} from '../../services/logout-service';
+import Confirmation from "../../components/confirmation/Confirmation";
 export default class Register extends Block {
   private validator: FormValidator | null = null;
-  private router: Router;
-  private http: BaseAPI;
-  private userStore: UserStore;
+  private readonly router = new Router('#app');
+  private readonly logoutService = new LogoutService();
   constructor() {
     super('div', {
       events: {
@@ -25,9 +20,6 @@ export default class Register extends Block {
         click: (e: Event) => this.handleButtonClick(e)
       }
     })
-    this.router = new Router('#app');
-    this.http = new BaseAPI();
-    this.userStore = new UserStore();
   }
 
   protected render(): DocumentFragment {
@@ -80,21 +72,15 @@ export default class Register extends Block {
         const formData = new FormData(registerForm);
         const targetPage = submitter.dataset.page;
         if (targetPage) {
-          const resSignup = await this.http.post('auth/signup', {
-            first_name: formData.get('first_name'),
-            second_name: formData.get('second_name'),
-            login: formData.get('login'),
-            email: formData.get('email'),
-            password: formData.get('password'),
-            phone: formData.get('phone')
-          }) as ApiResponse
-          if(resSignup && resSignup.status === 200) {
-            const resUser = await this.http.get('auth/user') as ApiResponse;
-
-            if(resUser && resUser.status === 200) {
-              this.userStore.setUser(JSON.parse(resUser.response));
-              this.router.go(targetPage);
-            }
+          const res = await this.logoutService.signup(formData)
+          if(res){
+            this.router.go(targetPage);
+          }
+          else{
+            Confirmation.show({
+              message: 'Ошибка при регистрации пользователя. Попробуйте позже',
+              type: 'error'
+            });
           }
         }
       }
