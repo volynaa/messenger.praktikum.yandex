@@ -1,5 +1,4 @@
 import BaseAPI, { HttpStatus } from '../../src/api/base-api';
-import UserStore from '../../src/stores/user';
 import {ProfileData} from "../pages/profile/profile";
 export interface Password {
     oldPassword: string,
@@ -7,7 +6,6 @@ export interface Password {
 }
 export class ProfileService {
     private readonly http = new BaseAPI();
-    private readonly userStore = new UserStore();
     async editPassword(data: Password): Promise<boolean> {
         const res = await this.http.put('user/password',{
             oldPassword: data.oldPassword,

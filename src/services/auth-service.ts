@@ -1,16 +1,11 @@
 import BaseAPI, { HttpStatus } from '../../src/api/base-api';
 import UserStore from '../../src/stores/user';
 
-export interface LoginData {
-    login: string;
-    password: string;
-}
-
 export class AuthService {
     private readonly http = new BaseAPI();
     private readonly userStore = new UserStore();
 
-    async login(loginData: LoginData): Promise<boolean> {
+    async login(loginData: Record<string, unknown>): Promise<boolean> {
         if (!this.userStore.getUser()) {
             await this.http.post('auth/logout', {});
         }

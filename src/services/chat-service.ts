@@ -1,10 +1,8 @@
 import BaseAPI, {HttpStatus} from '../../src/api/base-api';
-import UserStore from '../../src/stores/user';
 import {Chat} from "../pages/chats/chats";
 
 export class ChatService {
     private readonly http = new BaseAPI();
-    private readonly userStore = new UserStore();
     async getChats(): Promise<string>  {
         const res = await this.http.get('chats');
         if(res && res.status === HttpStatus.Ok) {
