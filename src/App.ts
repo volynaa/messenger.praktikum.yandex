@@ -17,6 +17,7 @@ export default class App {
         .use('/sign-up', Pages.Register)
         .use('/404', Pages.Error404)
         .use('/500', Pages.Error500)
+        .use('*', Pages.Error404)
         .start();
   }
   render(): void {
