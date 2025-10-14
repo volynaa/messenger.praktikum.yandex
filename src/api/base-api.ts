@@ -17,6 +17,7 @@ export enum HttpStatus {
 interface ApiResponse<T> {
     status: number;
     response: string;
+    data: T;
 }
 export default class BaseAPI {
     post<T>(url: string, options: Record<string, unknown> | undefined = undefined): Promise<ApiResponse<T>> {
