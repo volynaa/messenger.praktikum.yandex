@@ -4,11 +4,11 @@
             src="/arrow-right-blue.svg"
             className="button-back"
             alt="Вернуться назад"
-            dataPage="profileIndex"
+            dataPage="/settings"
     }}}
     <main class="profile-container">
         <figure class="profile-photo">
-            <img src={{profile.avatar}} alt="Аватар пользователя">
+            <img src="{{avatarUrl profile.avatar}}" alt="Аватар пользователя" class="avatar-preview">
         </figure>
         <div class="avatar-upload">
             {{{ Input
@@ -107,7 +107,7 @@
                         name="save-edit"
                         classDiv="mt-50"
                         text="Сохранить"
-                        dataPage="profileIndex"
+                        dataPage="/settings"
                         type="submit"
                 }}}
             </form>

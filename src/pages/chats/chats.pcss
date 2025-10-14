@@ -2,10 +2,17 @@
     display: flex;
 }
 
+.chat-container{
+    margin-top: 20px;
+    overflow: auto;
+    max-height: calc(100% - 140px);
+}
+
 .chats-list{
     border-right: 1px solid var(--border-grey);
     width: 310px;
     height: 95vh;
+    position: relative;
 
     .button-profile{
         margin-left: auto;
@@ -24,6 +31,8 @@
         cursor: pointer;
         padding: 12px 10px;
         transition: all 0.2s ease-out;
+        max-height: 73px;
+        box-sizing: border-box;
 
         &:hover{
             background-color: var(--bg-blue);
@@ -36,7 +45,7 @@
         .chat-info{
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             margin-left: 10px;
             width: 310px;
 
@@ -83,20 +92,7 @@
 
 }
 
-.chat-search{
-    margin-bottom: 14px;
-    margin-top: 23px;
-    width: 290px;
-    height: 32px;
-    border-radius: 5px;
-    background-color: var(--bg-grey);
-    border: none;
-}
-
 .chat-message{
-    font-size: 12px;
-    line-height: 12px;
-    color: var(--color-grey);
     flex: 1;
     display: flex;
     align-items: center;
@@ -114,11 +110,18 @@
         font-size: 12px;
         line-height: 15px;
         color: var(--text-dark);
-        position: relative;
         display: flex;
         flex-direction: column;
         gap: 30px;
-        margin-top: 48px;
+        margin-top: 20px;
+        overflow-y: auto;
+        max-height: calc(95vh - 105px);
+
+        .no-message{
+            position: absolute;
+            top: 48%;
+            left: 55%;
+        }
 
         .chat-message-body-time{
             font-size: 9px;
@@ -198,6 +201,7 @@
     font-size: 13px;
     line-height: 13px;
     color: var(--text-dark);
+    margin-top: 5px;
 }
 
 .chat-message-selected{
@@ -214,4 +218,61 @@
 .button-send{
     margin-left: 15px;
     margin-top: 2px;
+}
+
+.button-add-chat{
+    width: 301px;
+}
+
+.no-chats{
+    position: absolute;
+    top: 10%;
+    left: 30%
+}
+
+.menu{
+    position: absolute;
+    transition: all 0.3s ease;
+    top: 70px;
+    right: 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 6px 0 #00000024;
+    background-color: white;
+    padding: 15px;
+    box-sizing: border-box;
+
+    :nth-child(2) .icon{
+        transform: rotate(45deg);
+    }
+
+    :nth-child(3) .icon{
+        transform: rotate(45deg);
+    }
+
+    .icon {
+        position: absolute;
+        left: 15px;
+    }
+
+    button {
+        background-color: white;
+        font-weight: 500;
+        font-size: 12px;
+        line-height: 14px;
+        color: black;
+        border: none;
+        padding-left: 20px;
+        text-align: left;
+    }
+}
+
+.info-empty{
+    font-size: 12px;
+    line-height: 12px;
+    color: var(--color-grey);
+}
+
+.spinner-message{
+    left: 57% !important;
+    top: 46% !important;
 }

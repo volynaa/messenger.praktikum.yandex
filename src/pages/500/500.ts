@@ -1,9 +1,10 @@
-import error404 from './404.hbs?raw';
 import Block from "../../ui/block";
-import Handlebars from 'handlebars';
-import { buttonHelper } from '../../components/Button';
-import App from "../../App";
-export default class Error404 extends Block {
+import Handlebars from "handlebars";
+import {buttonHelper} from "../../components/Button";
+import error500 from './500.hbs?raw';
+import Router from '../../ui/router';
+export default class Error500 extends Block {
+    private readonly router = new Router('#app');
     constructor() {
         super('div',{
             events: {
@@ -16,7 +17,7 @@ export default class Error404 extends Block {
         const fragment = document.createDocumentFragment();
         const template = document.createElement('template');
         Handlebars.registerHelper('Button', buttonHelper);
-        const compiledTemplate = Handlebars.compile(error404);
+        const compiledTemplate = Handlebars.compile(error500);
         template.innerHTML = compiledTemplate({});
         fragment.appendChild(template.content.cloneNode(true));
         return fragment;
@@ -28,8 +29,7 @@ export default class Error404 extends Block {
         const target = e.target as HTMLElement;
         const targetPage = target.dataset.page;
         if (targetPage) {
-            const app = App.getInstance();
-            app.changePage(targetPage);
+            this.router.go(targetPage);
         }
     }
 }

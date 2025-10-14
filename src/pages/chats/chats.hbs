@@ -10,31 +10,39 @@
                     classDiv="button-cont"
                     text="Профиль"
                     aria_label="Профиль"
-                    dataPage="profileIndex"
+                    dataPage="/settings"
             }}}
-            <form role="search">
-                {{{ Input
-                        id="search"
-                        name="search"
-                        className="chat-search"
-                        placeholder="Поиск"
-                        aria-label="Поиск чатов"
-                }}}
-            </form>
-            <section id="chat-container" aria-label="Список чатов">
-                {{#if chats.length}}
-                    {{# each chats}}
+            {{{ Button
+                    id="add-chat"
+                    name="add-chat"
+                    withIcon=true
+                    className="button button-add-chat"
+                    classDiv="mt-10"
+                    text="Добавить чат"
+                    aria_label="Добавить чат"
+            }}}
+            {{#if (isEmpty chats)}}
+                <p class="info-empty no-chats">Чаты не найдены</p>
+            {{else if chats.length}}
+                <section id="chat-container" aria-label="Список чатов" class="chat-container">
+                    {{#each chats}}
                         {{{Chat
-                            id=id
-                            avatar=avatar
-                            name=name
-                            lastMessage=lastMessage
-                            time=time
-                            countNewMessage=countNewMessage
+                                id=id
+                                avatar=avatar
+                                name=title
+                                lastMessage=last_message
+                                countNewMessage=unread_count
                         }}}
                     {{/each}}
-                {{/if}}
-            </section>
+                </section>
+            {{else}}
+                {{{Spinner
+                        size="medium"
+                        color="primary"
+                        text="Загрузка чатов..."
+                }}}
+            {{/if}}
+
         </aside>
         <section class="chat-message {{#if selected}}chat-message-selected{{/if}}">
             {{#if selected}}
@@ -44,26 +52,77 @@
                     {{else}}
                         <div class="chat-message-avatar"> </div>
                     {{/if}}
-                    <h2 class="chat-name">{{selected.name}}</h2>
-                    <img class="burger-menu" src="/burger-menu.svg" alt="Меню">
+                    <h2 class="chat-name">{{selected.title}}</h2>
+                    <div id="burger-menu" class="burger-menu">
+                        <img src="/chat/burger-menu.svg" alt="Меню">
+                    </div>
+                    <div class="menu" style="opacity: {{#if openMenu}}1{{else}}0{{/if}}">
+                        {{{ Button
+                                id="add-user"
+                                name="add-user"
+                                withIcon=true
+                                iconSrc="/chat/plus.svg"
+                                iconClass="icon"
+                                text="Добавить пользователя"
+                                aria_label="Добавить пользователя"
+                        }}}
+                        {{{ Button
+                                id="delete-user"
+                                name="delete-user"
+                                withIcon=true
+                                iconSrc="/chat/plus.svg"
+                                iconClass="icon"
+                                text="Удалить пользователя"
+                                aria_label="Удалить пользователя"
+                        }}}
+                        {{{ Button
+                                id="delete-chat"
+                                name="delete-chat"
+                                withIcon=true
+                                iconSrc="/chat/plus.svg"
+                                iconClass="icon"
+                                text="Удалить чат"
+                                aria_label="Удалить чат"
+                        }}}
+                    </div>
                 </header>
                 <section class="chat-message-body">
-                    {{# each selected.message}}
-                        {{#if type}}
-                            <div class="chat-message-body-incoming">{{text}}
-                                <img src="/sent.svg" alt="Доставлено">
-                                <span class="chat-message-body-time">{{time}}</span>
-                            </div>
-                        {{else}}
-                            <div class="chat-message-body-outgoing">{{text}}
-                                <span class="chat-message-body-time">{{time}}</span>
-                            </div>
-                        {{/if}}
-                    {{/each}}
+                    {{#if (isEmpty message)}}
+                        <p class="info-empty no-message">Сообщения пока отсутствуют</p>
+                    {{else if message.length}}
+                        {{# each message}}
+                            {{#if (getTypeMessage user_id)}}
+                                <div class="chat-message-body-incoming">{{content}}
+                                    <img src="/chat/sent.svg" alt="Доставлено">
+                                    <span class="chat-message-body-time">{{time}}</span>
+                                </div>
+                            {{else}}
+                                <div class="chat-message-body-outgoing">{{content}}
+                                    <span class="chat-message-body-time">{{time}}</span>
+                                </div>
+                            {{/if}}
+                        {{/each}}
+                    {{else}}
+                        {{{Spinner
+                                size="medium"
+                                color="primary"
+                                text="Загрузка..."
+                                className="spinner-message"
+                        }}}
+                    {{/if}}
                 </section>
                 <footer class="chat-message-footer">
                     <button type="button" aria-label="Прикрепить файл">
-                        <img src="/clip.svg" alt="">
+                        {{{ Input
+                                id="avatar"
+                                name="avatar"
+                                type="file"
+                                accept="image/*"
+                                className="avatar-input"
+                        }}}
+                        <label for="avatar">
+                            <img id="clip" src="/chat/clip.svg" alt="">
+                        </label>
                     </button>
                     <form class="flex" id="message-form">
                         {{{ Input
@@ -76,18 +135,26 @@
                                 req=true
                                 errorShow=false
                         }}}
-                        {{{ Img
-                                id="sendMessage"
-                                src="/arrow-right-blue.svg"
-                                alt="Отправить сообщение"
+                        {{{ Button
+                                id="send-message"
+                                name="send-message"
+                                withIcon=true
+                                iconSrc="/arrow-right-blue.svg"
                                 className="button-send"
+                                type="submit"
                         }}}
-
                     </form>
                 </footer>
             {{else}}
-                <label>Выберите чат чтобы отправить сообщение</label>
+                <p class="info-empty">Выберите чат чтобы отправить сообщение</p>
             {{/if}}
         </section>
+        {{#if modal}}
+            {{{Modal
+                data=modal
+                showCloseButton=true
+                showFooterButton=true
+            }}}
+        {{/if}}
     </main>
 </div>

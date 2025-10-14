@@ -1,32 +1,38 @@
 import FormValidator from '../../ui/validation';
-import App from '../../App';
 import Block from "../../ui/block";
 import loginTemplate from './login.hbs?raw';
 import Handlebars from 'handlebars';
 import { inputHelper } from '../../components/Input';
 import { buttonHelper } from '../../components/Button';
-
+import Router from '../../ui/router';
+import { AuthService } from '../../services/auth-service';
+import Confirmation from "../../components/confirmation/Confirmation";
 export default class Login extends Block {
   private validator: FormValidator | null = null;
+  private readonly router = new Router('#app');
+  private readonly authService = new AuthService();
 
   constructor() {
     super('div', {
       events: {
-        focusout : (e: Event) => this.handleBlur(e),
+        focusout: (e: Event) => this.handleBlur(e),
         submit: (e: Event) => this.handleSubmit(e),
         click: (e: Event) => this.handleButtonClick(e)
       }
-    })
+    });
   }
 
   protected render(): DocumentFragment {
     const fragment = document.createDocumentFragment();
     const template = document.createElement('template');
+
     Handlebars.registerHelper('Input', inputHelper);
     Handlebars.registerHelper('Button', buttonHelper);
+
     const compiledTemplate = Handlebars.compile(loginTemplate);
     template.innerHTML = compiledTemplate({});
     fragment.appendChild(template.content.cloneNode(true));
+
     return fragment;
   }
 
@@ -46,12 +52,14 @@ export default class Login extends Block {
       console.error('Form validation initialization error:', error);
     }
   }
+
   private handleBlur(e: Event): void {
     if (this.validator) {
-      this.validator.isValidOneElement(e)
+      this.validator.isValidOneElement(e);
     }
   }
-  private handleSubmit(e: Event): void {
+
+  private async handleSubmit(e: Event): Promise<void> {
     e.preventDefault();
 
     if (!this.validator) {
@@ -64,22 +72,40 @@ export default class Login extends Block {
       return;
     }
 
-    if (this.validator.isValid()) {
-      const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
-      if (loginForm) {
-        const formData = new FormData(loginForm);
-        const loginValue = formData.get('login');
-        const password = formData.get('password');
+    if (!this.validator.isValid()) {
+      return;
+    }
 
-        console.log('Логин:', loginValue);
-        console.log('Пароль:', password);
+    const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
+    if (!loginForm) {
+      return;
+    }
 
-        const targetPage = submitter.dataset.page;
-        if (targetPage) {
-          const app = App.getInstance();
-          app.changePage(targetPage);
-        }
-      }
+    const formData = new FormData(loginForm);
+    const targetPage = submitter.dataset.page;
+
+    if (!targetPage) {
+      return;
+    }
+
+    await this.processLogin(formData, targetPage);
+  }
+
+  private async processLogin(formData: FormData, targetPage: string): Promise<void> {
+    const loginData = {
+      login: formData.get('login') as string,
+      password: formData.get('password') as string
+    };
+
+    const isSuccess = await this.authService.login(loginData);
+
+    if (isSuccess) {
+      this.router.go(targetPage);
+    } else {
+      Confirmation.show({
+        message: 'Неверный логин или пароль',
+        type: 'error'
+      });
     }
   }
 
@@ -89,11 +115,11 @@ export default class Login extends Block {
     if (target.tagName === 'BUTTON' || target.closest('button')) {
       const button = target.tagName === 'BUTTON' ? target : target.closest('button');
       if (!button) return;
+
       if (target.id === 'register') {
         const targetPage = target.dataset.page;
         if (targetPage) {
-          const app = App.getInstance();
-          app.changePage(targetPage);
+          this.router.go(targetPage);
         }
       }
     }

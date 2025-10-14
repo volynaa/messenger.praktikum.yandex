@@ -1,14 +1,17 @@
 import FormValidator from '../../ui/validation';
-import App from '../../App';
 import './register.pcss';
 import Block from "../../ui/block";
 import Handlebars from "handlebars";
 import {inputHelper} from "../../components/Input";
 import {buttonHelper} from "../../components/Button";
 import registerTemplate from './register.hbs?raw';
+import Router from '../../ui/router';
+import { LogoutService} from '../../services/logout-service';
+import Confirmation from "../../components/confirmation/Confirmation";
 export default class Register extends Block {
   private validator: FormValidator | null = null;
-
+  private readonly router = new Router('#app');
+  private readonly logoutService = new LogoutService();
   constructor() {
     super('div', {
       events: {
@@ -50,7 +53,7 @@ export default class Register extends Block {
       console.error('Form validation initialization error:', error);
     }
   }
-  private handleSubmit(e: Event): void {
+  private async handleSubmit(e: Event) {
     e.preventDefault();
 
     if (!this.validator) {
@@ -67,19 +70,18 @@ export default class Register extends Block {
       const registerForm = this.element?.querySelector('#register-form') as HTMLFormElement;
       if (registerForm) {
         const formData = new FormData(registerForm);
-
-        console.log('Почта:', formData.get('email'));
-        console.log('Логин:', formData.get('login'));
-        console.log('Имя:', formData.get('first_name'));
-        console.log('Фамилия:', formData.get('second_name'));
-        console.log('Телефон:', formData.get('phone'));
-        console.log('Пароль:', formData.get('password'));
-        console.log('Пароль еще раз:', formData.get('doublePassword'));
-
         const targetPage = submitter.dataset.page;
         if (targetPage) {
-          const app = App.getInstance();
-          app.changePage(targetPage);
+          const res = await this.logoutService.signup(formData)
+          if(res){
+            this.router.go(targetPage);
+          }
+          else{
+            Confirmation.show({
+              message: 'Ошибка при регистрации пользователя. Попробуйте позже',
+              type: 'error'
+            });
+          }
         }
       }
     }
@@ -97,8 +99,7 @@ export default class Register extends Block {
         const target = e.target as HTMLElement;
         const targetPage = target.dataset.page;
         if (targetPage) {
-          const app = App.getInstance();
-          app.changePage(targetPage);
+          this.router.go(targetPage);
         }
       }
     }
