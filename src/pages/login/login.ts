@@ -5,7 +5,7 @@ import Handlebars from 'handlebars';
 import { inputHelper } from '../../components/Input';
 import { buttonHelper } from '../../components/Button';
 import Router from '../../ui/router';
-import { AuthService, LoginData } from '../../services/auth-service';
+import { AuthService } from '../../services/auth-service';
 import Confirmation from "../../components/confirmation/Confirmation";
 export default class Login extends Block {
   private validator: FormValidator | null = null;
@@ -92,7 +92,7 @@ export default class Login extends Block {
   }
 
   private async processLogin(formData: FormData, targetPage: string): Promise<void> {
-    const loginData: LoginData = {
+    const loginData = {
       login: formData.get('login') as string,
       password: formData.get('password') as string
     };
