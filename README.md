@@ -13,6 +13,8 @@
  ESLint: `npm run lint`
 
  Stylelint: `npm run lint:styles`
+
+ Тесты: `npm run test`
  
  Запустить проект на localhost: `npm run start`
  

@@ -2,9 +2,7 @@
   "extension": ["ts"],
   "spec": "src/**/*.test.ts",
   "require": ["mochaSetup.js"],
-  "loader": ["ts-node/esm", "./loader-css.js"],
   "node-option": [
-    "experimental-specifier-resolution=node",
-    "loader=ts-node/esm"
+    "experimental-specifier-resolution=node"
   ]
 }

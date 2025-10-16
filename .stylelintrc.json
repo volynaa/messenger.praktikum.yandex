@@ -5,6 +5,7 @@
     "no-descending-specificity": null
   },
   "ignoreFiles": [
-    "build/*"
+    "build/*",
+    "dist/**/*"
   ]
 }

@@ -1,11 +1,10 @@
-// @ts-nocheck
 import { expect } from "chai";
 import Block, {Props} from "./block";
 import Sinon from "sinon";
 
 describe('Smoke test for Components', () => {
     describe('Test block', () => {
-        let blockClass: typeof Block;
+        let blockClass: any;
 
         before(() =>  {
             interface TestComponentProps extends Props {

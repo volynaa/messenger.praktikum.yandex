@@ -15,7 +15,7 @@ describe('HTTP Transport', () => {
     });
 
     afterEach(() => {
-       sandbox.restore()
+       sandbox.restore();
     });
 
     it('should call POST with correct data', () => {
