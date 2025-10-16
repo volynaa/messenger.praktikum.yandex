@@ -6,6 +6,7 @@
   },
   "ignoreFiles": [
     "build/*",
-    "dist/**/*"
+    "dist/**/*",
+    "**/*.js"
   ]
 }
