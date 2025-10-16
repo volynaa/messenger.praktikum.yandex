@@ -63,14 +63,27 @@
                                 withIcon=true
                                 iconSrc="/chat/plus.svg"
                                 iconClass="icon"
+                                className="button-menu"
                                 text="Добавить пользователя"
                                 aria_label="Добавить пользователя"
                         }}}
+                        <div class="button-menu load-avatar">
+                            <img src="/chat/plus.svg" alt="">
+                            {{{ Input
+                                    id="add-chat-avatar"
+                                    name="add-chat-avatar"
+                                    type="file"
+                                    accept="image/*"
+                                    className="avatar-input"
+                            }}}
+                            <label for="avatar">Изменить аватар</label>
+                        </div>
                         {{{ Button
                                 id="delete-user"
                                 name="delete-user"
                                 withIcon=true
                                 iconSrc="/chat/plus.svg"
+                                className="button-menu"
                                 iconClass="icon"
                                 text="Удалить пользователя"
                                 aria_label="Удалить пользователя"
@@ -80,6 +93,7 @@
                                 name="delete-chat"
                                 withIcon=true
                                 iconSrc="/chat/plus.svg"
+                                className="button-menu"
                                 iconClass="icon"
                                 text="Удалить чат"
                                 aria_label="Удалить чат"
