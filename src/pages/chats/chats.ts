@@ -112,10 +112,10 @@ export default class Chats extends Block {
             this.chatService.loadAvatar(file,this.selectedChat?.id).then(r => {
                 if (r) {
                     const newAvatar = encodeURIComponent(JSON.parse(r).avatar)
-                    if ("avatar" in this.selectedChat) {
+                    if (this.selectedChat && "avatar" in this.selectedChat) {
                         this.selectedChat.avatar = newAvatar
                     }
-                    if (this.chatsList) {
+                    if (this.chatsList && this.selectedChat) {
                         const index = this.chatsList.findIndex(item => item.id === this.selectedChat.id)
                         if(index >= 0){
                             this.chatsList[index].avatar = newAvatar
