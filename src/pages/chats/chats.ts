@@ -183,7 +183,7 @@ export default class Chats extends Block {
             return;
         }
         if(target.closest('#delete-user')) {
-            this.deleteUserId = (+target.dataset.userId||0)
+            this.deleteUserId = (+target?.dataset?.userId||0)
             const userId = this.userList.findIndex(item => item.id === this.deleteUserId);
             if(userId >= 0){
                 const deleteUser: User = this.userList[userId];
