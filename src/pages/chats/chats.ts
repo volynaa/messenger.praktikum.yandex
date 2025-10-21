@@ -41,7 +41,7 @@ export default class Chats extends Block {
     private selectedChat: Chat | null = null;
     private message: Message[] | null = null;
     private openMenu: boolean = false;
-    private userList: [] = [];
+    private userList: User[] = [];
     private deleteUserId: number | null = null;
     private socket: WebSocketTransport | null = null;
     private readonly router = new Router('#app');
@@ -116,7 +116,7 @@ export default class Chats extends Block {
                         this.selectedChat.avatar = newAvatar
                     }
                     if (this.chatsList && this.selectedChat) {
-                        const index = this.chatsList.findIndex(item => item.id === this.selectedChat.id)
+                        const index = this.chatsList.findIndex(item => item.id === this.selectedChat?.id)
                         if(index >= 0){
                             this.chatsList[index].avatar = newAvatar
                         }
@@ -148,18 +148,20 @@ export default class Chats extends Block {
         this.setProps({ openMenu: this.openMenu });
     }
     private getUserList(){
-        this.chatService.getUserList(this.selectedChat.id).then(r => {
-            if(r){
-                this.userList = JSON.parse(r);
-                this.setProps({userList: this.userList});
-            }
-            else{
-                Confirmation.show({
-                    message: 'Не удалось получить список пользователей. Попробуйте позже',
-                    type: 'error'
-                });
-            }
-        })
+        if(this.selectedChat){
+            this.chatService.getUserList(this.selectedChat.id).then(r => {
+                if(r){
+                    this.userList = JSON.parse(r);
+                    this.setProps({userList: this.userList});
+                }
+                else{
+                    Confirmation.show({
+                        message: 'Не удалось получить список пользователей. Попробуйте позже',
+                        type: 'error'
+                    });
+                }
+            })
+        }
     }
     private handleClick(e: Event): void {
         const target = e.target as HTMLElement;
@@ -217,8 +219,10 @@ export default class Chats extends Block {
                 if (r) {
                     Confirmation.show('Пользователь успешно удален');
                     this.changeModal();
-                    this.userList = this.userList.filter(item => item.id !== this.deleteUserId);
-                    this.setProps({userList: this.userList})
+                    if(this.userList.length){
+                        this.userList = this.userList.filter(item => item?.id !== this.deleteUserId);
+                        this.setProps({userList: this.userList})
+                    }
                 } else {
                     Confirmation.show({
                         message: 'Ошибка при удалении пользователя. Попробуйте позже',
