@@ -183,16 +183,15 @@
             border: none;
         }
     }
+}
 
-    .chat-message-avatar{
-        min-width: 34px;
-        max-width: 34px;
-        height: 34px;
-        background: var(--bg-grey);
-        border-radius: 24px;
-        margin-right: 10px;
-    }
-
+.chat-message-avatar{
+    min-width: 34px;
+    max-width: 34px;
+    height: 34px;
+    background: var(--bg-grey);
+    border-radius: 24px;
+    margin-right: 10px;
 }
 
 .chat-name{
@@ -244,8 +243,9 @@
     flex-direction: column;
     justify-content: center;
 
-    :nth-child(2) .icon{
-        transform: rotate(45deg);
+    .icon-list{
+        width: 12px;
+        height: 12px;
     }
 
     :nth-child(3) .icon{
@@ -300,4 +300,70 @@
 .spinner-message{
     left: 57% !important;
     top: 46% !important;
+}
+
+.user-list-container{
+    width: 50vw;
+    min-height: 500px;
+    background-color: white;
+    position: fixed;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 5px;
+    border: solid 1px var(--color-grey);
+
+    .user-list-title{
+        text-align: center;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--color-grey);
+    }
+
+    .user-list-button{
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .user-list{
+        padding: 10px;
+        align-items: center;
+    }
+
+    .chat-message-avatar{
+        min-width: 50px;
+        max-width: 50px;
+        height: 50px;
+    }
+
+    .delete-user{
+        width: 30px;
+        height: 30px;
+        margin-left: auto;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 20px;
+
+        &:hover{
+            background: var(--border-grey);
+            box-shadow: 0 4px 8px rgb(0 123 255 / 30%);
+        }
+    }
+
+    .close-user-list{
+        width: 30px;
+        height: 30px;
+        top:5px;
+        right: 5px;
+        position: absolute;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 20px;
+
+        &:hover{
+            background: #0056b3;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgb(0 123 255 / 30%);
+        }
+    }
 }

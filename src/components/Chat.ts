@@ -2,6 +2,7 @@ import Block from "../ui/block";
 import { Props } from '../ui/block';
 import UserStore from "../stores/user";
 import type {User} from "../stores/user";
+import {productionConfig} from "../config/production";
 interface ChatProps extends Props {
     id?: string;
     avatar?: string;
@@ -23,7 +24,7 @@ class Chat extends Block<ChatProps> {
         const fragment = document.createDocumentFragment();
         const container = document.createElement('div');
         const avatarHtml = this.props.avatar
-            ? `<img src="${this.props.avatar}" alt="Аватар пользователя">`
+            ? `<img src="${productionConfig.baseURL}resources${this.props.avatar}" alt="Аватар пользователя" class="chat-avatar">`
             : `<div class="chat-avatar"></div>`;
 
         const countMessageHtml = this.props.countNewMessage

@@ -1,0 +1,29 @@
+<div class="app">
+    <main class="user-list-container">
+        <h2 class="user-list-title">Список пользователей</h2>
+        <img id="close-user-list" src="/chat/close.svg" alt="" class="close-user-list">
+        {{{ Button
+                id="add-user"
+                name="add-user"
+                withIcon=true
+                className="button button-add-chat"
+                classDiv="user-list-button"
+                text="Добавить пользователя"
+                aria_label="Добавить пользователя"
+        }}}
+        {{#each userList}}
+            <aside class="user-list flex gap-5">
+                <img src={{avatarUrl avatar}} alt="" class="chat-message-avatar">
+                <p>{{first_name}}</p>
+                <p>{{second_name}}</p>
+                {{#if (eq id)}}
+                    <p>(Вы)</p>
+                {{else}}
+                    <img id="delete-user" data-user-id="{{id}}" src="/chat/delete.svg"
+                         alt="Удалить пользователя" class="delete-user">
+                {{/if}}
+            </aside>
+
+        {{/each}}
+    </main>
+</div>

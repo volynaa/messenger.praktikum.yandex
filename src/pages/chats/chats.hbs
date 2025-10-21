@@ -47,8 +47,8 @@
         <section class="chat-message {{#if selected}}chat-message-selected{{/if}}">
             {{#if selected}}
                 <header class="chat-message-header">
-                    {{#if avatar.length}}
-                        <img src="{{avatar}}" alt="Аватар пользователя">
+                    {{#if selected.avatar.length}}
+                        <img src="{{avatarUrl selected.avatar}}" alt="Аватар пользователя" class="chat-message-avatar">
                     {{else}}
                         <div class="chat-message-avatar"> </div>
                     {{/if}}
@@ -57,18 +57,8 @@
                         <img src="/chat/burger-menu.svg" alt="Меню">
                     </div>
                     <div class="menu" style="opacity: {{#if openMenu}}1{{else}}0{{/if}}">
-                        {{{ Button
-                                id="add-user"
-                                name="add-user"
-                                withIcon=true
-                                iconSrc="/chat/plus.svg"
-                                iconClass="icon"
-                                className="button-menu"
-                                text="Добавить пользователя"
-                                aria_label="Добавить пользователя"
-                        }}}
                         <div class="button-menu load-avatar">
-                            <img src="/chat/plus.svg" alt="">
+                            <img src="/chat/edit.png" alt="" class="icon-list">
                             {{{ Input
                                     id="add-chat-avatar"
                                     name="add-chat-avatar"
@@ -79,14 +69,14 @@
                             <label for="avatar">Изменить аватар</label>
                         </div>
                         {{{ Button
-                                id="delete-user"
-                                name="delete-user"
+                                id="user-list"
+                                name="user-list"
                                 withIcon=true
-                                iconSrc="/chat/plus.svg"
+                                iconSrc="/chat/list.png"
                                 className="button-menu"
-                                iconClass="icon"
-                                text="Удалить пользователя"
-                                aria_label="Удалить пользователя"
+                                iconClass="icon icon-list"
+                                text="Список пользователей"
+                                aria_label="Список пользователей"
                         }}}
                         {{{ Button
                                 id="delete-chat"
@@ -169,6 +159,9 @@
                 showCloseButton=true
                 showFooterButton=true
             }}}
+        {{/if}}
+        {{#if userList.length}}
+            {{>chatsUserList}}
         {{/if}}
     </main>
 </div>

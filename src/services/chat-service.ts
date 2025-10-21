@@ -24,7 +24,17 @@ export class ChatService {
         })
         return res && res.status === HttpStatus.Ok;
     }
+    async loadAvatar(file: File, id: number | null): Promise<string> {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        formData.append('chatId', id);
 
+        const res = await this.http.put('chats/avatar', formData);
+        if(res && res.status === HttpStatus.Ok){
+            return res.response
+        }
+        return '';
+    }
     async createChat(name: string): Promise<string> {
         const res = await this.http.post('chats',{
             title: name || 'New chat'
@@ -34,8 +44,14 @@ export class ChatService {
         }
         return '';
     }
-
-    async createUser(userId: number, chatId: number | undefined): Promise<boolean> {
+    async getUserList(id: number): Promise<string>{
+        const res = await this.http.get(`chats/${id}/users`)
+        if(res && res.status === HttpStatus.Ok) {
+            return res.response;
+        }
+        return '';
+    }
+    async addUser(userId: number, chatId: number | undefined): Promise<boolean> {
         const res = await this.http.put('chats/users',{
             users: [userId],
             chatId: chatId,
@@ -47,7 +63,7 @@ export class ChatService {
             login: login
         });
     }
-    async deleteUser(userId: number, chatId: number | undefined): Promise<boolean> {
+    async deleteUser(userId: number | null, chatId: number | undefined): Promise<boolean> {
         const res = await this.http.delete('chats/users',{
             users: [userId],
             chatId: chatId,
