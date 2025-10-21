@@ -31,7 +31,7 @@ function queryStringify(data: QueryParams): string {
     return `${result}${key}=${encodedValue}${index < keys.length - 1 ? '&' : ''}`;
   }, '?');
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export class HTTPTransport {
   private readonly pathBase: string = '';
   constructor(url: string) {
@@ -94,23 +94,5 @@ export class HTTPTransport {
         xhr.send(data);
       }
     });
-  }
-}
-export async function fetchWithRetry(url: string, options: RequestOptions & { tries?: number } = {}): Promise<Response> {
-  const { tries = 1, ...fetchOptions } = options;
-
-  const onError = (err: Error): Promise<Response> => {
-    const triesLeft = tries - 1;
-    if (triesLeft <= 0) {
-      throw err;
-    }
-
-    return fetchWithRetry(url, { ...fetchOptions, tries: triesLeft });
-  };
-
-  try {
-    return await fetch(url, fetchOptions as RequestInit);
-  } catch (err) {
-    return onError(err as Error);
   }
 }

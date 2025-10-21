@@ -6,6 +6,7 @@ import { chatHelper } from '../../components/Chat';
 import { imgHelper } from '../../components/Img';
 import {modalHelper} from '../../components/modal/Modal';
 import chats from './chats.hbs?raw';
+import chatsUserList from './chatsUserList.hbs?raw';
 import './chats.pcss'
 import FormValidator from "../../ui/validation";
 import {productionConfig} from "../../config/production";
@@ -14,7 +15,7 @@ import {HttpStatus} from "../../api/base-api";
 import {WebSocketTransport} from "../../ui/webSocket";
 import {spinnerHelper} from "../../components/spinner/Spinner";
 import Confirmation from "../../components/confirmation/Confirmation";
-import UserStore from "../../stores/user";
+import UserStore, {User} from "../../stores/user";
 import {ChatService} from "../../services/chat-service";
 export interface Chat {
     id: number;
@@ -40,6 +41,8 @@ export default class Chats extends Block {
     private selectedChat: Chat | null = null;
     private message: Message[] | null = null;
     private openMenu: boolean = false;
+    private userList: User[] = [];
+    private deleteUserId: number | null = null;
     private socket: WebSocketTransport | null = null;
     private readonly router = new Router('#app');
     private readonly userStore = new UserStore().getUser();
@@ -48,7 +51,6 @@ export default class Chats extends Block {
         super('div',{
             isLoading: true,
             events: {
-                focusout : (e: Event) => this.handleBlur(e),
                 submit: (e: Event) => this.handleSubmit(e),
                 click: (e: Event) => this.handleClick(e),
                 change: (e: Event) => this.handleFileChange(e)
@@ -77,18 +79,26 @@ export default class Chats extends Block {
         Handlebars.registerHelper('isEmpty', function(array: unknown[]) {
             return Array.isArray(array) && array.length === 0;
         });
-
+        Handlebars.registerHelper('avatarUrl', (avatarPath: string) => {
+            const baseURL = `${productionConfig.baseURL}resources`;
+            return `${baseURL}${avatarPath}`;
+        });
         const currentUserId = this.userStore?.id;
         Handlebars.registerHelper('getTypeMessage', function(userId: number) {
             return Boolean(userId && currentUserId && userId === currentUserId);
         });
+        Handlebars.registerHelper('eq', function(id) {
+            return id === currentUserId;
+        });
+        Handlebars.registerPartial('chatsUserList', chatsUserList);
         const compiledTemplate = Handlebars.compile(chats);
         template.innerHTML = compiledTemplate({
             chats: this.chatsList,
             selected: this.selectedChat,
             modal: this.modalAddUser,
             message: this.message,
-            openMenu: this.openMenu
+            openMenu: this.openMenu,
+            userList: this.userList
         });
         fragment.appendChild(template.content.cloneNode(true));
         return fragment;
@@ -97,13 +107,33 @@ export default class Chats extends Block {
     private handleFileChange(e: Event): void {
         const target = e.target as HTMLInputElement;
         if (target.id === 'avatar' && target.type === 'file') {
-            this.handleAvatarChange(e);
+            const file = target.files?.[0];
+            if (!file) return;
+            if(this.selectedChat&&this.selectedChat?.id){
+                this.chatService.loadAvatar(file,+this.selectedChat?.id).then(r => {
+                    if (r) {
+                        const newAvatar = encodeURIComponent(JSON.parse(r).avatar)
+                        if (this.selectedChat && "avatar" in this.selectedChat) {
+                            this.selectedChat.avatar = newAvatar
+                        }
+                        if (this.chatsList && this.selectedChat) {
+                            const index = this.chatsList.findIndex(item => item.id === this.selectedChat?.id)
+                            if(index >= 0){
+                                this.chatsList[index].avatar = newAvatar
+                            }
+                            this.setProps({chats: this.chatsList, selected: this.selectedChat})
+                        }
+                    } else {
+                        Confirmation.show({
+                            message: 'Ошибка при загрузки аватара. Попробуйте позже',
+                            type: 'error'
+                        });
+                    }
+                });
+            }
+
+            this.changeMenu()
         }
-    }
-    private handleAvatarChange(e: Event): void {
-        const target = e.target as HTMLInputElement;
-        const file = target.files?.[0];
-        if (!file) return;
     }
 
     public changeModal(title='', content = '',name=''): void {
@@ -120,7 +150,22 @@ export default class Chats extends Block {
         this.openMenu = !this.openMenu
         this.setProps({ openMenu: this.openMenu });
     }
-
+    private getUserList(){
+        if(this.selectedChat){
+            this.chatService.getUserList(this.selectedChat.id).then(r => {
+                if(r){
+                    this.userList = JSON.parse(r);
+                    this.setProps({userList: this.userList});
+                }
+                else{
+                    Confirmation.show({
+                        message: 'Не удалось получить список пользователей. Попробуйте позже',
+                        type: 'error'
+                    });
+                }
+            })
+        }
+    }
     private handleClick(e: Event): void {
         const target = e.target as HTMLElement;
         if (target.getAttribute('type') === 'submit' || target.closest('#send-message')) {
@@ -128,12 +173,29 @@ export default class Chats extends Block {
             return;
         }
 
+        if(target.closest('#user-list')) {
+            this.getUserList()
+            return;
+        }
+        if(target.closest('#close-user-list')) {
+            this.userList = [];
+            this.setProps({userList: this.userList});
+        }
         if(target.closest('#add-user') || target.closest('#modal-close')) {
             this.changeModal('Добавить пользователя');
             return;
         }
         if(target.closest('#delete-user')) {
-            this.changeModal('Удалить пользователя');
+            if(target?.dataset?.userId){
+                this.deleteUserId = (+target.dataset.userId||0)
+                const userId = this.userList.findIndex(item => item.id === this.deleteUserId);
+                if(userId >= 0){
+                    const deleteUser: User = this.userList[userId];
+                    const content = `Вы действительно хотите удалить пользователя 
+                <strong>${deleteUser.first_name + ' ' + deleteUser.second_name}</strong>?`
+                    this.changeModal('Удалить пользователя',content);
+                }
+            }
             return;
         }
         if(target.closest('#delete-chat')) {
@@ -156,7 +218,24 @@ export default class Chats extends Block {
             }
             return;
         }
-
+        if(target.closest('#save-result') && this.modalAddUser?.title === 'Удалить пользователя'){
+            this.chatService.deleteUser(this.deleteUserId, this.selectedChat?.id).then(r => {
+                if (r) {
+                    Confirmation.show('Пользователь успешно удален');
+                    this.changeModal();
+                    if(this.userList.length){
+                        this.userList = this.userList.filter(item => item?.id !== this.deleteUserId);
+                        this.setProps({userList: this.userList})
+                    }
+                } else {
+                    Confirmation.show({
+                        message: 'Ошибка при удалении пользователя. Попробуйте позже',
+                        type: 'error'
+                    });
+                }
+            })
+            return;
+        }
         if(target.closest('#save-result') && this.modalAddUser?.title === 'Удалить чат'){
             this.chatService.deleteChat(this.selectedChat).then(r => {
                 if(r && this.chatsList){
@@ -276,14 +355,25 @@ export default class Chats extends Block {
                 const loginForm = this.element?.querySelector('#login-form') as HTMLFormElement;
                 if (loginForm) {
                     const formData = new FormData(loginForm);
-                    const getUser = await this.chatService.searchUser(formData.get('save-result') as string)
-                    const getUserBool = getUser && getUser.status === HttpStatus.Ok;
+                    const resUserSearch = await this.chatService.searchUser(formData.get('save-result') as string)
+                    const getUser = JSON.parse(resUserSearch.response)
+
+                    if(!getUser.length){
+                        Confirmation.show({
+                            message: 'Пользователь не найден',
+                            type: 'warning'
+                        });
+                        return;
+                    }
+                    const getUserBool = resUserSearch && resUserSearch.status === HttpStatus.Ok;
                     if (this.modalAddUser?.title === 'Добавить пользователя') {
                         if (getUserBool) {
-                            this.chatService.createUser(+JSON.parse(getUser.response)[0].id, this.selectedChat?.id).then(r => {
+                            this.chatService.addUser(+getUser[0].id, this.selectedChat?.id).then(r => {
                                 if (r) {
                                     Confirmation.show('Пользователь успешно добавлен');
                                     this.changeModal();
+                                    this.getUserList()
+
                                 } else {
                                     Confirmation.show({
                                         message: 'Ошибка при добавлении пользователя. Попробуйте позже',
@@ -294,22 +384,7 @@ export default class Chats extends Block {
                             return;
                         }
                     }
-                    if (this.modalAddUser?.title === 'Удалить пользователя') {
-                        if (getUserBool) {
-                            this.chatService.deleteUser(+JSON.parse(getUser.response)[0].id, this.selectedChat?.id).then(r => {
-                                if (r) {
-                                    Confirmation.show('Пользователь успешно удален');
-                                    this.changeModal();
-                                } else {
-                                    Confirmation.show({
-                                        message: 'Ошибка при удалении пользователя. Попробуйте позже',
-                                        type: 'error'
-                                    });
-                                }
-                            })
-                            return;
-                        }
-                    }
+
                     if (this.modalAddUser?.title === 'Добавить чат') {
                         const message = this.element?.querySelector('#save-result') as HTMLFormElement;
                         this.chatService.createChat(message.value).then(r => {
@@ -343,7 +418,7 @@ export default class Chats extends Block {
         if(target.closest('#send-message')) {
             if(this.handleBlur(e,'message-form')){
                 const message = this.element?.querySelector('#message') as HTMLFormElement;
-                if(this.socket&&message) {
+                if(this.socket&&message?.value) {
                     this.socket.send({
                         content: message.value,
                         type: 'message'
@@ -355,7 +430,7 @@ export default class Chats extends Block {
     }
     private handleBlur(e: Event,form: string = 'login-form'): boolean {
         const target = e.target as HTMLElement;
-        if(target.id === 'save-result' || target.id === 'send-message') {
+        if(target.id === 'save-result' || target.closest('#send-message')) {
             const validLogin = new FormValidator(form)
             if (validLogin) {
                 return validLogin.isValidOneElement(e);

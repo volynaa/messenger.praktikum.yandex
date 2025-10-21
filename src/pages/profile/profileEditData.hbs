@@ -8,7 +8,7 @@
     }}}
     <main class="profile-container">
         <figure class="profile-photo">
-            <img src="{{avatarUrl profile.avatar}}" alt="Аватар пользователя" class="avatar-preview">
+            <img src="{{avatarUrl profile.avatar}}" alt="Аватар пользователя" class="avatar-preview profile-photo-load">
         </figure>
         <div class="avatar-upload">
             {{{ Input
@@ -106,6 +106,7 @@
                         id="save-edit"
                         name="save-edit"
                         classDiv="mt-50"
+                        className="button button-save"
                         text="Сохранить"
                         dataPage="/settings"
                         type="submit"

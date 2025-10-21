@@ -114,7 +114,6 @@ export default class Profile extends Block {
         }
     }
 
-
     private async handleButtonClick(e: Event) {
         const target = e.target as HTMLElement;
         if ((target as HTMLButtonElement).type !== 'submit') {
