@@ -15,7 +15,7 @@ import {HttpStatus} from "../../api/base-api";
 import {WebSocketTransport} from "../../ui/webSocket";
 import {spinnerHelper} from "../../components/spinner/Spinner";
 import Confirmation from "../../components/confirmation/Confirmation";
-import UserStore from "../../stores/user";
+import UserStore, {User} from "../../stores/user";
 import {ChatService} from "../../services/chat-service";
 export interface Chat {
     id: number;
@@ -112,12 +112,16 @@ export default class Chats extends Block {
             this.chatService.loadAvatar(file,this.selectedChat?.id).then(r => {
                 if (r) {
                     const newAvatar = encodeURIComponent(JSON.parse(r).avatar)
-                    this.selectedChat.avatar = newAvatar
-                    const index = this.chatsList.findIndex(item => item.id === this.selectedChat.id)
-                    if(index >= 0){
-                        this.chatsList[index].avatar = newAvatar
+                    if ("avatar" in this.selectedChat) {
+                        this.selectedChat.avatar = newAvatar
                     }
-                    this.setProps({chats: this.chatsList, selected: this.selectedChat})
+                    if (this.chatsList) {
+                        const index = this.chatsList.findIndex(item => item.id === this.selectedChat.id)
+                        if(index >= 0){
+                            this.chatsList[index].avatar = newAvatar
+                        }
+                        this.setProps({chats: this.chatsList, selected: this.selectedChat})
+                    }
                 } else {
                     Confirmation.show({
                         message: 'Ошибка при загрузки аватара. Попробуйте позже',
@@ -177,13 +181,15 @@ export default class Chats extends Block {
             return;
         }
         if(target.closest('#delete-user')) {
-            this.deleteUserId = +target.dataset.userId
-            const deleteUser = this.userList.find(item => item.id === this.deleteUserId)
-            if(deleteUser){
+            this.deleteUserId = (+target.dataset.userId||0)
+            const userId = this.userList.findIndex(item => item.id === this.deleteUserId);
+            if(userId >= 0){
+                const deleteUser: User = this.userList[userId];
                 const content = `Вы действительно хотите удалить пользователя 
-                    <strong>${deleteUser.first_name + ' ' + deleteUser.second_name}</strong>?`
+                <strong>${deleteUser.first_name + ' ' + deleteUser.second_name}</strong>?`
                 this.changeModal('Удалить пользователя',content);
             }
+
             return;
         }
         if(target.closest('#delete-chat')) {

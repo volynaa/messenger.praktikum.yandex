@@ -24,7 +24,7 @@ export class ChatService {
         })
         return res && res.status === HttpStatus.Ok;
     }
-    async loadAvatar(file: File, id: number | null): Promise<string> {
+    async loadAvatar(file: File, id: number | undefined): Promise<string> {
         const formData = new FormData();
         formData.append('avatar', file);
         formData.append('chatId', id);
