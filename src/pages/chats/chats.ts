@@ -109,26 +109,29 @@ export default class Chats extends Block {
         if (target.id === 'avatar' && target.type === 'file') {
             const file = target.files?.[0];
             if (!file) return;
-            this.chatService.loadAvatar(file,this.selectedChat?.id).then(r => {
-                if (r) {
-                    const newAvatar = encodeURIComponent(JSON.parse(r).avatar)
-                    if (this.selectedChat && "avatar" in this.selectedChat) {
-                        this.selectedChat.avatar = newAvatar
-                    }
-                    if (this.chatsList && this.selectedChat) {
-                        const index = this.chatsList.findIndex(item => item.id === this.selectedChat?.id)
-                        if(index >= 0){
-                            this.chatsList[index].avatar = newAvatar
+            if(this.selectedChat&&this.selectedChat?.id){
+                this.chatService.loadAvatar(file,+this.selectedChat?.id).then(r => {
+                    if (r) {
+                        const newAvatar = encodeURIComponent(JSON.parse(r).avatar)
+                        if (this.selectedChat && "avatar" in this.selectedChat) {
+                            this.selectedChat.avatar = newAvatar
                         }
-                        this.setProps({chats: this.chatsList, selected: this.selectedChat})
+                        if (this.chatsList && this.selectedChat) {
+                            const index = this.chatsList.findIndex(item => item.id === this.selectedChat?.id)
+                            if(index >= 0){
+                                this.chatsList[index].avatar = newAvatar
+                            }
+                            this.setProps({chats: this.chatsList, selected: this.selectedChat})
+                        }
+                    } else {
+                        Confirmation.show({
+                            message: 'Ошибка при загрузки аватара. Попробуйте позже',
+                            type: 'error'
+                        });
                     }
-                } else {
-                    Confirmation.show({
-                        message: 'Ошибка при загрузки аватара. Попробуйте позже',
-                        type: 'error'
-                    });
-                }
-            });
+                });
+            }
+
             this.changeMenu()
         }
     }
