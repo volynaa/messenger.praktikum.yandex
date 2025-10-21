@@ -186,15 +186,16 @@ export default class Chats extends Block {
             return;
         }
         if(target.closest('#delete-user')) {
-            this.deleteUserId = (+target?.dataset?.userId||0)
-            const userId = this.userList.findIndex(item => item.id === this.deleteUserId);
-            if(userId >= 0){
-                const deleteUser: User = this.userList[userId];
-                const content = `Вы действительно хотите удалить пользователя 
+            if(target?.dataset?.userId){
+                this.deleteUserId = (+target.dataset.userId||0)
+                const userId = this.userList.findIndex(item => item.id === this.deleteUserId);
+                if(userId >= 0){
+                    const deleteUser: User = this.userList[userId];
+                    const content = `Вы действительно хотите удалить пользователя 
                 <strong>${deleteUser.first_name + ' ' + deleteUser.second_name}</strong>?`
-                this.changeModal('Удалить пользователя',content);
+                    this.changeModal('Удалить пользователя',content);
+                }
             }
-
             return;
         }
         if(target.closest('#delete-chat')) {
